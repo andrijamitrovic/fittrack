@@ -3,6 +3,26 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
+# Environment & secrets
+.env
+.env.*
+*.local
+appsettings.Development.json
+
+# Node / Frontend
+node_modules/
+dist/
+build/
+.cache/
+
+# Docker
+docker-compose.override.yml
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
 # User-specific files
 *.rsuser
 *.suo
