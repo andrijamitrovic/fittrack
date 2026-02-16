@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:latest
+    container_name: fittrack-db
+    environment:
+      POSTGRES_DB: fittrack
+      POSTGRES_USER: fittrack_user
+      POSTGRES_PASSWORD: fittrack_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
+      - ./database/migrations:/docker-entrypoint-initdb.d
+
+volumes:
+  pgdata:
