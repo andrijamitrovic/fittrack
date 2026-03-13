@@ -8,7 +8,7 @@
         public required DateTime Date { get; set; }
         public string? Notes { get; set; }
         public int? DurationMin { get; set; }
-        public required DateTime CreatedAt { get; set; }
-        public required DateTime UpdatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
     }
 }

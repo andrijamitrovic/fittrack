@@ -9,6 +9,8 @@ var connectionString = builder.Configuration.GetConnectionString("PGConnectionSt
 // Add services to the container.
 builder.Services.AddScoped<IExerciseRepository>(provider => new ExerciseRepository(connectionString));
 builder.Services.AddScoped<ExerciseService>();
+builder.Services.AddScoped<IWorkoutRepository>(provider => new WorkoutRepository(connectionString));
+builder.Services.AddScoped<WorkoutService>();
 builder.Services.AddControllers();
 
 builder.Services.AddCors(options =>

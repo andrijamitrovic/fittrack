@@ -1,4 +1,5 @@
-﻿using FitTrack.Application.Services;
+﻿using FitTrack.Application.DTOs;
+using FitTrack.Application.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FitTrack.Api.Controllers

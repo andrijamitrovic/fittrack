@@ -1,14 +1,12 @@
-﻿namespace FitTrack.Domain.Entities
+﻿namespace FitTrack.Application.DTOs
 {
-    public class ExerciseSet
+    public class ExerciseSetDTO
     {
-        public required Guid Id { get; set; }
-        public required Guid WorkoutExerciseId { get; set; }
         public required int SetNumber { get; set; }
         public int? Reps { get; set; }
         public decimal? Weight { get; set; }
         public decimal? Rpe { get; set; }
         public required bool IsWarmup { get; set; }
-        public bool? Completed { get; set; }
+
     }
 }
