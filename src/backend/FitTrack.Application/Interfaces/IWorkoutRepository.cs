@@ -1,0 +1,10 @@
+﻿using FitTrack.Application.DTOs;
+using FitTrack.Domain.Entities;
+
+namespace FitTrack.Application.Interfaces
+{
+    public interface IWorkoutRepository
+    {
+        Task<Workout> CreateWorkoutAsync(Workout workout, List<WorkoutExercise> workoutExercises, List<ExerciseSet> exerciseSets);
+    }
+}

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form id="exerciseSetSelection">
+        <label for="exercise">Exercise: </label>
+        <input list="exercise" id="exercise" name="exercise">
+        
+        <label for="setNumber">Set number: </label>
+        <input type="number" min="1" max="100" id="setNumber" name="setNumber">
+
+        <label for="reps">Reps: </label>
+        <input type="number" min="1" max="100" id="reps" name="reps">
+
+        <label for="weight">Weight: </label>
+        <input type="number" min="1" max="1000" id="weight" name="weight">
+        
+        <label for="rpe">RPE: </label>
+        <input type="number" min="1" max="10" id="rpe" name="rpe">
+        
+        <label for="isWarmup">Is a warmup? </label>
+        <input type="checkbox" id="isWarmup" name="isWarmup">
+
+        <input type="submit" value="Save exercise" id="submit"> 
+    </form>
+</body>
+</html>

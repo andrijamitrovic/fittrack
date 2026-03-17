@@ -1,4 +1,5 @@
-﻿using FitTrack.Application.Interfaces;
+﻿using FitTrack.Application.DTOs;
+using FitTrack.Application.Interfaces;
 using FitTrack.Domain.Entities;
 
 namespace FitTrack.Application.Services
