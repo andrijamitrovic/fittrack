@@ -1,34 +1,72 @@
 const url = "http://localhost:5212/api/";
 
 export async function loadExercises() {
-    try{
-        let response = await fetch(url + "Exercise");
-        if(!response.ok)
-            throw new Error(`Response status: ${response.status}`);
-        let data = await response.json();
-        return data;
-    }
-    catch(error){
-        throw error;
-    }
+    let response = await fetch(url + "Exercise", {
+        method: "GET",
+        headers: authHeaders(),
+    });
+    if(response.status === 401)
+    {
+        failedAuth();
+    }    
+    if(!response.ok)
+        throw new Error(`Response status: ${response.status}`);
+    let data = await response.json();
+    return data;
 }
 
 export async function createWorkout(workout) {
-    try{
-        let response = await fetch(url + "Workout", {
-            method: "POST",
-            headers: {
-                "Content-Type" : "application/json",
-            },
-            body: JSON.stringify(workout)
-        })
-        if(!response.ok)
-            throw new Error(`Response status: ${response.status}`);
-        let data = await response.json();
-        console.log(data);
-        return data;
+    let response = await fetch(url + "Workout", {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify(workout)
+    })
+    if(response.status === 401)
+    {
+        failedAuth();
+    }    
+    if(!response.ok)
+        throw new Error(`Response status: ${response.status}`);
+    let data = await response.json();
+    return data;
+}
+
+export async function register(user) {
+    let response = await fetch(url + "auth/register", {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify(user)
+    })
+    if(!response.ok)
+        throw new Error(`Response status: ${response.status}`);
+    let data = await response.json();
+    localStorage.setItem("token", data.token);
+    return data;
+}
+
+export async function login(user) {
+    let response = await fetch(url + "auth/login", {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify(user)
+    })
+    if(!response.ok)
+        throw new Error(`Response status: ${response.status}`);
+    let data = await response.json();
+    localStorage.setItem("token", data.token);
+    return data;
+}
+
+
+function authHeaders() {
+    const token = localStorage.getItem("token");
+    const headers = { "Content-Type": "application/json" };
+    if (token) {
+        headers["Authorization"] = "Bearer " + token;
     }
-    catch(error){
-        throw error;
-    }
+    return headers;
+}
+
+function failedAuth(){
+    window.location.href = "login.html";
 }

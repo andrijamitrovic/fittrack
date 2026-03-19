@@ -1,5 +1,8 @@
 import { loadExercises } from "./api.js";
 import { createWorkout } from "./api.js";
+import { requireAuth } from "./auth.js";
+
+requireAuth();
 
 let id = 1;
 const workoutButton = document.getElementById("workoutButton");
@@ -12,7 +15,6 @@ saveWorkoutButton.addEventListener('click', saveWorkout);
 
 function saveWorkout() {
     let workout = {
-        userId : "b1e4c7a2-3d5f-4b8e-9a1c-6f2d8e3b5a7c",
         title : document.getElementById("title").value,
         notes : document.getElementById("notes").value,
         durationMin : parseInt(document.getElementById("durationHour").value) * 60 + parseInt(document.getElementById("durationMin").value), 

@@ -1,4 +1,7 @@
 import { loadExercises } from "./api.js";
+import { requireAuth } from "./auth.js";
+
+requireAuth();
 
 const container = document.getElementsByClassName('container').item(0);
 let data = await loadExercises();
