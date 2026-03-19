@@ -1,5 +1,6 @@
 ﻿using FitTrack.Application.DTOs;
 using FitTrack.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FitTrack.Api.Controllers
@@ -15,10 +16,12 @@ namespace FitTrack.Api.Controllers
             _workoutService = workoutService;
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult> Workout(WorkoutDTO workoutDTO)
         {
-            var workout = await _workoutService.CreateWorkoutAsync(workoutDTO);
+            var userId = Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
+            var workout = await _workoutService.CreateWorkoutAsync(workoutDTO, userId);
             return StatusCode(201, workout);
         }
     }
