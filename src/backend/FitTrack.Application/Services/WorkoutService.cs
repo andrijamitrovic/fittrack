@@ -13,12 +13,12 @@ namespace FitTrack.Application.Services
             _workoutRepository = workoutRepository;
         }
 
-        public Task<Workout> CreateWorkoutAsync(WorkoutDTO workoutDTO)
+        public Task<Workout> CreateWorkoutAsync(WorkoutDTO workoutDTO, Guid userId)
         {
             var workout = new Workout
             {
                 Id = Guid.NewGuid(),
-                UserId = workoutDTO.UserId,
+                UserId = userId,
                 Title = workoutDTO.Title,
                 Date = DateTime.Now,
                 Notes = workoutDTO.Notes,
