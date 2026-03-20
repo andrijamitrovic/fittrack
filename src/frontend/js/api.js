@@ -57,6 +57,21 @@ export async function login(user) {
     return data;
 }
 
+export async function loadWorkouts() {
+    let response = await fetch(url + "Workout", {
+        method: "GET",
+        headers: authHeaders(),
+    });
+    if(response.status === 401)
+    {
+        failedAuth();
+    }    
+    if(!response.ok)
+        throw new Error(`Response status: ${response.status}`);
+    let data = await response.json();
+    return data;
+}
+
 
 function authHeaders() {
     const token = localStorage.getItem("token");
@@ -70,3 +85,5 @@ function authHeaders() {
 function failedAuth(){
     window.location.href = "login.html";
 }
+
+

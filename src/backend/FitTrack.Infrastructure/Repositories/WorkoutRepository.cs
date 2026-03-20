@@ -46,5 +46,21 @@ namespace FitTrack.Infrastructure.Repositories
             return await connection.QuerySingleAsync<Workout>(getWorkout, new { workout.Id });
         }
 
+        public async Task<List<WorkoutDetailRow>> GetWorkoutsAsync(Guid userId)
+        {
+            var sql = @"SELECT w.id as workout_id, w.title, w.date, w.notes as workout_notes, w.duration_min,
+                                we.id as workout_exercise_id, we.order_index, we.notes as exercise_notes,
+                                e.name as exercise_name, e.category, e.muscle_group,
+                                es.set_number, es.reps, es.weight, es.rpe, es.is_warmup
+                        FROM workouts w
+                        JOIN workout_exercises we ON w.id = we.workout_id
+                        JOIN exercises e ON we.exercise_id = e.id
+                        JOIN exercise_sets es ON es.workout_exercise_id = we.id
+                        WHERE w.user_id = @UserId
+                        ORDER BY w.date DESC, we.order_index, es.set_number";
+            using var connection = new NpgsqlConnection(_connectionString);
+            return [.. await connection.QueryAsync<WorkoutDetailRow>(sql, new { UserId = userId})];
+        }
+
     }
 }

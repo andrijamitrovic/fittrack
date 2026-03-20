@@ -6,5 +6,6 @@ namespace FitTrack.Application.Interfaces
     public interface IWorkoutRepository
     {
         Task<Workout> CreateWorkoutAsync(Workout workout, List<WorkoutExercise> workoutExercises, List<ExerciseSet> exerciseSets);
+        Task<List<WorkoutDetailRow>> GetWorkoutsAsync(Guid userId);
     }
 }
