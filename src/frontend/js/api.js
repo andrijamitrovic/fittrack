@@ -1,7 +1,7 @@
-const url = "http://localhost:5212/api/";
+const url = "/api/";
 
 export async function loadExercises() {
-    let response = await fetch(url + "Exercise", {
+    let response = await fetch(url + "Exercises", {
         method: "GET",
         headers: authHeaders(),
     });
@@ -16,7 +16,7 @@ export async function loadExercises() {
 }
 
 export async function createWorkout(workout) {
-    let response = await fetch(url + "Workout", {
+    let response = await fetch(url + "Workouts", {
         method: "POST",
         headers: authHeaders(),
         body: JSON.stringify(workout)
@@ -58,7 +58,7 @@ export async function login(user) {
 }
 
 export async function loadWorkouts() {
-    let response = await fetch(url + "Workout", {
+    let response = await fetch(url + "Workouts", {
         method: "GET",
         headers: authHeaders(),
     });

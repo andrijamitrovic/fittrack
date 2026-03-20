@@ -5,7 +5,8 @@
 
 # Environment & secrets
 .env
-.env.*
+.env.local
+.env.production
 *.local
 appsettings.Development.json
 
