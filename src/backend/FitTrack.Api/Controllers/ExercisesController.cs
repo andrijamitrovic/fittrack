@@ -6,17 +6,17 @@ namespace FitTrack.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ExerciseController : ControllerBase
+    public class ExercisesController : ControllerBase
     {
         private readonly ExerciseService _exerciseService;
 
-        public ExerciseController(ExerciseService exerciseService)
+        public ExercisesController(ExerciseService exerciseService)
         {
             _exerciseService = exerciseService;
         }
 
         [HttpGet]
-        public async Task<ActionResult> Exercises()
+        public async Task<ActionResult> GetExercises()
         {
             var exercises = await _exerciseService.GetAllAsync();
             return Ok(exercises);

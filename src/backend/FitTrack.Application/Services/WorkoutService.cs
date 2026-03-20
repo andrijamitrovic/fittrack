@@ -13,7 +13,7 @@ namespace FitTrack.Application.Services
             _workoutRepository = workoutRepository;
         }
 
-        public Task<Workout> CreateWorkoutAsync(WorkoutDTO workoutDTO, Guid userId)
+        public async Task<Workout> CreateWorkoutAsync(WorkoutDTO workoutDTO, Guid userId)
         {
             var workout = new Workout
             {
@@ -54,7 +54,81 @@ namespace FitTrack.Application.Services
                     });
                 }
             }
-            return _workoutRepository.CreateWorkoutAsync(workout, workoutExercises, exerciseSets);
+            return await _workoutRepository.CreateWorkoutAsync(workout, workoutExercises, exerciseSets);
+        }
+
+        public async Task<List<ViewWorkoutDTO>> GetWorkoutsAsync(Guid userId)
+        {
+            var result = await _workoutRepository.GetWorkoutsAsync(userId);
+            var workouts = result.GroupBy(
+                                            w => new
+                                            {
+                                                w.WorkoutId,
+                                                w.Title,
+                                                w.Date,
+                                                w.WorkoutNotes,
+                                                w.DurationMin
+                                            },
+                                             w => new
+                                             {
+                                                 w.WorkoutExerciseId,
+                                                 w.OrderIndex,
+                                                 w.ExerciseNotes,
+                                                 w.ExerciseName,
+                                                 w.Category,
+                                                 w.MuscleGroup,
+                                                 w.SetNumber,
+                                                 w.Reps,
+                                                 w.Weight,
+                                                 w.Rpe,
+                                                 w.IsWarmup
+                                             },
+                                             (key, g) => new ViewWorkoutDTO
+                                             {
+                                                 WorkoutId = key.WorkoutId,
+                                                 Title = key.Title,
+                                                 Date = key.Date,
+                                                 WorkoutNotes = key.WorkoutNotes,
+                                                 DurationMin = key.DurationMin,
+                                                 Exercises = [.. g.GroupBy(
+                                                     e => new
+                                                     {
+                                                         e.WorkoutExerciseId,
+                                                         e.OrderIndex,
+                                                         e.ExerciseNotes,
+                                                         e.ExerciseName,
+                                                         e.Category,
+                                                         e.MuscleGroup
+                                                     },
+                                                     e => new
+                                                     {
+                                                         e.SetNumber,
+                                                         e.Reps,
+                                                         e.Weight,
+                                                         e.Rpe,
+                                                         e.IsWarmup
+                                                     },
+                                                     (key, g) => new ViewExerciseDTO
+                                                     {
+                                                         WorkoutExerciseId = key.WorkoutExerciseId,
+                                                         OrderIndex = key.OrderIndex,
+                                                         ExerciseNotes = key.ExerciseNotes,
+                                                         ExerciseName = key.ExerciseName,
+                                                         Category = key.Category,
+                                                         MuscleGroup = key.MuscleGroup,
+                                                         Sets = [.. g.Select(s => new ViewSetDTO
+                                                         {
+                                                             SetNumber = s.SetNumber,
+                                                             Reps = s.Reps,
+                                                             Weight = s.Weight,
+                                                             Rpe = s.Rpe,
+                                                             IsWarmup = s.IsWarmup
+                                                         })]
+                                                     }
+                                                     )]
+                                             });
+
+            return [.. workouts];
         }
     }
 }
