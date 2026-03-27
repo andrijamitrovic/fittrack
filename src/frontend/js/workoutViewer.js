@@ -1,5 +1,8 @@
 import { loadWorkouts } from "./api.js";
 import { requireAuth } from "./auth.js";
+import { addFocus, loadLayout } from "./layout.js";
+
+loadLayout();
 
 requireAuth();
 
@@ -42,3 +45,6 @@ search.addEventListener("input", (event) => {
     container.innerHTML = '';
     addToPage(filteredData);
 })
+
+
+addFocus();
