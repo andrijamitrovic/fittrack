@@ -1,4 +1,5 @@
 import { register } from "./api.js"
+import { authAlreadyExists } from "./auth.js";
 import { addFocus } from "./layout.js";
 
 
