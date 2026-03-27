@@ -38,7 +38,7 @@ function addToPage(workouts){
     });
 }
 
-const search = document.getElementById("exercise-search");
+const search = document.getElementById("workout-search");
 search.addEventListener("input", (event) => {
     let filteredData = data.filter((item) => item.title.toLowerCase().includes(event.target.value.toLowerCase())
                                                 || item.date.split("T")[0].toLowerCase().includes(event.target.value.toLowerCase() ));
