@@ -1,4 +1,4 @@
-const url = "/api/";
+const url = "http://localhost:8080/api/";
 
 export async function loadExercises() {
     let response = await fetch(url + "Exercises", {

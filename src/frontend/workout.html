@@ -4,35 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FitTrack</title>
-    <link rel="stylesheet" href="css/workout.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/pages.css">
 </head>
 <body>
 
-    <nav>
-        <a href="/">Home</a>
-        <a href="/exercises">Exercises</a>
-    </nav>
-
-    <header>
-        <h1>FitTracker</h1>
-    </header>
-
     <main>
-        <form id="workoutForm">
+        <div><h1>Add Workout</h1></div>
+        <form class="workout-form">
             <label for="title">Title:</label>
             <input type="text" id="title" name="title">
 
             <label for="notes">Notes:</label>
             <input type="text" id="notes" name="notes">
             
-            <h2>Duration: </h2>
+            <!-- <h2>Duration: </h2>
             <label for="durationHour">Hours:</label>
             <input type="number" min="0" max="10" id="durationHour" name="durationMin">
             <label for="durationMin">Minutes:</label>
-            <input type="number" min="0" max="60" id="durationMin" name="durationMin">
+            <input type="number" min="0" max="60" id="durationMin" name="durationMin"> -->
             
             <h2>Add excercise</h2>
-            <div id="exercise">
+            <div id="exercise" class="exercise-div">
 
             </div>
             <input type="button" value="Add exercise" id="workoutButton">
@@ -40,11 +36,6 @@
             <input type="button" value="Save workout" id="saveWorkout">
         </form>
     </main>
-
-    <footer>
-        <p>Author: Andrija Mitrovic</p>
-        <p><a href="https://www.github.com/andrijamitrovic">My github profile</a></p>
-    </footer>
 
     <script type="module" src="js/workoutApp.js"></script>
 </body>
