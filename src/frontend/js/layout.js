@@ -22,22 +22,25 @@ export function loadLayout() {
 
     const logoutBtn = document.getElementById("btn-log-out");
 
-    if (logoutBtn) { 
+    if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
             localStorage.removeItem("token");
             window.location.href = 'login.html';
         });
     };
 
-    
+
 }
 
 export function addFocus() {
-    document.querySelectorAll('input').forEach(input => {
-    input.addEventListener('focus', () => {
-        setTimeout(() => {
-            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 300);
+    document.addEventListener('focusin', e => {
+        if (!e.target.matches('input, textarea')) return;
+
+        requestAnimationFrame(() => {
+            e.target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        });
     });
-});
 }
