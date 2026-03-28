@@ -10,5 +10,6 @@
         public int? DurationMin { get; set; }
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+        public bool IsTemplate { get; set; }
     }
 }

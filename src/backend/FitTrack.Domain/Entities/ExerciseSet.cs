@@ -8,7 +8,7 @@
         public int? Reps { get; set; }
         public decimal? Weight { get; set; }
         public decimal? Rpe { get; set; }
-        public required bool IsWarmup { get; set; }
+        public bool? IsWarmup { get; set; }
         public bool? Completed { get; set; }
     }
 }

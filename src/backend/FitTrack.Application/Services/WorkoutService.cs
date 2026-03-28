@@ -13,7 +13,7 @@ namespace FitTrack.Application.Services
             _workoutRepository = workoutRepository;
         }
 
-        public async Task<Workout> CreateWorkoutAsync(WorkoutDTO workoutDTO, Guid userId)
+        public async Task<Workout> CreateWorkoutAsync(WorkoutDTO workoutDTO, Guid userId, bool isTemplate)
         {
             var workout = new Workout
             {
@@ -22,7 +22,8 @@ namespace FitTrack.Application.Services
                 Title = workoutDTO.Title,
                 Date = DateTime.Now,
                 Notes = workoutDTO.Notes,
-                DurationMin = workoutDTO.DurationMin
+                DurationMin = workoutDTO.DurationMin,
+                IsTemplate = isTemplate
             };
 
             List<WorkoutExercise> workoutExercises = new List<WorkoutExercise>();
@@ -57,9 +58,9 @@ namespace FitTrack.Application.Services
             return await _workoutRepository.CreateWorkoutAsync(workout, workoutExercises, exerciseSets);
         }
 
-        public async Task<List<ViewWorkoutDTO>> GetWorkoutsAsync(Guid userId)
+        public async Task<List<ViewWorkoutDTO>> GetWorkoutsAsync(Guid userId, bool isTemplate)
         {
-            var result = await _workoutRepository.GetWorkoutsAsync(userId);
+            var result = await _workoutRepository.GetWorkoutsAsync(userId, isTemplate);
             var workouts = result.GroupBy(
                                             w => new
                                             {
@@ -131,4 +132,5 @@ namespace FitTrack.Application.Services
             return [.. workouts];
         }
     }
+
 }
