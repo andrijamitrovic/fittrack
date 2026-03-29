@@ -4,7 +4,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
     const token = localStorage.getItem("token");
     if (!token) {
-        return <Navigate to='login' />;
+        return <Navigate to='/login' />;
     }
 
     const parts = token.split('.');
@@ -16,7 +16,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
     if (payload.exp < Date.now() / 1000) {
         localStorage.removeItem("token");
-        return <Navigate to='login' />;
+        return <Navigate to='/login' />;
     }
 
     return <>{children}</>
