@@ -1,2 +1,2 @@
-let url: string = "/api/";
+const url: string = "/api/";
 

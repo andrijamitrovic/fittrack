@@ -3,13 +3,24 @@ import './App.css'
 import { Login } from './pages/Login'
 import { Register } from './pages/Register'
 import { Dashboard } from './pages/Dasboard'
+import { PublicRoute } from './components/PublicRoute'
+import { ProtectedRoute } from './components/ProtectedRoute'
+import { Layout } from './components/Layout'
+import { WorkoutHistory } from './pages/WorkoutHistory'
+import { WorkoutLog } from './pages/WorkoutLog'
+import { Templates } from './pages/Templates'
 
 function App() {
   return (
     <Routes>
-      <Route path="/login" element={<Login />}/>
-      <Route path='/register' element={<Register />}/>
-      <Route path='/' element={<Dashboard />}/>
+      <Route path="/login" element={<PublicRoute> <Login /> </PublicRoute>} />
+      <Route path='/register' element={<PublicRoute> <Register /> </PublicRoute>} />
+      <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+        <Route index element={<Dashboard />} />
+        <Route path="workouts" element={<WorkoutHistory />} />
+        <Route path="workouts/new" element={<WorkoutLog />} />
+        <Route path="templates" element={<Templates />} />
+      </Route>
     </Routes>
   )
 }
