@@ -52,5 +52,17 @@ namespace FitTrack.Api.Controllers
             return Ok(workoutTemplates);
         }
 
+        [Authorize]
+        [HttpPost("from-workout/{workoutId}")]
+        public async Task<ActionResult> MakeTemplateFromWorkout(Guid workoutId)
+        {
+            var userId = Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
+            var workout = await _workoutService.CreateTemplateFromWorkout(userId, workoutId);
+            if (workout == null)
+            {
+                return NotFound(new { message = "Workout not found." });
+            }
+            return StatusCode(201, workout);
+        }
     }
 }
