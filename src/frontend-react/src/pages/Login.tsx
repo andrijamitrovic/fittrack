@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { login } from "../services/api";
-import { Link, useAsyncError, useNavigate } from "react-router";
+import { login } from "../services/authService";
+import { Link, useNavigate } from "react-router";
 
 export function Login() {
     const navigate = useNavigate();
@@ -18,14 +18,14 @@ export function Login() {
 
     async function handleSubmit(e: React.SubmitEvent) {
         e.preventDefault();
-        try{
+        try {
             await login({
                 email: email,
                 password: password
             });
             navigate("/");
         }
-        catch(error){
+        catch (error) {
             setError("Invalid email or password");
         }
     }
@@ -37,10 +37,10 @@ export function Login() {
                 <div id="auth-message" />
                 <form className="auth-form" id="login-form" onSubmit={handleSubmit}>
                     <label>E-mail:
-                    <input type="email" name="email" id="email" value={email} onChange={handleChangeEmail} />
+                        <input type="email" name="email" id="email" value={email} onChange={handleChangeEmail} />
                     </label>
                     <label>Password:
-                    <input type="password" name="password" id="password" value={password} onChange={handleChangePassword}/>
+                        <input type="password" name="password" id="password" value={password} onChange={handleChangePassword} />
                     </label>
                     <input type="submit" className="btn-submit" defaultValue="Log In" />
                     {error && <div className="error-message">{error}</div>}

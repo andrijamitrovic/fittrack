@@ -47,3 +47,28 @@ export interface ExerciseSet {
     rpe?: number;
     isWarmup?: boolean;
 }
+
+export interface WorkoutViewer {
+    workoutId: string;
+    title?: string;
+    date: string;
+    notes?: string;
+    durationMin?: number;
+    workoutExercises: WorkoutExerciseViewer[];
+}
+export interface WorkoutExerciseViewer {
+    workoutExerciseId: string;
+    exerciseNotes?: string;
+    exerciseName: string;
+    category: string;
+    muscleGroup: string;
+    sets: ExerciseSetViewer[];
+}
+
+export interface ExerciseSetViewer {
+    setNumber: string; 
+    reps?: number;
+    weight?: number;
+    rpe?: number;
+    isWarmup: boolean;
+}
