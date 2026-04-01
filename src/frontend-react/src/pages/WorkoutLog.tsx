@@ -102,7 +102,6 @@ export function WorkoutLog() {
                     {exercises.map((exercise, index) => (
                         <WorkoutExerciseComponent
                             key={index}
-                            exerciseIndex={index}
                             exercisesList={exercisesList}
                             exercise={exercise}
                             onAddSet={() => addSet(index)}
