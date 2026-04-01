@@ -12,6 +12,11 @@ export function Layout() {
         <>
             <nav>
                 <ul>
+                    <li className="logo">
+                        FitTrack
+                    </li>
+
+
                     <li>
                         <NavLink to='/'>
                             Dashboard
@@ -32,14 +37,13 @@ export function Layout() {
                             Templates
                         </NavLink>
                     </li>
+
+
                     <li className="push">
                         <button onClick={handleLogout} className="btn-link">Log Out</button>
                     </li>
                 </ul>
             </nav>
-            <header>
-                <h1>FitTrack</h1>
-            </header>
             <main>
                 <Outlet />
             </main>

@@ -54,7 +54,7 @@ export interface WorkoutViewer {
     date: string;
     notes?: string;
     durationMin?: number;
-    workoutExercises: WorkoutExerciseViewer[];
+    exercises: WorkoutExerciseViewer[];
 }
 export interface WorkoutExerciseViewer {
     workoutExerciseId: string;

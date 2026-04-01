@@ -49,7 +49,7 @@ export function WorkoutExerciseSetComponent({
                         value={set.rpe}
                         onChange={(e) => onChange("rpe", Number(e.target.value))} />
                 </label>
-                <button type="button" onClick={onDelete}>Delete</button>
+                <button type="button" className="remove-btn" onClick={onDelete}>Delete</button>
                 {/* <label for="isWarmup">Is a warmup? </label>
        <input type="checkbox" class="isWarmup" name="isWarmup" id="isWarmup"> */}
             </div>

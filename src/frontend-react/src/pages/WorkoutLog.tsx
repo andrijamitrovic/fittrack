@@ -41,7 +41,9 @@ export function WorkoutLog() {
         updated[exerciseIndex].exerciseSets.push({
             setNumber: updated[exerciseIndex].exerciseSets.length + 1,
             reps: 0,
-            weight: 0
+            weight: 0,
+            rpe: 0,
+            isWarmup: false
         });
         setExercises(updated);
     }
@@ -50,7 +52,7 @@ export function WorkoutLog() {
         const updated = [...exercises]
         updated[exerciseIndex].exerciseSets[setIndex] = {
             ...updated[exerciseIndex].exerciseSets[setIndex],
-            [field]:value
+            [field]: value
         }
         setExercises([...updated]);
     }
@@ -77,22 +79,26 @@ export function WorkoutLog() {
     }, []);
 
     return (
-        <>
-            <div>
-                <h1>Add Workout</h1>
-            </div>
+        <div className="page">
+            <h1 className="title">Add Workout</h1>
             <form className="workout-form">
-                <label htmlFor="title">Title:</label>
-                <input type="text" id="title" name="title" onChange={handleChangeTitle} />
-                <label htmlFor="notes">Notes:</label>
-                <input type="text" id="notes" name="notes" onChange={handleChangeNotes} />
+                <div className="field">
+                    <label>Title:
+                        <input type="text" id="title" name="title" onChange={handleChangeTitle} />
+                    </label>
+                </div>
+                <div className="field">
+                    <label htmlFor="notes">Notes:
+                        <input type="text" id="notes" name="notes" onChange={handleChangeNotes} />
+                    </label>
+                </div>
                 {/* <h2>Duration: </h2>
                 <label for="durationHour">Hours:</label>
                 <input type="number" min="0" max="10" id="durationHour" name="durationMin">
                 <label for="durationMin">Minutes:</label>
                 <input type="number" min="0" max="60" id="durationMin" name="durationMin"> */}
-                <h2>Add excercise</h2>
-                <div id="exercise" className="exercise-div">
+                <div className="section">
+                    <h2>Add excercises</h2>
                     {exercises.map((exercise, index) => (
                         <WorkoutExerciseComponent
                             key={index}
@@ -106,13 +112,14 @@ export function WorkoutLog() {
                             onSelectExercise={(id) => selectExercise(index, id)}
                         />
                     ))}
+
                 </div>
 
-                <input type="button" value="Add exercise" id="workoutButton" onClick={addExercise} />
-                <input type="button" value="Save workout" id="saveWorkout" onClick={saveWorkout} />
+                <button type="button" className="add-btn" onClick={addExercise} > + Add exercise </button>
+                <button type="button" className="save-btn" onClick={saveWorkout} > Save Workout </button>
 
             </form>
-        </>
+        </div>
 
     );
 }

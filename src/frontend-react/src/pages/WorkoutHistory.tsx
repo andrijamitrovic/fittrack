@@ -25,7 +25,7 @@ export function WorkoutHistory() {
                         <div className="card" key={workout.workoutId}>
                             <h3>{workout.title}</h3>
                             <p>{workout.date!.split("T")[0]}</p>
-                            {workout.workoutExercises.map((exercise: WorkoutExerciseViewer) => {
+                            {workout.exercises.map((exercise: WorkoutExerciseViewer) => {
                                 return (
                                     <details key={exercise.workoutExerciseId}>
                                         <summary>

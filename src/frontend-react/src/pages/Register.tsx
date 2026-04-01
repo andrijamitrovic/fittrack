@@ -52,11 +52,12 @@ export function Register() {
                         <input type="password" id="password" name="password" value={password} onChange={handleChangePassword} />
                     </label>
                     {error && <div className="error-message">{error}</div>}
-                    <input type="submit" className="btn-submit" defaultValue="Register" onSubmit={handleSubmit}/>
+                    <input type="submit" className="btn-submit" defaultValue="Register" onSubmit={handleSubmit} />
                 </form>
-                <div>
-                    Already have an account? <Link to="/login">Log In.</Link>
-                </div>
+                Already have an account?
+                <Link to="/login">
+                    Log In.
+                </Link>
             </main>
         </>
 

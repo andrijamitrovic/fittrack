@@ -44,9 +44,10 @@ export function Login() {
                     </label>
                     <input type="submit" className="btn-submit" defaultValue="Log In" />
                     {error && <div className="error-message">{error}</div>}
-                    <div>
-                        Don't have an account? <Link to="/register">Register here.</Link>
-                    </div>
+                    Don't have an account?
+                    <Link to="/register">
+                        Register here.
+                    </Link>
                 </form>
             </main>
             <footer>

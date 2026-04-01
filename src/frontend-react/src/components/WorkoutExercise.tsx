@@ -35,8 +35,8 @@ export function WorkoutExerciseComponent({ exerciseIndex, exercisesList, exercis
                         onDelete={() => onDeleteSet(setIndex)}
                     />
                 ))}
-                <button type="button" onClick={onAddSet}>Add Set</button>
-                <button type="button" onClick={onDeleteExercise}>Remove Exercise</button>
+                <button type="button" className="add-btn" onClick={onAddSet}>Add Set</button>
+                <button type="button" className="remove-btn" onClick={onDeleteExercise}>Remove Exercise</button>
             </div>
         </>
     );

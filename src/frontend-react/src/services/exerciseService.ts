@@ -12,6 +12,6 @@ export async function loadExercises() {
     }    
     if(!response.ok)
         throw new Error(`Response status: ${response.status}`);
-    let data: Exercise = await response.json();
+    let data: Exercise[] = await response.json();
     return data;
 }
