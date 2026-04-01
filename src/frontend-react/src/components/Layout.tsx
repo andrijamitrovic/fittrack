@@ -13,7 +13,22 @@ export function Layout() {
             <nav>
                 <ul>
                     <li className="logo">
-                        FitTrack
+                        <svg
+                            className="fittrack-logo"
+                            viewBox="0 0 36 36"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <g fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
+                                <line x1={10} y1={18} x2={26} y2={18} />
+                                <line x1={7} y1={13} x2={7} y2={23} />
+                                <line x1={10} y1={11} x2={10} y2={25} />
+                                <line x1={26} y1={11} x2={26} y2={25} />
+                                <line x1={29} y1={13} x2={29} y2={23} />
+                            </g>
+                        </svg>
+
+                        <span className="fittrack-text">FitTrack</span>
+
                     </li>
 
 
@@ -28,7 +43,7 @@ export function Layout() {
                         </NavLink>
                     </li>
                     <li>
-                        <NavLink to='/workouts/new'>
+                        <NavLink to='/newworkout'>
                             Add new workout
                         </NavLink>
                     </li>

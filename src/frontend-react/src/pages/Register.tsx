@@ -41,7 +41,7 @@ export function Register() {
             <main className="auth-container">
                 <h2>Register</h2>
                 <div id="auth-message" />
-                <form className="auth-form" id="register">
+                <form className="auth-form" id="register" onSubmit={handleSubmit}>
                     <label htmlFor="name">Name:
                         <input type="text" id="name" name="name" value={name} onChange={handleChangeName} />
                     </label>
@@ -52,7 +52,7 @@ export function Register() {
                         <input type="password" id="password" name="password" value={password} onChange={handleChangePassword} />
                     </label>
                     {error && <div className="error-message">{error}</div>}
-                    <input type="submit" className="btn-submit" defaultValue="Register" onSubmit={handleSubmit} />
+                    <input type="submit" className="btn-submit" defaultValue="Register"/>
                 </form>
                 Already have an account?
                 <Link to="/login">

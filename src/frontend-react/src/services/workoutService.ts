@@ -31,3 +31,17 @@ export async function createWorkout(workout: Workout) {
     let data: string = await response.json();
     return data;
 }
+
+export async function makeTemplateFromWorkout(workoutId: string): Promise<Workout> {
+    let response = await fetch(url + "Workouts/from-workout/" + workoutId, {
+        method: "POST",
+        headers: authHeaders()
+    })
+    if (response.status === 401) {
+        failedAuth();
+    }
+    if (!response.ok)
+        throw new Error(`Response status: ${response.status}`);
+    let data: Workout = await response.json();
+    return data;
+}
