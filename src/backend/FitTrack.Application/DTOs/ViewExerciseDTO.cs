@@ -7,6 +7,7 @@ namespace FitTrack.Application.DTOs
     public class ViewExerciseDTO
     {
         public required Guid WorkoutExerciseId { get; set; }
+        public required Guid ExerciseId { get; set; }
         public required int OrderIndex { get; set; }
         public string? ExerciseNotes { get; set; }
         public required string ExerciseName { get; set; }

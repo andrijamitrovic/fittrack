@@ -1,0 +1,1 @@
+ALTER TABLE exercise_sets ALTER COLUMN is_warmup DROP NOT NULL;

@@ -21,7 +21,7 @@ namespace FitTrack.Api.Controllers
         public async Task<ActionResult> SetWorkout(WorkoutDTO workoutDTO)
         {
             var userId = Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
-            var workout = await _workoutService.CreateWorkoutAsync(workoutDTO, userId);
+            var workout = await _workoutService.CreateWorkoutAsync(workoutDTO, userId, false);
             return StatusCode(201, workout);
         }
 
@@ -30,8 +30,39 @@ namespace FitTrack.Api.Controllers
         public async Task<ActionResult> GetWorkouts()
         {
             var userId = Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
-            var workouts = await _workoutService.GetWorkoutsAsync(userId);
+            var workouts = await _workoutService.GetWorkoutsAsync(userId, false);
             return Ok(workouts);
+        }
+
+        [Authorize]
+        [HttpPost("workout-templates")]
+        public async Task<ActionResult> SetWorkoutTemplate(WorkoutDTO workoutDTO)
+        {
+            var userId = Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
+            var workout = await _workoutService.CreateWorkoutAsync(workoutDTO, userId, true);
+            return StatusCode(201, workout);
+        }
+
+        [Authorize]
+        [HttpGet("workout-templates")]
+        public async Task<ActionResult> GetWorkoutTemplates()
+        {
+            var userId = Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
+            var workoutTemplates = await _workoutService.GetWorkoutsAsync(userId, true);
+            return Ok(workoutTemplates);
+        }
+
+        [Authorize]
+        [HttpPost("from-workout/{workoutId}")]
+        public async Task<ActionResult> MakeTemplateFromWorkout(Guid workoutId)
+        {
+            var userId = Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
+            var workout = await _workoutService.CreateTemplateFromWorkout(userId, workoutId);
+            if (workout == null)
+            {
+                return NotFound(new { message = "Workout not found." });
+            }
+            return StatusCode(201, workout);
         }
     }
 }

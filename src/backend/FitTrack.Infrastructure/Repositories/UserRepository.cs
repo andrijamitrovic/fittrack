@@ -17,16 +17,23 @@ namespace FitTrack.Infrastructure.Repositories
         }
         public async Task<User?> CreateUserAsync(User user)
         {
-            var sql = "INSERT INTO users (email, password_hash, display_name) " +
-                      "VALUES (@Email, @PasswordHash, @DisplayName) RETURNING *";
-            using var connection = new NpgsqlConnection(_connectionString);
-
-            return await connection.QuerySingleOrDefaultAsync<User>(sql, new
+            try
             {
-                user.Email,
-                user.PasswordHash,
-                user.DisplayName,
-            });
+                var sql = "INSERT INTO users (email, password_hash, display_name) " +
+                          "VALUES (@Email, @PasswordHash, @DisplayName) RETURNING *";
+                using var connection = new NpgsqlConnection(_connectionString);
+
+                return await connection.QuerySingleOrDefaultAsync<User>(sql, new
+                {
+                    user.Email,
+                    user.PasswordHash,
+                    user.DisplayName,
+                });
+            }
+            catch (PostgresException ex) when (ex.SqlState == "23505")
+            {
+                return null;
+            }
         }
 
         public async Task<User?> GetUserAsync(string email)

@@ -13,7 +13,7 @@ namespace FitTrack.Application.Services
             _workoutRepository = workoutRepository;
         }
 
-        public async Task<Workout> CreateWorkoutAsync(WorkoutDTO workoutDTO, Guid userId)
+        public async Task<Workout> CreateWorkoutAsync(WorkoutDTO workoutDTO, Guid userId, bool isTemplate)
         {
             var workout = new Workout
             {
@@ -22,7 +22,8 @@ namespace FitTrack.Application.Services
                 Title = workoutDTO.Title,
                 Date = DateTime.Now,
                 Notes = workoutDTO.Notes,
-                DurationMin = workoutDTO.DurationMin
+                DurationMin = workoutDTO.DurationMin,
+                IsTemplate = isTemplate
             };
 
             List<WorkoutExercise> workoutExercises = new List<WorkoutExercise>();
@@ -57,9 +58,13 @@ namespace FitTrack.Application.Services
             return await _workoutRepository.CreateWorkoutAsync(workout, workoutExercises, exerciseSets);
         }
 
-        public async Task<List<ViewWorkoutDTO>> GetWorkoutsAsync(Guid userId)
+        public async Task<List<ViewWorkoutDTO>> GetWorkoutsAsync(Guid userId, bool isTemplate, Guid? workoutId = null)
         {
-            var result = await _workoutRepository.GetWorkoutsAsync(userId);
+            var result = await _workoutRepository.GetWorkoutsAsync(userId, isTemplate, workoutId);
+            if (result == null)
+            {
+                return new List<ViewWorkoutDTO>();
+            }
             var workouts = result.GroupBy(
                                             w => new
                                             {
@@ -72,6 +77,7 @@ namespace FitTrack.Application.Services
                                              w => new
                                              {
                                                  w.WorkoutExerciseId,
+                                                 w.ExerciseId,
                                                  w.OrderIndex,
                                                  w.ExerciseNotes,
                                                  w.ExerciseName,
@@ -94,6 +100,7 @@ namespace FitTrack.Application.Services
                                                      e => new
                                                      {
                                                          e.WorkoutExerciseId,
+                                                         e.ExerciseId,
                                                          e.OrderIndex,
                                                          e.ExerciseNotes,
                                                          e.ExerciseName,
@@ -111,6 +118,7 @@ namespace FitTrack.Application.Services
                                                      (key, g) => new ViewExerciseDTO
                                                      {
                                                          WorkoutExerciseId = key.WorkoutExerciseId,
+                                                         ExerciseId = key.ExerciseId,
                                                          OrderIndex = key.OrderIndex,
                                                          ExerciseNotes = key.ExerciseNotes,
                                                          ExerciseName = key.ExerciseName,
@@ -130,5 +138,56 @@ namespace FitTrack.Application.Services
 
             return [.. workouts];
         }
+
+        public async Task<Workout?> CreateTemplateFromWorkout(Guid userId, Guid? workoutId = null)
+        {
+            // isTemplate value is ignored when workoutId is provided
+            List<ViewWorkoutDTO> result = await GetWorkoutsAsync(userId, false, workoutId);
+
+            if (result.Any() == false)
+            {
+                return null;    
+            }
+            
+            ViewWorkoutDTO workoutResult = result.First();
+
+            var workout = new Workout
+            {
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                Title = workoutResult.Title,
+                Date = DateTime.Now,
+                IsTemplate = false
+            };
+
+            List<WorkoutExercise> workoutExercises = new List<WorkoutExercise>();
+            List<ExerciseSet> exerciseSets = new List<ExerciseSet>();
+
+            foreach (var workoutExerciseDTO in workoutResult.Exercises)
+            {
+                var workoutExercise = new WorkoutExercise
+                {
+                    Id = Guid.NewGuid(),
+                    WorkoutId = workout.Id,
+                    ExerciseId = workoutExerciseDTO.ExerciseId,
+                    OrderIndex = workoutExerciseDTO.OrderIndex
+                };
+                workoutExercises.Add(workoutExercise);
+
+                foreach (var exerciseSetDTO in workoutExerciseDTO.Sets)
+                {
+                    exerciseSets.Add(new ExerciseSet
+                    {
+                        Id = Guid.NewGuid(),
+                        WorkoutExerciseId = workoutExercise.Id,
+                        SetNumber = exerciseSetDTO.SetNumber,
+                        Reps = exerciseSetDTO.Reps,
+                        Weight = exerciseSetDTO.Weight,
+                    });
+                }
+            }
+            return await _workoutRepository.CreateWorkoutAsync(workout, workoutExercises, exerciseSets);
+        }
     }
+
 }
