@@ -180,8 +180,8 @@ label {
 
 }
 
-.active {
-  font-weight: 1000;
+.active-link {
+  background-color: blue;
 }
 
 footer {

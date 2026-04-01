@@ -18,7 +18,7 @@ function App() {
       <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
         <Route index element={<Dashboard />} />
         <Route path="workouts" element={<WorkoutHistory />} />
-        <Route path="workouts/new" element={<WorkoutLog />} />
+        <Route path="newworkout" element={<WorkoutLog />} />
         <Route path="templates" element={<Templates />} />
       </Route>
     </Routes>
