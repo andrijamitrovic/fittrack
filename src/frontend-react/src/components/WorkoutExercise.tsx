@@ -1,8 +1,7 @@
-import type { Exercise, ExerciseSet, WorkoutExercise } from "../types";
+import type { Exercise, WorkoutExercise } from "../types";
 import { WorkoutExerciseSetComponent } from "./WorkoutExerciseSet";
 
 interface WorkoutExerciseProps {
-    exerciseIndex: number;
     exercisesList: Exercise[];
     exercise: WorkoutExercise;
     onAddSet: () => void;
@@ -12,7 +11,7 @@ interface WorkoutExerciseProps {
     onSelectExercise: (id: string) => void;
 }
 
-export function WorkoutExerciseComponent({ exerciseIndex, exercisesList, exercise, onAddSet, onUpdateSet, onDeleteSet, onDeleteExercise, onSelectExercise }: WorkoutExerciseProps) {
+export function WorkoutExerciseComponent({ exercisesList, exercise, onAddSet, onUpdateSet, onDeleteSet, onDeleteExercise, onSelectExercise }: WorkoutExerciseProps) {
 
     return (
         <>

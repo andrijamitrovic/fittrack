@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { loadWorkouts, makeTemplateFromWorkout } from "../services/workoutService";
-import type { ExerciseSetViewer, WorkoutExerciseViewer, WorkoutViewer } from "../types";
+import type { WorkoutExerciseViewer, WorkoutViewer } from "../types";
 
 export function Templates() {
     const [workouts, setWorkouts] = useState<WorkoutViewer[]>([]);
