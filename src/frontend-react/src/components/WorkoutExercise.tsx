@@ -17,7 +17,7 @@ export function WorkoutExerciseComponent({ exercisesList, exercise, onAddSet, on
         <>
             <div className="exercise-group">
                 <label>Exercise:
-                    <select value={exercise.exerciseId} onChange={(e) => onSelectExercise(e.target.value)}>
+                    <select required value={exercise.exerciseId} onChange={(e) => onSelectExercise(e.target.value)}>
                         <option value="">-- Pick an exercise --</option>
                         {exercisesList.map((exercise) => (
                             <option value={exercise.id} key={exercise.id}>

@@ -3,9 +3,12 @@ import type { Exercise, WorkoutExercise } from "../types";
 import { WorkoutExerciseComponent } from "../components/WorkoutExercise";
 import { createWorkout, loadWorkout } from "../services/workoutService";
 import { loadExercises } from "../services/exerciseService";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 
 export function WorkoutLog() {
+    const [saving, setSaving] = useState(false);
+    const [saveError, setSaveError] = useState("");
+    const navigate = useNavigate();
     const { workoutId } = useParams();
     const [title, setTitle] = useState("");
     const [notes, setNotes] = useState("");
@@ -42,9 +45,9 @@ export function WorkoutLog() {
         const updated = [...exercises];
         updated[exerciseIndex].exerciseSets.push({
             setNumber: updated[exerciseIndex].exerciseSets.length + 1,
-            reps: 0,
-            weight: 0,
-            rpe: 0,
+            reps: undefined,
+            weight: undefined,
+            rpe: undefined,
             isWarmup: false
         });
         setExercises(updated);
@@ -65,13 +68,22 @@ export function WorkoutLog() {
         setExercises([...updated]);
     }
 
-    function saveWorkout() {
-        createWorkout({
-            notes: notes,
-            title: title,
-            durationMin: 1,
-            workoutExercises: exercises
-        });
+    async function saveWorkout() {
+        setSaving(true);
+        setSaveError("");
+        try {
+            await createWorkout({
+                notes: notes || undefined,
+                title: title,
+                durationMin: 1,
+                workoutExercises: exercises
+            });
+            navigate("/workouts");
+        } catch (err: any) {
+            setSaveError(err.message || "Failed to save workout");
+        } finally {
+            setSaving(false);
+        }
     }
 
     useEffect(() => {
@@ -103,10 +115,10 @@ export function WorkoutLog() {
     return (
         <div className="page">
             <h1 className="title">Add Workout</h1>
-            <form className="workout-form">
+            <form className="workout-form" onSubmit={(e) => { e.preventDefault(); saveWorkout(); }}>
                 <div className="field">
                     <label>Title:
-                        <input type="text" id="title" name="title" onChange={handleChangeTitle} />
+                        <input required type="text" id="title" name="title" onChange={handleChangeTitle} />
                     </label>
                 </div>
                 <div className="field">
@@ -137,7 +149,10 @@ export function WorkoutLog() {
                 </div>
 
                 <button type="button" className="add-btn" onClick={addExercise} > + Add exercise </button>
-                <button type="button" className="save-btn" onClick={saveWorkout} > Save Workout </button>
+                {saveError && <p className="error">{saveError}</p>}
+                <button type="submit" className="save-btn" disabled={saving}>
+                    {saving ? "Saving..." : "Save Workout"}
+                </button>
 
             </form>
         </div>
