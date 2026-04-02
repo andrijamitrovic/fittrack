@@ -58,6 +58,8 @@ export interface WorkoutViewer {
 }
 export interface WorkoutExerciseViewer {
     workoutExerciseId: string;
+    exerciseId: string;
+    orderIndex: number;
     exerciseNotes?: string;
     exerciseName: string;
     category: string;
@@ -66,7 +68,7 @@ export interface WorkoutExerciseViewer {
 }
 
 export interface ExerciseSetViewer {
-    setNumber: string; 
+    setNumber: number; 
     reps?: number;
     weight?: number;
     rpe?: number;
