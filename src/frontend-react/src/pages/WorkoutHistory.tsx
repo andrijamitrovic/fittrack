@@ -1,14 +1,21 @@
 import { useEffect, useState } from "react";
-import { loadWorkouts, makeTemplateFromWorkout } from "../services/workoutService";
-import type { ExerciseSetViewer, WorkoutExerciseViewer, WorkoutViewer } from "../types";
+import { copyWorkoutFromWorkout, loadWorkouts, makeTemplateFromWorkout } from "../services/workoutService";
+import type { ExerciseSetViewer, Workout, WorkoutExerciseViewer, WorkoutViewer } from "../types";
+import { useNavigate } from "react-router";
 
 export function WorkoutHistory() {
+    const navigate = useNavigate();
     const [workouts, setWorkouts] = useState<WorkoutViewer[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
     async function makeTemplate(workoutId: string) {
-        console.log(await makeTemplateFromWorkout(workoutId));
+        await makeTemplateFromWorkout(workoutId);
+    }
+
+    async function copyWorkout(workoutId: string) {
+        let newWorkout: Workout = await copyWorkoutFromWorkout(workoutId);
+        navigate("/newworkout/" + newWorkout.id);
     }
 
     useEffect(() => {
@@ -31,6 +38,7 @@ export function WorkoutHistory() {
                                 <h3>{workout.title}</h3>
                                 <p>{workout.date!.split("T")[0]}</p>
                                 <button type="button" onClick={() => makeTemplate(workout.workoutId)}>Make template</button>
+                                <button type="button" onClick={() => copyWorkout(workout.workoutId)}>Copy workout</button>
                             </div>
                             {workout.exercises.map((exercise: WorkoutExerciseViewer) => {
                                 return (

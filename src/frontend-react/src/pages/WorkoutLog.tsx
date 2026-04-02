@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import type { Exercise, WorkoutExercise } from "../types";
 import { WorkoutExerciseComponent } from "../components/WorkoutExercise";
-import { createWorkout } from "../services/workoutService";
+import { createWorkout, loadWorkout } from "../services/workoutService";
 import { loadExercises } from "../services/exerciseService";
+import { useParams } from "react-router";
 
 export function WorkoutLog() {
+    const { workoutId } = useParams();
     const [title, setTitle] = useState("");
     const [notes, setNotes] = useState("");
     const [exercisesList, setExercisesList] = useState<Exercise[]>([]);
@@ -76,6 +78,26 @@ export function WorkoutLog() {
         loadExercises()
             .then(setExercisesList)
             .catch(err => console.error(err));
+
+        if (workoutId) {
+            loadWorkout(workoutId)
+                .then(workout => {
+                    setTitle(workout.title || "");
+                    setNotes(workout.notes || "");
+                    setExercises(workout.exercises.map(e => ({
+                        exerciseId: e.exerciseId,
+                        orderIndex: e.orderIndex,
+                        exerciseSets: e.sets.map(s => ({
+                            setNumber: s.setNumber,
+                            reps: s.reps || 0,
+                            weight: s.weight || 0,
+                            rpe: s.rpe,
+                            isWarmup: s.isWarmup
+                        }))
+                    })));
+                })
+                .catch(err => console.error(err));
+        }
     }, []);
 
     return (

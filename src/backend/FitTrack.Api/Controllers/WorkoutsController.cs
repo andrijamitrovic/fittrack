@@ -35,6 +35,19 @@ namespace FitTrack.Api.Controllers
         }
 
         [Authorize]
+        [HttpGet("{id}")]
+        public async Task<ActionResult> GetWorkout(Guid id)
+        {
+            var userId = Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
+            var workouts = await _workoutService.GetWorkoutsAsync(userId, false, id);
+            if (!workouts.Any())
+            {
+                return NotFound(new { message = "Workout not found." });
+            }
+            return Ok(workouts.First());
+        }
+
+        [Authorize]
         [HttpPost("workout-templates")]
         public async Task<ActionResult> SetWorkoutTemplate(WorkoutDTO workoutDTO)
         {
@@ -53,15 +66,22 @@ namespace FitTrack.Api.Controllers
         }
 
         [Authorize]
-        [HttpPost("from-workout/{workoutId}")]
+        [HttpPost("from-workout/{workoutId}/as-template")]
         public async Task<ActionResult> MakeTemplateFromWorkout(Guid workoutId)
         {
             var userId = Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
-            var workout = await _workoutService.CreateTemplateFromWorkout(userId, workoutId);
-            if (workout == null)
-            {
-                return NotFound(new { message = "Workout not found." });
-            }
+            var workout = await _workoutService.CopyWorkout(userId, true, workoutId);
+            if (workout == null) return NotFound(new { message = "Workout not found." });
+            return StatusCode(201, workout);
+        }
+
+        [Authorize]
+        [HttpPost("from-workout/{workoutId}/as-workout")]
+        public async Task<ActionResult> RepeatWorkout(Guid workoutId)
+        {
+            var userId = Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
+            var workout = await _workoutService.CopyWorkout(userId, false, workoutId);
+            if (workout == null) return NotFound(new { message = "Workout not found." });
             return StatusCode(201, workout);
         }
     }

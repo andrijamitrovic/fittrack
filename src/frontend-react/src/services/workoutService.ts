@@ -33,7 +33,8 @@ export async function createWorkout(workout: Workout) {
 }
 
 export async function makeTemplateFromWorkout(workoutId: string): Promise<Workout> {
-    let response = await fetch(url + "Workouts/from-workout/" + workoutId, {
+
+    let response = await fetch(url + "Workouts/from-workout/" + workoutId + "/as-template", {
         method: "POST",
         headers: authHeaders()
     })
@@ -43,5 +44,37 @@ export async function makeTemplateFromWorkout(workoutId: string): Promise<Workou
     if (!response.ok)
         throw new Error(`Response status: ${response.status}`);
     let data: Workout = await response.json();
+    return data;
+}
+
+
+export async function copyWorkoutFromWorkout(workoutId: string): Promise<Workout> {
+
+    let response = await fetch(url + "Workouts/from-workout/" + workoutId + "/as-workout", {
+        method: "POST",
+        headers: authHeaders()
+    })
+    if (response.status === 401) {
+        failedAuth();
+    }
+    if (!response.ok)
+        throw new Error(`Response status: ${response.status}`);
+    let data: Workout = await response.json();
+    return data;
+}
+
+export async function loadWorkout(id: string): Promise<WorkoutViewer> {
+    let response = await fetch(url + "Workouts/" + id, {
+        method: "GET",
+        headers: authHeaders(),
+    });
+    if (response.status === 401) {
+        failedAuth();
+    }
+    if (!response.ok)
+        throw new Error(`Response status: ${response.status}`);
+    if (response.status === 401) {
+    }
+    let data = await response.json();
     return data;
 }

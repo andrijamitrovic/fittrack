@@ -139,7 +139,7 @@ namespace FitTrack.Application.Services
             return [.. workouts];
         }
 
-        public async Task<Workout?> CreateTemplateFromWorkout(Guid userId, Guid? workoutId = null)
+        public async Task<Workout?> CopyWorkout(Guid userId, bool isTemplate, Guid? workoutId = null)
         {
             // isTemplate value is ignored when workoutId is provided
             List<ViewWorkoutDTO> result = await GetWorkoutsAsync(userId, false, workoutId);
@@ -157,7 +157,7 @@ namespace FitTrack.Application.Services
                 UserId = userId,
                 Title = workoutResult.Title,
                 Date = DateTime.Now,
-                IsTemplate = false
+                IsTemplate = isTemplate
             };
 
             List<WorkoutExercise> workoutExercises = new List<WorkoutExercise>();

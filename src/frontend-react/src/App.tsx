@@ -19,6 +19,7 @@ function App() {
         <Route index element={<Dashboard />} />
         <Route path="workouts" element={<WorkoutHistory />} />
         <Route path="newworkout" element={<WorkoutLog />} />
+        <Route path="newworkout/:workoutId" element={<WorkoutLog />} />
         <Route path="templates" element={<Templates />} />
       </Route>
     </Routes>

@@ -27,7 +27,7 @@ export function Layout() {
                             </g>
                         </svg>
 
-                        <span className="fittrack-text">FitTrack</span>
+                        <span className="fittrack-text">Cadence</span>
 
                     </li>
 

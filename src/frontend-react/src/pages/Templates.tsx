@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
-import { loadWorkouts, makeTemplateFromWorkout } from "../services/workoutService";
-import type { WorkoutExerciseViewer, WorkoutViewer } from "../types";
+import { copyWorkoutFromWorkout, loadWorkouts } from "../services/workoutService";
+import type { Workout, WorkoutExerciseViewer, WorkoutViewer } from "../types";
+import { useNavigate } from "react-router";
 
 export function Templates() {
+    const navigate = useNavigate();
     const [workouts, setWorkouts] = useState<WorkoutViewer[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    async function makeTemplate(workoutId: string) {
-        console.log(await makeTemplateFromWorkout(workoutId));
+    async function makeWorkout(workoutId: string) {
+        let newWorkout: Workout = await copyWorkoutFromWorkout(workoutId);
+        navigate("/newworkout/" + newWorkout.id);
     }
 
     useEffect(() => {
@@ -30,7 +33,7 @@ export function Templates() {
                             <div className="cardHeader">
                                 <h3>{workout.title}</h3>
                                 <p>{workout.date!.split("T")[0]}</p>
-                                <button type="button" onClick={() => makeTemplate(workout.workoutId)}>Use template</button>
+                                <button type="button" onClick={() => makeWorkout(workout.workoutId)}>Use template</button>
                             </div>
                             {workout.exercises.map((exercise: WorkoutExerciseViewer) => {
                                 return (
