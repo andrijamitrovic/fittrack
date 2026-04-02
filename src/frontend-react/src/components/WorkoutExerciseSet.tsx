@@ -16,37 +16,40 @@ export function WorkoutExerciseSetComponent({
             <div className={"set-row"}>
                 <label>Reps:
                     <input
+                        required
                         type="number"
                         min={1}
                         max={100}
                         className="reps"
                         name="reps"
                         id="reps"
-                        value={set.reps}
+                        value={set.reps ?? ""}
                         onChange={(e) => onChange("reps", Number(e.target.value))}
                     />
                 </label>
                 <label>Weight:
                     <input
+                        required
                         type="number"
                         min={1}
                         max={1000}
                         className="weight"
                         name="weight"
                         id="weight"
-                        value={set.weight}
+                        value={set.weight ?? ""}
                         onChange={(e) => onChange("weight", Number(e.target.value))}
                     />
                 </label>
                 <label>RPE:
-                    <input 
-                        type="number" 
-                        min={1} 
-                        max={10} 
-                        className="rpe" 
-                        name="rpe" 
+                    <input
+                        required
+                        type="number"
+                        min={1}
+                        max={10}
+                        className="rpe"
+                        name="rpe"
                         id="rpe"
-                        value={set.rpe}
+                        value={set.rpe ?? ""}
                         onChange={(e) => onChange("rpe", Number(e.target.value))} />
                 </label>
                 <button type="button" className="remove-btn" onClick={onDelete}>Delete</button>

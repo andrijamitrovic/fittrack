@@ -42,8 +42,8 @@ export interface WorkoutExercise {
 export interface ExerciseSet {
     id?: string;
     setNumber: number;
-    reps: number;
-    weight: number;
+    reps?: number;
+    weight?: number;
     rpe?: number;
     isWarmup?: boolean;
 }
