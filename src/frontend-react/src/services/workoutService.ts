@@ -54,7 +54,7 @@ export async function copyWorkoutFromWorkout(workoutId: string): Promise<Workout
 
 export async function loadWorkout(id: string): Promise<WorkoutViewer> {
 
-    let response = await fetchWithAuthAsync("workouts" + id, {
+    let response = await fetchWithAuthAsync("workouts/" + id, {
         method: "GET"
     })
 
