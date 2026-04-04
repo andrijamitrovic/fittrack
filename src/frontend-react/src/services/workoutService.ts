@@ -42,7 +42,7 @@ export async function makeTemplateFromWorkout(workoutId: string): Promise<Workou
 
 export async function copyWorkoutFromWorkout(workoutId: string): Promise<Workout> {
 
-    let response = await fetchWithAuthAsync("workouts/from-workout" + workoutId + "/as-template", {
+    let response = await fetchWithAuthAsync("workouts/from-workout/" + workoutId + "/as-template", {
         method: "POST"
     })
 
