@@ -16,5 +16,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /opt/fittrack
-            git pull origin main
-            docker compose up -d --build
+            git fetch origin main
+            git reset --hard origin/main
+            docker compose up -d --build --force-recreate

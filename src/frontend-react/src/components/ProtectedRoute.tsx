@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router";
-import { fetchWithAuthAsync, tryRefreshAsync } from "../services/api";
+import { tryRefreshAsync } from "../services/api";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
