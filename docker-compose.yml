@@ -27,15 +27,17 @@ services:
 
   web:
     build:
-        context: ./src/frontend-react
-        dockerfile: Dockerfile
+      context: ./src/frontend-react
+      dockerfile: Dockerfile
     container_name: fittrack-web
     ports:
-        - "80:80"
+      - "80:80"
+      - "443:443"
     volumes:
-        - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
-        - api
+      - api
 
 volumes:
   pgdata:
