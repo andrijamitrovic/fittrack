@@ -1,23 +1,47 @@
+import { useEffect, useState } from "react";
 import { Navigate } from "react-router";
+import { fetchWithAuthAsync, tryRefreshAsync } from "../services/api";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-        return <Navigate to='/login' />;
-    }
+    const [checking, setChecking] = useState(true); 
+    const [authenticated, setAuthenticated] = useState(false);
 
-    const parts = token.split('.');
-    if (parts.length !== 3) {
-        throw new Error("Invalid token format");
-    }
+    useEffect(() => {
+        async function checkAuth() {
+            const accessToken = localStorage.getItem("accessToken");
+            if (!accessToken) {
+                setAuthenticated(false);
+                setChecking(false);
+                return;
+            }
 
-    const payload = JSON.parse(atob(parts[1]));
+            const parts = accessToken.split('.');
+            if (parts.length !== 3) {
+                setAuthenticated(false);
+                setChecking(false);
+                return;
+            }
 
-    if (payload.exp < Date.now() / 1000) {
-        localStorage.removeItem("token");
-        return <Navigate to='/login' />;
-    }
+            const payload = JSON.parse(atob(parts[1]));
+            if (payload.exp > Date.now() / 1000) {
+                setAuthenticated(true);
+                setChecking(false);
+                return;
+            }
+
+            const refreshed = await tryRefreshAsync();
+            setAuthenticated(refreshed);
+            setChecking(false);
+        }
+
+        checkAuth();
+    }, []);
+
+
+
+    if (checking) return <p>Loading...</p>
+    if (!authenticated) return <Navigate to="/login" />
 
     return <>{children}</>
 }
