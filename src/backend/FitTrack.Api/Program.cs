@@ -15,8 +15,10 @@ builder.Services.AddScoped<ExerciseService>();
 builder.Services.AddScoped<IWorkoutRepository>(provider => new WorkoutRepository(connectionString));
 builder.Services.AddScoped<WorkoutService>();
 builder.Services.AddScoped<IUserRepository>(provider => new UserRepository(connectionString));
+builder.Services.AddScoped<IAuthRepository>(provider => new AuthRepository(connectionString));
 builder.Services.AddScoped<AuthService>(provider => new AuthService(
                                                         provider.GetRequiredService<IUserRepository>(),
+                                                        provider.GetRequiredService<IAuthRepository>(),
                                                         jwtSettings.Get<Dictionary<string,string>>()));
 builder.Services.AddControllers();
 

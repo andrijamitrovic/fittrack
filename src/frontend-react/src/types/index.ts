@@ -74,3 +74,8 @@ export interface ExerciseSetViewer {
     rpe?: number;
     isWarmup: boolean;
 }
+
+export interface AuthTokens {
+    accessToken: string;
+    refreshToken: string;
+}

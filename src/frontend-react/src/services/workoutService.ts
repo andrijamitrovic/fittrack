@@ -1,31 +1,26 @@
 import type { Workout, WorkoutViewer } from "../types";
-import { authHeaders, failedAuth, url } from "./api";
+import { fetchWithAuthAsync } from "./api";
 
 export async function loadWorkouts(): Promise<WorkoutViewer[]> {
-    let response = await fetch(url + "Workouts", {
-        method: "GET",
-        headers: authHeaders(),
-    });
-    if (response.status === 401) {
-        failedAuth();
-    }
+
+    let response = await fetchWithAuthAsync("workouts", {
+        method: "GET"
+    })
+
     if (!response.ok)
         throw new Error(`Response status: ${response.status}`);
-    if (response.status === 401) {
-    }
+
     let data = await response.json();
     return data;
 }
 
 export async function createWorkout(workout: Workout) {
-    let response = await fetch(url + "Workouts", {
+    let response = await fetchWithAuthAsync("workouts", {
         method: "POST",
-        headers: authHeaders(),
         body: JSON.stringify(workout)
+
     })
-    if (response.status === 401) {
-        failedAuth();
-    }
+
     if (!response.ok)
         throw new Error(`Response status: ${response.status}`);
     let data: string = await response.json();
@@ -34,13 +29,10 @@ export async function createWorkout(workout: Workout) {
 
 export async function makeTemplateFromWorkout(workoutId: string): Promise<Workout> {
 
-    let response = await fetch(url + "Workouts/from-workout/" + workoutId + "/as-template", {
-        method: "POST",
-        headers: authHeaders()
+    let response = await fetchWithAuthAsync("workouts/from-workout" + workoutId + "/as-template", {
+        method: "POST"
     })
-    if (response.status === 401) {
-        failedAuth();
-    }
+
     if (!response.ok)
         throw new Error(`Response status: ${response.status}`);
     let data: Workout = await response.json();
@@ -50,13 +42,10 @@ export async function makeTemplateFromWorkout(workoutId: string): Promise<Workou
 
 export async function copyWorkoutFromWorkout(workoutId: string): Promise<Workout> {
 
-    let response = await fetch(url + "Workouts/from-workout/" + workoutId + "/as-workout", {
-        method: "POST",
-        headers: authHeaders()
+    let response = await fetchWithAuthAsync("workouts/from-workout" + workoutId + "/as-template", {
+        method: "POST"
     })
-    if (response.status === 401) {
-        failedAuth();
-    }
+
     if (!response.ok)
         throw new Error(`Response status: ${response.status}`);
     let data: Workout = await response.json();
@@ -64,13 +53,11 @@ export async function copyWorkoutFromWorkout(workoutId: string): Promise<Workout
 }
 
 export async function loadWorkout(id: string): Promise<WorkoutViewer> {
-    let response = await fetch(url + "Workouts/" + id, {
-        method: "GET",
-        headers: authHeaders(),
-    });
-    if (response.status === 401) {
-        failedAuth();
-    }
+
+    let response = await fetchWithAuthAsync("workouts" + id, {
+        method: "GET"
+    })
+
     if (!response.ok)
         throw new Error(`Response status: ${response.status}`);
     if (response.status === 401) {

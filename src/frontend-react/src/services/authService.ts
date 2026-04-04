@@ -1,5 +1,5 @@
 import { authHeaders, url } from "./api";
-import type { LoginRequest, RegisterRequest } from "../types";
+import type { AuthTokens, LoginRequest, RegisterRequest } from "../types";
 
 
 export async function login(user: LoginRequest) {
@@ -10,8 +10,11 @@ export async function login(user: LoginRequest) {
     })
     if (!response.ok)
         throw new Error(`Response status: ${response.status}`);
-    let data = await response.json();
-    localStorage.setItem("token", data.token);
+    console.log(response);
+    let data: AuthTokens = await response.json();
+    console.log(data)
+    localStorage.setItem("accessToken", data.accessToken);
+    localStorage.setItem("refreshToken", data.refreshToken);
     return data;
 }
 
@@ -24,6 +27,7 @@ export async function register(user: RegisterRequest) {
     if (!response.ok)
         throw new Error(`Response status: ${response.status}`);
     let data = await response.json();
-    localStorage.setItem("token", data.token);
+    localStorage.setItem("accessToken", data.accessToken);
+    localStorage.setItem("refreshToken", data.refreshToken);
     return data;
 }

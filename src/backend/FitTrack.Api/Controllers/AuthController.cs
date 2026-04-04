@@ -39,12 +39,28 @@ namespace FitTrack.Api.Controllers
         [Route("login")]
         public async Task<IActionResult> Login(LoginDTO loginDTO)
         {
-            string? token = await _authService.GetUserAsync(loginDTO);
-            if (token == null)
+            AuthToken? tokens = await _authService.GetUserAsync(loginDTO);
+            if (tokens == null)
             {
                 return Unauthorized("Invalid username or password.");
             }
-            return Ok(new {Token = token});
+
+
+            return Ok(tokens);
+        }
+        [HttpPost]
+        [Route("refresh-token/refresh")]
+        public async Task<IActionResult> RefreshRefreshToken(RefreshTokenRequest refreshToken)
+        {
+            AuthToken? newRefreshToken = await _authService.VerifyTokenAsync(refreshToken.RefreshToken);
+            if(newRefreshToken == null)
+            {
+                return Unauthorized();
+            }
+            else
+            {
+                return Ok(newRefreshToken);
+            }
         }
     }
 }

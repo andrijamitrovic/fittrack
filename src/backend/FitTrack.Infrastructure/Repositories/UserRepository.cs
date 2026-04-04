@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using System.ComponentModel.Design;
+using Dapper;
 using FitTrack.Application.Interfaces;
 using FitTrack.Domain.Entities;
 using Npgsql;
@@ -43,6 +44,15 @@ namespace FitTrack.Infrastructure.Repositories
             using var connection = new NpgsqlConnection(_connectionString);
 
             return await connection.QuerySingleOrDefaultAsync<User>(sql, new { Email = email });
+        }
+
+        public async Task<User?> GetUserByIdAsync(Guid userId)
+        {
+            var sql = "SELECT * FROM users WHERE id = @Id";
+
+            using var connection = new NpgsqlConnection(_connectionString);
+
+            return await connection.QuerySingleOrDefaultAsync<User>(sql, new {Id = userId});
         }
     }
 }
