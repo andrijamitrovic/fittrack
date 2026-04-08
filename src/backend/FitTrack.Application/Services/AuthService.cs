@@ -74,6 +74,11 @@ namespace FitTrack.Application.Services
                 return null;
             }
 
+            if(newRefreshToken == null)
+            {
+                return null;
+            }
+
             string accessToken = GenerateJWT(user.Id, user.Email);
 
             return new AuthToken { AccessToken = accessToken, RefreshToken = newRefreshToken.Token};
