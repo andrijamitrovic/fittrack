@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:16
+    container_name: fittrack-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
+      - ./database/migrations:/docker-entrypoint-initdb.d
+
+  api:
+    build:
+      context: ./src/backend
+      dockerfile: Dockerfile
+    container_name: fittrack-api
+    environment:
+      - ASPNET_URLS=http://+:8080
+      - ConnectionStrings__PGConnectionString=Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      - JwtSettings__Key=${JWT_KEY}
+      - JwtSettings__Issuer=${JWT_ISSUER}
+      - JwtSettings__Audience=${JWT_AUDIENCE}
+      - JwtSettings__ExpiryMinutes=${JWT_EXPIRY}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+volumes:
+  pgdata:
