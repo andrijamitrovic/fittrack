@@ -53,7 +53,7 @@ export function WorkoutLog() {
         setExercises(updated);
     }
 
-    function updateSet(exerciseIndex: number, setIndex: number, field: string, value: number) {
+    function updateSet(exerciseIndex: number, setIndex: number, field: string, value: number | undefined) {
         const updated = [...exercises]
         updated[exerciseIndex].exerciseSets[setIndex] = {
             ...updated[exerciseIndex].exerciseSets[setIndex],
@@ -139,7 +139,7 @@ export function WorkoutLog() {
                             exercisesList={exercisesList}
                             exercise={exercise}
                             onAddSet={() => addSet(index)}
-                            onUpdateSet={(setIndex: number, field: string, value: number) => updateSet(index, setIndex, field, value)}
+                            onUpdateSet={(setIndex: number, field: string, value: number | undefined) => updateSet(index, setIndex, field, value)}
                             onDeleteExercise={() => deleteExercise(index)}
                             onDeleteSet={(setIndex: number) => deleteSet(index, setIndex)}
                             onSelectExercise={(id) => selectExercise(index, id)}

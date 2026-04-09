@@ -5,7 +5,7 @@ interface WorkoutExerciseProps {
     exercisesList: Exercise[];
     exercise: WorkoutExercise;
     onAddSet: () => void;
-    onUpdateSet: (setIndex: number, field: string, value: number) => void;
+    onUpdateSet: (setIndex: number, field: string, value: number | undefined) => void;
     onDeleteSet: (setIndex: number) => void;
     onDeleteExercise: () => void;
     onSelectExercise: (id: string) => void;
@@ -30,7 +30,7 @@ export function WorkoutExerciseComponent({ exercisesList, exercise, onAddSet, on
                     <WorkoutExerciseSetComponent
                         key={setIndex}
                         set={set}
-                        onChange={(field: string, value: number) => onUpdateSet(setIndex, field, value)}
+                        onChange={(field: string, value: number | undefined) => onUpdateSet(setIndex, field, value)}
                         onDelete={() => onDeleteSet(setIndex)}
                     />
                 ))}

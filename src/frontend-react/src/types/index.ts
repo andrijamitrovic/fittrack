@@ -55,6 +55,7 @@ export interface WorkoutViewer {
     notes?: string;
     durationMin?: number;
     exercises: WorkoutExerciseViewer[];
+    isTemplate?: boolean;
 }
 export interface WorkoutExerciseViewer {
     workoutExerciseId: string;

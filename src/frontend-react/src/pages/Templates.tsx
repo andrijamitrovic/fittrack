@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { copyWorkoutFromWorkout, loadWorkouts } from "../services/workoutService";
+import { copyWorkoutFromWorkout, loadTemplates } from "../services/workoutService";
 import type { Workout, WorkoutExerciseViewer, WorkoutViewer } from "../types";
 import { useNavigate } from "react-router";
 
@@ -15,7 +15,7 @@ export function Templates() {
     }
 
     useEffect(() => {
-        loadWorkouts()
+        loadTemplates()
             .then(setWorkouts)
             .catch(err => setError(err.message))
             .finally(() => setLoading(false));
