@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { copyWorkoutFromWorkout, loadWorkout, loadWorkouts, makeTemplateFromWorkout } from "../services/workoutService";
-import type { ExerciseSetViewer, Workout, WorkoutExerciseViewer, WorkoutViewer } from "../types";
+import { loadWorkout, loadWorkouts, makeTemplateFromWorkout } from "../services/workoutService";
+import type { ExerciseSetViewer,  WorkoutExerciseViewer, WorkoutViewer } from "../types";
 import { useNavigate } from "react-router";
 
 export function WorkoutHistory() {
