@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { copyWorkoutFromWorkout, loadWorkouts, makeTemplateFromWorkout } from "../services/workoutService";
+import { copyWorkoutFromWorkout, loadWorkout, loadWorkouts, makeTemplateFromWorkout } from "../services/workoutService";
 import type { ExerciseSetViewer, Workout, WorkoutExerciseViewer, WorkoutViewer } from "../types";
 import { useNavigate } from "react-router";
 
@@ -15,8 +15,8 @@ export function WorkoutHistory() {
     }
 
     async function copyWorkout(workoutId: string) {
-        let newWorkout: Workout = await copyWorkoutFromWorkout(workoutId);
-        navigate("/newworkout/" + newWorkout.id);
+        let newWorkout: WorkoutViewer = await loadWorkout(workoutId);
+        navigate("/newworkout/" + newWorkout.workoutId);
     }
 
     useEffect(() => {
