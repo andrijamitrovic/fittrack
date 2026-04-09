@@ -2,7 +2,7 @@ import type { ExerciseSet } from "../types";
 
 interface WorkoutExerciseSetProps {
     set: ExerciseSet;
-    onChange: (field: string, value: number) => void;
+    onChange: (field: string, value: number | undefined) => void;
     onDelete: () => void;
 }
 
@@ -24,7 +24,10 @@ export function WorkoutExerciseSetComponent({
                         name="reps"
                         id="reps"
                         value={set.reps ?? ""}
-                        onChange={(e) => onChange("reps", Number(e.target.value))}
+                        onChange={(e) => {
+                            const val = e.target.value === "" ? undefined : Number(e.target.value);
+                            onChange("reps", val);
+                        }} 
                     />
                 </label>
                 <label>Weight:
@@ -37,7 +40,10 @@ export function WorkoutExerciseSetComponent({
                         name="weight"
                         id="weight"
                         value={set.weight ?? ""}
-                        onChange={(e) => onChange("weight", Number(e.target.value))}
+                        onChange={(e) => {
+                            const val = e.target.value === "" ? undefined : Number(e.target.value);
+                            onChange("weight", val);
+                        }} 
                     />
                 </label>
                 <label>RPE:
@@ -50,7 +56,11 @@ export function WorkoutExerciseSetComponent({
                         name="rpe"
                         id="rpe"
                         value={set.rpe ?? ""}
-                        onChange={(e) => onChange("rpe", Number(e.target.value))} />
+                        onChange={(e) => {
+                            const val = e.target.value === "" ? undefined : Number(e.target.value);
+                            onChange("rpe", val);
+                        }} 
+                    />
                 </label>
                 <button type="button" className="remove-btn" onClick={onDelete}>Delete</button>
                 {/* <label for="isWarmup">Is a warmup? </label>

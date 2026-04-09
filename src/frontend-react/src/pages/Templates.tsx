@@ -17,6 +17,7 @@ export function Templates() {
     useEffect(() => {
         loadWorkouts()
             .then(setWorkouts)
+            .then(() => setWorkouts(() => [...workouts].filter(x => x.isTemplate === true)))
             .catch(err => setError(err.message))
             .finally(() => setLoading(false));
     }, []);
