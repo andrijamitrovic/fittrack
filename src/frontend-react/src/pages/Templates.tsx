@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { copyWorkoutFromWorkout, loadWorkouts } from "../services/workoutService";
+import { copyWorkoutFromWorkout, loadTemplates, loadWorkouts } from "../services/workoutService";
 import type { Workout, WorkoutExerciseViewer, WorkoutViewer } from "../types";
 import { useNavigate } from "react-router";
 
@@ -15,9 +15,8 @@ export function Templates() {
     }
 
     useEffect(() => {
-        loadWorkouts()
+        loadTemplates()
             .then(setWorkouts)
-            .then(() => setWorkouts(() => [...workouts].filter(x => x.isTemplate === true)))
             .catch(err => setError(err.message))
             .finally(() => setLoading(false));
     }, []);
@@ -37,6 +36,7 @@ export function Templates() {
                                 <button type="button" onClick={() => makeWorkout(workout.workoutId)}>Use template</button>
                             </div>
                             {workout.exercises.map((exercise: WorkoutExerciseViewer) => {
+                                console.log(workout)
                                 return (
                                     <div key={exercise.workoutExerciseId}>
                                         {exercise.exerciseName} - {exercise.sets.length} sets

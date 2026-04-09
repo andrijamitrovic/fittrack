@@ -11,6 +11,7 @@ export function WorkoutHistory() {
 
     async function makeTemplate(workoutId: string) {
         await makeTemplateFromWorkout(workoutId);
+        navigate("/templates");
     }
 
     async function copyWorkout(workoutId: string) {

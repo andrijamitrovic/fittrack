@@ -436,3 +436,14 @@ summary {
   width: 100%;
   max-width: 600px;
 }
+
+.section {
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.field {
+  width: 80%;
+}

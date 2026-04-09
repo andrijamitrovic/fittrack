@@ -36,6 +36,7 @@ export function WorkoutExerciseSetComponent({
                         type="number"
                         min={1}
                         max={1000}
+                        step="0.5"
                         className="weight"
                         name="weight"
                         id="weight"

@@ -14,6 +14,19 @@ export async function loadWorkouts(): Promise<WorkoutViewer[]> {
     return data;
 }
 
+export async function loadTemplates(): Promise<WorkoutViewer[]> {
+
+    let response = await fetchWithAuthAsync("workouts/workout-templates", {
+        method: "GET"
+    })
+
+    if (!response.ok)
+        throw new Error(`Response status: ${response.status}`);
+
+    let data = await response.json();
+    return data;
+}
+
 export async function createWorkout(workout: Workout) {
     let response = await fetchWithAuthAsync("workouts", {
         method: "POST",
@@ -29,7 +42,7 @@ export async function createWorkout(workout: Workout) {
 
 export async function makeTemplateFromWorkout(workoutId: string): Promise<Workout> {
 
-    let response = await fetchWithAuthAsync("workouts/from-workout" + workoutId + "/as-template", {
+    let response = await fetchWithAuthAsync("workouts/from-workout/" + workoutId + "/as-template", {
         method: "POST"
     })
 
@@ -42,7 +55,7 @@ export async function makeTemplateFromWorkout(workoutId: string): Promise<Workou
 
 export async function copyWorkoutFromWorkout(workoutId: string): Promise<Workout> {
 
-    let response = await fetchWithAuthAsync("workouts/from-workout/" + workoutId + "/as-template", {
+    let response = await fetchWithAuthAsync("workouts/from-workout/" + workoutId + "/as-workout", {
         method: "POST"
     })
 
