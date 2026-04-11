@@ -7,6 +7,7 @@ COPY FitTrack.Application/*.csproj FitTrack.Application/
 COPY FitTrack.Domain/*.csproj FitTrack.Domain/
 COPY FitTrack.Infrastructure/*.csproj FitTrack.Infrastructure/
 COPY FitTrack.Tests/*.csproj FitTrack.Tests/
+COPY FitTrack.E2ETests/*.csproj FitTrack.E2ETests/
 RUN dotnet restore FitTrack.slnx
 
 COPY . ./
