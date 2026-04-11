@@ -2,6 +2,7 @@
   <Project Path="FitTrack.Api/FitTrack.Api.csproj" />
   <Project Path="FitTrack.Application/FitTrack.Application.csproj" />
   <Project Path="FitTrack.Domain/FitTrack.Domain.csproj" />
+  <Project Path="FitTrack.E2ETests/FitTrack.E2ETests.csproj" />
   <Project Path="FitTrack.Infrastructure/FitTrack.Infrastructure.csproj" />
   <Project Path="FitTrack.Tests/FitTrack.Tests.csproj" />
 </Solution>

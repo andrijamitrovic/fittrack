@@ -43,6 +43,7 @@ export function Login() {
                         <input type="password" name="password" id="password" value={password} onChange={handleChangePassword} />
                     </label>
                     <input type="submit" className="btn-submit" defaultValue="Log In" />
+                    < br />
                     {error && <div className="error-message">{error}</div>}
                     Don't have an account?
                     <Link to="/register">
