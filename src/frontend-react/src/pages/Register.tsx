@@ -45,20 +45,30 @@ export function Register() {
                     <label htmlFor="name">Name:
                         <input type="text" id="name" name="name" value={name} onChange={handleChangeName} />
                     </label>
-                    <label htmlFor="email">Email
+                    <label htmlFor="email">E-mail:
                         <input type="email" id="email" name="email" value={email} onChange={handleChangeEmail} />
                     </label>
-                    <label htmlFor="password">Password
+                    <label htmlFor="password">Password:
                         <input type="password" id="password" name="password" value={password} onChange={handleChangePassword} />
                     </label>
                     {error && <div className="error-message">{error}</div>}
-                    <input type="submit" className="btn-submit" defaultValue="Register"/>
+                    <input type="submit" className="btn-submit" defaultValue="Register" />
                 </form>
+
+                < br />
+
                 Already have an account?
                 <Link to="/login">
                     Log In.
                 </Link>
+                
             </main>
+            <footer>
+                <div>Andrija Mitrović </div>
+                <div>
+                    <a href="https://github.com/andrijamitrovic">My github</a>
+                </div>
+            </footer>
         </>
 
 
