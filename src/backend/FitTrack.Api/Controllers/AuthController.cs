@@ -1,6 +1,8 @@
-﻿using FitTrack.Application.DTOs;
+﻿using System.Reflection.Metadata.Ecma335;
+using FitTrack.Application.DTOs;
 using FitTrack.Application.Services;
 using FitTrack.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FitTrack.Api.Controllers
@@ -61,6 +63,26 @@ namespace FitTrack.Api.Controllers
             {
                 return Ok(newRefreshToken);
             }
+        }
+
+        [Authorize(Roles = "admin")]
+        [HttpGet]
+        public async Task<IActionResult> GetUsers()
+        {
+            List<UserDTO> users = await _authService.GetUsersAsync();
+            return Ok(users);
+        }
+
+        [Authorize(Roles = "admin")]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUser(Guid id)
+        {
+            var deleted = await _authService.DeleteUserAsync(id);
+            if(!deleted)
+            {
+                return NotFound(new {Message = "User Not Found."});
+            }
+            return NoContent();
         }
     }
 }

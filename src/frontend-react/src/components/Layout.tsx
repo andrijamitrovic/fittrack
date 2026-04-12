@@ -1,4 +1,5 @@
 import { NavLink, Outlet, useNavigate } from "react-router";
+import { isAdmin } from "../utils/auth";
 
 export function Layout() {
     const navigate = useNavigate();
@@ -53,6 +54,14 @@ export function Layout() {
                             Templates
                         </NavLink>
                     </li>
+
+
+                    {isAdmin() && (
+                        <>
+                            <li><NavLink to="/admin/users">Users</NavLink></li>
+                            <li><NavLink to="/admin/exercises">Exercises</NavLink></li>
+                        </>
+                    )}
 
 
                     <li className="push">

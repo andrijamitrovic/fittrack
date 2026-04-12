@@ -54,5 +54,26 @@ namespace FitTrack.Infrastructure.Repositories
 
             return await connection.QuerySingleOrDefaultAsync<User>(sql, new {Id = userId});
         }
+
+        public async Task<IEnumerable<User>> GetUsersAsync()
+        {
+            var sql = "SELECT id, email, display_name, role, created_at FROM users";
+
+            using var connection = new NpgsqlConnection(_connectionString);
+
+            return await connection.QueryAsync<User>(sql);
+        }
+
+        public async Task<bool> DeleteUser(Guid userId)
+        {
+            var sql = "DELETE FROM users WHERE id = @Id";
+
+
+            using var connection = new NpgsqlConnection(_connectionString);
+
+            var rowsAffected = await connection.ExecuteAsync(sql, new { Id = userId });
+
+            return rowsAffected > 0;
+        }
     }
 }

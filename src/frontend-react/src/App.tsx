@@ -9,6 +9,9 @@ import { Layout } from './components/Layout'
 import { WorkoutHistory } from './pages/WorkoutHistory'
 import { WorkoutLog } from './pages/WorkoutLog'
 import { Templates } from './pages/Templates'
+import { AdminRoute } from './components/AdminRoute'
+import { AdminUsers } from './pages/AdminUsers'
+import { AdminExercises } from './pages/AdminExercises'
 
 function App() {
   return (
@@ -21,6 +24,16 @@ function App() {
         <Route path="newworkout" element={<WorkoutLog />} />
         <Route path="newworkout/:workoutId" element={<WorkoutLog />} />
         <Route path="templates" element={<Templates />} />
+      </Route>
+      <Route path="/admin/" element={
+        <ProtectedRoute>
+          <AdminRoute>
+            <Layout />
+          </AdminRoute>
+        </ProtectedRoute>
+      }>
+        <Route path="users" element={<AdminUsers />} />
+        <Route path="exercises" element={<AdminExercises />} />
       </Route>
     </Routes>
   )
