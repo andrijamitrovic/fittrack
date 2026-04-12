@@ -10,5 +10,7 @@ namespace FitTrack.Application.Interfaces
         public Task<User?> CreateUserAsync(User user);
         public Task<User?> GetUserAsync(string email);
         public Task<User?> GetUserByIdAsync(Guid userId);
+        public Task<IEnumerable<User>> GetUsersAsync();
+        public Task<bool> DeleteUser(Guid userId);
     }
 }

@@ -21,5 +21,40 @@ namespace FitTrack.Infrastructure.Repositories
             using var connection = new NpgsqlConnection(_connectionString);
             return await connection.QueryAsync<Exercise>(sql);
         }
+
+        public async Task<Exercise?> GetExerciseAsync(Guid id)
+        {
+            var sql = "SELECT * FROM exercises WHERE id=@Id";
+            using var connection = new NpgsqlConnection(_connectionString);
+            return await connection.QuerySingleOrDefaultAsync<Exercise>(sql, new
+            {
+                Id = id
+            });
+        }
+
+        public async Task<Exercise?> AddExercise(Exercise exercise)
+        {
+            try
+            {
+                var sql = "INSERT INTO exercises (name, category, muscle_group, description, is_custom, created_by) " +
+                          "VALUES (@Name, @Category, @MuscleGroup, @Description, @IsCustom, @CreatedBy) RETURNING *";
+                using var connection = new NpgsqlConnection(_connectionString);
+
+                return await connection.QuerySingleOrDefaultAsync<Exercise>(sql, new
+                {
+                    exercise.Name,
+                    exercise.Category,
+                    exercise.MuscleGroup,
+                    exercise.Description,
+                    exercise.IsCustom,
+                    exercise.CreatedBy,
+                    exercise.CreatedAt
+                });
+            }
+            catch (PostgresException ex) when (ex.SqlState == "23505")
+            {
+                return null;
+            }
+        }
     }
 }

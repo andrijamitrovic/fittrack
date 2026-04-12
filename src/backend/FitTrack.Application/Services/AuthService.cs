@@ -28,7 +28,7 @@ namespace FitTrack.Application.Services
             {
                 Email = userDTO.Email,
                 DisplayName = userDTO.DisplayName,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(userDTO.Password),
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(userDTO.Password)
             });
         }
 
@@ -42,9 +42,10 @@ namespace FitTrack.Application.Services
             }
 
 
-            
-            return new AuthToken {
-                AccessToken = GenerateJWT(user.Id, loginDTO.Email),
+
+            return new AuthToken
+            {
+                AccessToken = GenerateJWT(user.Id, loginDTO.Email, user.Role),
                 RefreshToken = (await CreateRefreshTokenAsync(user.Id))!.Token
             };
         }
@@ -69,22 +70,22 @@ namespace FitTrack.Application.Services
 
             User? user = await _userRepository.GetUserByIdAsync(existingRefreshToken.UserId);
 
-            if(user == null)
+            if (user == null)
             {
                 return null;
             }
 
-            if(newRefreshToken == null)
+            if (newRefreshToken == null)
             {
                 return null;
             }
 
-            string accessToken = GenerateJWT(user.Id, user.Email);
+            string accessToken = GenerateJWT(user.Id, user.Email, user.Role);
 
-            return new AuthToken { AccessToken = accessToken, RefreshToken = newRefreshToken.Token};
+            return new AuthToken { AccessToken = accessToken, RefreshToken = newRefreshToken.Token };
         }
 
-        public string GenerateJWT(Guid userId, string uniqueName)
+        public string GenerateJWT(Guid userId, string uniqueName, string role)
         {
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings["Key"]));
@@ -93,6 +94,7 @@ namespace FitTrack.Application.Services
             {
                 new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
                 new Claim(JwtRegisteredClaimNames.UniqueName, uniqueName),
+                new Claim(ClaimTypes.Role, role),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
@@ -105,6 +107,25 @@ namespace FitTrack.Application.Services
 
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public async Task<List<UserDTO>> GetUsersAsync()
+        {
+            var users = await _userRepository.GetUsersAsync();
+            return users.Select(user => new UserDTO
+            {
+                Id = user.Id,
+                Email = user.Email,
+                DisplayName = user.DisplayName,
+                CreatedAt = user.CreatedAt,
+                UpdatedAt = user.UpdatedAt,
+                Role = user.Role
+            }).ToList();
+        }
+
+        public async Task<bool> DeleteUserAsync(Guid userId)
+        {
+            return await _userRepository.DeleteUser(userId);
         }
     }
 }
