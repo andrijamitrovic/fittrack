@@ -1,5 +1,5 @@
-import { authHeaders, url } from "./api";
-import type { AuthTokens, LoginRequest, RegisterRequest } from "../types";
+import { authHeaders, fetchWithAuthAsync, url } from "./api";
+import type { AuthTokens, LoginRequest, RegisterRequest, User } from "../types";
 
 
 export async function login(user: LoginRequest) {
@@ -30,4 +30,22 @@ export async function register(user: RegisterRequest) {
     localStorage.setItem("accessToken", data.accessToken);
     localStorage.setItem("refreshToken", data.refreshToken);
     return data;
+}
+
+export async function getUsers() {
+    let response = await fetchWithAuthAsync("auth", {
+        method: "GET"
+    })
+    if (!response.ok)
+        throw new Error(`Response status: ${response.status}`);
+    let data: User[] = await response.json();
+    return data;
+}
+
+export async function deleteUser(id: string) {
+    let response = await fetchWithAuthAsync("auth/" + id, {
+        method: "DELETE"
+    })
+    if (!response.ok)
+        throw new Error(`Response status: ${response.status}`);
 }
