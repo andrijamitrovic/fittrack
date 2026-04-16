@@ -1,9 +1,27 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import type { Exercise } from "../types";
 
-export function ExerciseForm({ onAdd }: { onAdd: (e: any) => void }) {
+type ExerciseFormProps = {
+    onAdd: (e: any) => void;
+    formExercise: Exercise | null;
+}
+
+export function ExerciseForm({ onAdd, formExercise }: ExerciseFormProps) {
     const [name, setName] = useState("");
     const [category, setCategory] = useState("");
     const [muscleGroup, setMuscleGroup] = useState("");
+
+    useEffect(() => {
+        if (formExercise) {
+            setName(formExercise.name);
+            setCategory(formExercise.category);
+            setMuscleGroup(formExercise.muscleGroup);
+        } else {
+            setName("");
+            setCategory("");
+            setMuscleGroup("");
+        }
+    }, [formExercise]);
 
     return (
         <div className="workoutForm">
@@ -33,13 +51,18 @@ export function ExerciseForm({ onAdd }: { onAdd: (e: any) => void }) {
 
             <button
                 onClick={() => {
-                    onAdd({ name, category, muscleGroup });
+                    onAdd({
+                        id: formExercise?.id,
+                        name,
+                        category,
+                        muscleGroup
+                    });
                     setName("");
                     setCategory("");
                     setMuscleGroup("");
                 }}
             >
-                Add
+                {formExercise ? "Update" : "Add"}
             </button>
         </div>
     );

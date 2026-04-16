@@ -1,4 +1,5 @@
-﻿using FitTrack.Application.DTOs;
+﻿using System.Data.Common;
+using FitTrack.Application.DTOs;
 using FitTrack.Application.Interfaces;
 using FitTrack.Domain.Entities;
 
@@ -32,6 +33,25 @@ namespace FitTrack.Application.Services
         public async Task<Exercise?> GetExerciseAsync(Guid id)
         {
             return await _exerciseRepository.GetExerciseAsync(id);
+        }
+
+        public async Task<Exercise?> UpdateExerciseAsync(ExerciseDTO exercise, Guid id, Guid userId)
+        {
+            return await _exerciseRepository.UpdateExerciseAsync(new Exercise
+            {
+                Id = id,
+                Name = exercise.Name,
+                Category = exercise.Category,
+                MuscleGroup = exercise.MuscleGroup,
+                Description = exercise.Description,
+                IsCustom = true,
+                CreatedBy = userId
+            });
+        }
+
+        public async Task<bool> DeleteExerciseAsync(Guid id)
+        {
+            return await _exerciseRepository.DeleteExerciseAsync(id);
         }
     }
 }
