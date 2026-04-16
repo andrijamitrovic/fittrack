@@ -1,5 +1,4 @@
-﻿using FitTrack.Application.DTOs;
-using FitTrack.Application.Services;
+﻿using FitTrack.Application.Services;
 using FitTrack.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -43,6 +42,32 @@ namespace FitTrack.Api.Controllers
             var exercise = await _exerciseService.GetExerciseAsync(id);
             if (exercise == null) return NotFound();
             return Ok(exercise);
+        }
+
+        [Authorize(Roles = "admin")]
+        [HttpPut("{id}")]
+        public async Task<ActionResult> UpdateExercise(Guid id,ExerciseDTO exercise)
+        {
+            var userId = Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
+
+            var updatedExercise = await _exerciseService.UpdateExerciseAsync(exercise, id, userId);
+            if (updatedExercise == null)
+            {
+                return BadRequest("Unable to update exercise");
+            }
+            return Ok(updatedExercise);
+        }
+
+        [Authorize(Roles = "admin")]
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteExercise(Guid id)
+        {
+            var deleted = await _exerciseService.DeleteExerciseAsync(id);
+            if (!deleted)
+            {
+                return Conflict(new { Message = "Exercise is used in a workout." });
+            }
+            return NoContent();
         }
     }
 }

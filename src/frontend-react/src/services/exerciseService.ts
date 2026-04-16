@@ -22,3 +22,26 @@ export async function addExerciseAsync(exercise: Exercise) {
     if (!response.ok)
         throw new Error(`Response status: ${response.status}`);
 }
+
+
+export async function updateExerciseAsync(exercise: Exercise) {
+
+    let response = await fetchWithAuthAsync("exercises/" + exercise.id, {
+        method: "PUT",
+        body: JSON.stringify({
+            name: exercise.name,
+            category: exercise.category,
+            muscleGroup: exercise.muscleGroup
+        })
+    })
+    if (!response.ok)
+        throw new Error(`Response status: ${response.status}`);
+}
+
+export async function deleteExerciseAsync(id: string) {
+    let response = await fetchWithAuthAsync("exercises/" + id, {
+        method: "DELETE"
+    })
+    if (!response.ok)
+        throw new Error(`Response status: ${response.status}`);
+}

@@ -56,5 +56,50 @@ namespace FitTrack.Infrastructure.Repositories
                 return null;
             }
         }
+
+        public async Task<Exercise?> UpdateExerciseAsync(Exercise exercise)
+        {
+            try
+            {
+                var sql = "UPDATE exercises SET name=@Name, category=@Category, muscle_group=@MuscleGroup, description=@Description WHERE id=@Id RETURNING *";
+
+                using var connection = new NpgsqlConnection(_connectionString);
+
+                return await connection.QueryFirstOrDefaultAsync<Exercise>(sql, new
+                {
+                    exercise.Id,
+                    exercise.Name,
+                    exercise.Category,
+                    exercise.MuscleGroup,
+                    exercise.Description,
+                    exercise.IsCustom,
+                    exercise.CreatedBy,
+                    exercise.CreatedAt
+                });
+            }
+            catch (PostgresException ex) when (ex.SqlState == "23505")
+            {
+                return null;
+            }
+        }
+
+
+        public async Task<bool> DeleteExerciseAsync(Guid id)
+        {
+            try
+            {
+                var sql = "DELETE FROM exercises WHERE id = @Id";
+
+
+                using var connection = new NpgsqlConnection(_connectionString);
+
+                var rowsAffected = await connection.ExecuteAsync(sql, new { Id = id });
+                return rowsAffected > 0;
+            } 
+            catch
+            {
+                return false;    
+            }
+        }
     }
 }

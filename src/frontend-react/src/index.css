@@ -138,14 +138,14 @@ button:active {
 }
 
 .remove-btn {
-  background: white;
-  color: black;
+  background: red;
+  color: white;
   border: 1px solid black;
 }
 
 .remove-btn:hover {
-  background: black;
-  color: white;
+  background: white;
+  color: black;
 }
 
 h1 {

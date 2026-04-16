@@ -41,7 +41,7 @@ export function AdminUsers() {
                             <div className="cardHeader">
                                 <h3>{user.displayName}</h3>
                                 <p>{user.email}</p>
-                                <button type="button" onClick={() => deleteUserButton(user.id!)}>{deleteId === user.id ? "Deleting..." : "Delete user"}</button>
+                                <button className="remove-btn" type="button" onClick={() => deleteUserButton(user.id!)}>{deleteId === user.id ? "Deleting..." : "Delete user"}</button>
                             </div>
                         </div>
                     );
