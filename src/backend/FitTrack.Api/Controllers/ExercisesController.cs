@@ -1,4 +1,5 @@
-﻿using FitTrack.Application.Services;
+﻿using System.Security.Claims;
+using FitTrack.Application.Services;
 using FitTrack.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -27,7 +28,11 @@ namespace FitTrack.Api.Controllers
         [HttpPost]
         public async Task<ActionResult> AddExercise(ExerciseDTO exercise)
         {
-            var userId = Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
+            if (GetUserId(User) is not Guid userId)
+            {
+                return Unauthorized();
+            }
+            
             var createdExercise = await _exerciseService.AddExercise(exercise, userId);
             if (createdExercise == null)
             {
@@ -48,7 +53,10 @@ namespace FitTrack.Api.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateExercise(Guid id,ExerciseDTO exercise)
         {
-            var userId = Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
+            if (GetUserId(User) is not Guid userId)
+            {
+                return Unauthorized();
+            }
 
             var updatedExercise = await _exerciseService.UpdateExerciseAsync(exercise, id, userId);
             if (updatedExercise == null)
@@ -68,6 +76,13 @@ namespace FitTrack.Api.Controllers
                 return Conflict(new { Message = "Exercise is used in a workout." });
             }
             return NoContent();
+        }
+
+        private Guid? GetUserId(ClaimsPrincipal principal)
+        {
+            var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null) return null;
+            return Guid.Parse(userIdClaim.Value);
         }
     }
 }
