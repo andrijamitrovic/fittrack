@@ -1,4 +1,4 @@
-﻿using System.Data.Common;
+﻿using FitTrack.Application.Common;
 using FitTrack.Application.DTOs;
 using FitTrack.Application.Interfaces;
 using FitTrack.Domain.Entities;
@@ -13,14 +13,20 @@ namespace FitTrack.Application.Services
             _exerciseRepository = exerciseRepository;
         }
 
-        public Task<IEnumerable<Exercise>> GetAllAsync()
+        public async Task<ServiceResult<IEnumerable<Exercise>>> GetAllAsync()
         {
-            return _exerciseRepository.GetAllAsync();
+            return new ServiceResult<IEnumerable<Exercise>>
+            {
+                Code = ResultType.Success,
+                Data = await _exerciseRepository.GetAllAsync(),
+                Message = "Exercises returned."
+            };
         }
 
-        public async Task<Exercise?> AddExercise(ExerciseDTO exercise, Guid userId)
+        public async Task<ServiceResult<Exercise?>> AddExercise(ExerciseDTO exercise, Guid userId)
         {
-            return await _exerciseRepository.AddExercise(new Exercise
+
+            var repoResult = await _exerciseRepository.AddExercise(new Exercise
             {
                 Name = exercise.Name,
                 Category = exercise.Category,
@@ -29,15 +35,45 @@ namespace FitTrack.Application.Services
                 IsCustom = true,
                 CreatedBy = userId
             });
-        }
-        public async Task<Exercise?> GetExerciseAsync(Guid id)
-        {
-            return await _exerciseRepository.GetExerciseAsync(id);
+
+            return new ServiceResult<Exercise?>
+            {
+                Code = repoResult.Code,
+                Data = repoResult.Data,
+                Message = repoResult.Code switch
+                {
+                    ResultType.Success => "Exercise added.",
+                    ResultType.Conflict => "This exercise already exists",
+                    _ => "Exercise could not be added."
+                }
+            };
         }
 
-        public async Task<Exercise?> UpdateExerciseAsync(ExerciseDTO exercise, Guid id, Guid userId)
+        public async Task<ServiceResult<Exercise?>> GetExerciseAsync(Guid id)
         {
-            return await _exerciseRepository.UpdateExerciseAsync(new Exercise
+            if (await _exerciseRepository.GetExerciseAsync(id) is not Exercise exercise)
+            {
+                return new ServiceResult<Exercise?>
+                {
+                    Code = ResultType.NotFound,
+                    Data = null,
+                    Message = "Exercise not found."
+                };
+            }
+            else
+            {
+                return new ServiceResult<Exercise?>
+                {
+                    Code = ResultType.Success,
+                    Data = exercise,
+                    Message = "Exercise found."
+                };
+            }
+        }
+
+        public async Task<ServiceResult<Exercise?>> UpdateExerciseAsync(ExerciseDTO exercise, Guid id, Guid userId)
+        {
+            var repoResult = await _exerciseRepository.UpdateExerciseAsync(new Exercise
             {
                 Id = id,
                 Name = exercise.Name,
@@ -47,11 +83,37 @@ namespace FitTrack.Application.Services
                 IsCustom = true,
                 CreatedBy = userId
             });
+
+            return new ServiceResult<Exercise?>
+            {
+                Code = repoResult.Code,
+                Data = repoResult.Data,
+                Message = repoResult.Code switch
+                {
+                    ResultType.Success => "Exercise updated successfully.",
+                    ResultType.NotFound => "Exercise not found.",
+                    ResultType.Conflict => "Exercise already exists.",
+                    _ => "Exercise could not be updated."
+                }
+            };
         }
 
-        public async Task<bool> DeleteExerciseAsync(Guid id)
+        public async Task<ServiceResult<bool>> DeleteExerciseAsync(Guid id)
         {
-            return await _exerciseRepository.DeleteExerciseAsync(id);
+            var code = await _exerciseRepository.DeleteExerciseAsync(id);
+
+            return new ServiceResult<bool>
+            {
+                Code = code,
+                Data = code == ResultType.Success,
+                Message = code switch
+                {
+                    ResultType.Success => "Exercise deleted successfully.",
+                    ResultType.NotFound => "Exercise not found.",
+                    ResultType.Conflict => "Exercise is used in a workout.",
+                    _ => "Exercise could not be deleted."
+                }
+            };
         }
     }
 }

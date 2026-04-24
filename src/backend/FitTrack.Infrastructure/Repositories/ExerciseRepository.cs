@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using FitTrack.Application.Common;
 using FitTrack.Application.Interfaces;
 using FitTrack.Domain.Entities;
 using Npgsql;
@@ -32,7 +33,7 @@ namespace FitTrack.Infrastructure.Repositories
             });
         }
 
-        public async Task<Exercise?> AddExercise(Exercise exercise)
+        public async Task<(ResultType Code, Exercise? Data)> AddExercise(Exercise exercise)
         {
             try
             {
@@ -40,7 +41,7 @@ namespace FitTrack.Infrastructure.Repositories
                           "VALUES (@Name, @Category, @MuscleGroup, @Description, @IsCustom, @CreatedBy) RETURNING *";
                 using var connection = new NpgsqlConnection(_connectionString);
 
-                return await connection.QuerySingleOrDefaultAsync<Exercise>(sql, new
+                var created = await connection.QuerySingleAsync<Exercise>(sql, new
                 {
                     exercise.Name,
                     exercise.Category,
@@ -50,14 +51,20 @@ namespace FitTrack.Infrastructure.Repositories
                     exercise.CreatedBy,
                     exercise.CreatedAt
                 });
+
+                return (ResultType.Success, created);
             }
-            catch (PostgresException ex) when (ex.SqlState == "23505")
+            catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.UniqueViolation)
             {
-                return null;
+                return (ResultType.Conflict, null);
+            }
+            catch 
+            {
+                return (ResultType.Failure, null);
             }
         }
 
-        public async Task<Exercise?> UpdateExerciseAsync(Exercise exercise)
+        public async Task<(ResultType Code, Exercise? Data)> UpdateExerciseAsync(Exercise exercise)
         {
             try
             {
@@ -65,7 +72,7 @@ namespace FitTrack.Infrastructure.Repositories
 
                 using var connection = new NpgsqlConnection(_connectionString);
 
-                return await connection.QueryFirstOrDefaultAsync<Exercise>(sql, new
+                var updated = await connection.QueryFirstOrDefaultAsync<Exercise>(sql, new
                 {
                     exercise.Id,
                     exercise.Name,
@@ -76,15 +83,26 @@ namespace FitTrack.Infrastructure.Repositories
                     exercise.CreatedBy,
                     exercise.CreatedAt
                 });
+
+                if (updated is null)
+                {
+                    return (ResultType.NotFound, null);
+                }
+
+                return (ResultType.Success, updated);
             }
-            catch (PostgresException ex) when (ex.SqlState == "23505")
+            catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.UniqueViolation)
             {
-                return null;
+                return (ResultType.Conflict, null);
+            }
+            catch
+            {
+                return (ResultType.Failure, null);
             }
         }
 
 
-        public async Task<bool> DeleteExerciseAsync(Guid id)
+        public async Task<ResultType> DeleteExerciseAsync(Guid id)
         {
             try
             {
@@ -94,11 +112,18 @@ namespace FitTrack.Infrastructure.Repositories
                 using var connection = new NpgsqlConnection(_connectionString);
 
                 var rowsAffected = await connection.ExecuteAsync(sql, new { Id = id });
-                return rowsAffected > 0;
-            } 
+
+                return rowsAffected == 0
+                        ? ResultType.NotFound
+                        : ResultType.Success;
+            }
+            catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.ForeignKeyViolation)
+            {
+                return ResultType.Conflict;
+            }
             catch
             {
-                return false;    
+                return ResultType.Failure;
             }
         }
     }
