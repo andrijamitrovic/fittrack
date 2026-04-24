@@ -26,8 +26,12 @@ namespace FitTrack.Api.Controllers
                 return Unauthorized();
             }
 
-            var workout = await _workoutService.CreateWorkoutAsync(workoutDTO, userId, false);
-            return StatusCode(201, workout);
+            var result = await _workoutService.CreateWorkoutAsync(workoutDTO, userId, false);
+            if(result.Code == Application.Common.ResultType.Failure)
+            {
+                return BadRequest(new { message = result.Message });
+            }
+            return CreatedAtAction(nameof(GetWorkout), new {id = result.Data!.Id}, result.Data);
         }
 
         [Authorize]
@@ -39,8 +43,8 @@ namespace FitTrack.Api.Controllers
                 return Unauthorized();
             }
 
-            var workouts = await _workoutService.GetWorkoutsAsync(userId, false);
-            return Ok(workouts);
+            var result = await _workoutService.GetWorkoutsAsync(userId, false);
+            return Ok(result.Data);
         }
 
         [Authorize]
@@ -52,12 +56,12 @@ namespace FitTrack.Api.Controllers
                 return Unauthorized();
             }
 
-            var workouts = await _workoutService.GetWorkoutsAsync(userId, false, id);
-            if (!workouts.Any())
+            var result = await _workoutService.GetWorkoutAsync(userId, id);
+            if (result.Code == Application.Common.ResultType.NotFound)
             {
                 return NotFound(new { message = "Workout not found." });
             }
-            return Ok(workouts.First());
+            return Ok(result.Data);
         }
 
         [Authorize]
@@ -69,8 +73,9 @@ namespace FitTrack.Api.Controllers
                 return Unauthorized();
             }
 
-            var workout = await _workoutService.CreateWorkoutAsync(workoutDTO, userId, true);
-            return StatusCode(201, workout);
+            var result = await _workoutService.CreateWorkoutAsync(workoutDTO, userId, true);
+            if (result.Code == Application.Common.ResultType.Failure) return BadRequest(new { message = result.Message });
+            return StatusCode(201, result.Data);
         }
 
         [Authorize]
@@ -82,36 +87,8 @@ namespace FitTrack.Api.Controllers
                 return Unauthorized();
             }
 
-            var workoutTemplates = await _workoutService.GetWorkoutsAsync(userId, true);
-            return Ok(workoutTemplates);
-        }
-
-        [Authorize]
-        [HttpPost("from-workout/{workoutId}/as-template")]
-        public async Task<ActionResult> MakeTemplateFromWorkout(Guid workoutId)
-        {
-            if (GetUserId(User) is not Guid userId)
-            {
-                return Unauthorized();
-            }
-
-            var workout = await _workoutService.CopyWorkout(userId, true, workoutId);
-            if (workout == null) return NotFound(new { message = "Workout not found." });
-            return StatusCode(201, workout);
-        }
-
-        [Authorize]
-        [HttpPost("from-workout/{workoutId}/as-workout")]
-        public async Task<ActionResult> RepeatWorkout(Guid workoutId)
-        {
-            if (GetUserId(User) is not Guid userId)
-            {
-                return Unauthorized();
-            }
-
-            var workout = await _workoutService.CopyWorkout(userId, false, workoutId);
-            if (workout == null) return NotFound(new { message = "Workout not found." });
-            return StatusCode(201, workout);
+            var result = await _workoutService.GetWorkoutsAsync(userId, true);
+            return Ok(result.Data);
         }
 
         private Guid? GetUserId(ClaimsPrincipal principal)

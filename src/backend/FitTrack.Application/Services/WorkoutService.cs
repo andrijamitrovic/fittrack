@@ -1,7 +1,7 @@
-﻿using FitTrack.Application.DTOs;
+﻿using FitTrack.Application.Common;
+using FitTrack.Application.DTOs;
 using FitTrack.Application.Interfaces;
 using FitTrack.Domain.Entities;
-using System.Transactions;
 
 namespace FitTrack.Application.Services
 {
@@ -13,7 +13,7 @@ namespace FitTrack.Application.Services
             _workoutRepository = workoutRepository;
         }
 
-        public async Task<Workout> CreateWorkoutAsync(WorkoutDTO workoutDTO, Guid userId, bool isTemplate)
+        public async Task<ServiceResult<Workout?>> CreateWorkoutAsync(WorkoutDTO workoutDTO, Guid userId, bool isTemplate)
         {
             var workout = new Workout
             {
@@ -55,17 +55,69 @@ namespace FitTrack.Application.Services
                     });
                 }
             }
-            return await _workoutRepository.CreateWorkoutAsync(workout, workoutExercises, exerciseSets);
+            Workout? returnWorkout = await _workoutRepository.CreateWorkoutAsync(workout, workoutExercises, exerciseSets);
+            if (returnWorkout == null)
+            {
+                return new ServiceResult<Workout?>
+                {
+                    Code = ResultType.Failure,
+                    Data = null,
+                    Message = "Workout was not created."
+                };
+            }
+            else
+            {
+                return new ServiceResult<Workout?>
+                {
+                    Code = ResultType.Success,
+                    Data = returnWorkout,
+                    Message = "Workout created successfully."
+                };
+            }
         }
 
-        public async Task<List<ViewWorkoutDTO>> GetWorkoutsAsync(Guid userId, bool isTemplate, Guid? workoutId = null)
+        public async Task<ServiceResult<List<ViewWorkoutDTO>>> GetWorkoutsAsync(Guid userId, bool isTemplate)
         {
-            var result = await _workoutRepository.GetWorkoutsAsync(userId, isTemplate, workoutId);
-            if (result == null)
+            var result = await _workoutRepository.GetWorkoutsAsync(userId, isTemplate);
+            var workouts = MapWorkoutRows(result);
+
+            return new ServiceResult<List<ViewWorkoutDTO>>
             {
-                return new List<ViewWorkoutDTO>();
+                Code = ResultType.Success,
+                Data = [.. workouts],
+                Message = "Workouts succesfully returned."
+            };
+
+        }
+
+
+        public async Task<ServiceResult<ViewWorkoutDTO?>> GetWorkoutAsync(Guid userId, Guid workoutId)
+        {
+            List<WorkoutDetailRow> result = await _workoutRepository.GetWorkoutAsync(userId, workoutId);
+            var workout = MapWorkoutRows(result).FirstOrDefault();
+
+            if (workout == null)
+            {
+                return new ServiceResult<ViewWorkoutDTO?>
+                {
+                    Code = ResultType.NotFound,
+                    Data = null,
+                    Message = "Workout not found."
+                };
             }
-            var workouts = result.GroupBy(
+
+            return new ServiceResult<ViewWorkoutDTO?>
+            {
+                Code = ResultType.Success,
+                Data = workout,
+                Message = "Workout succesfully returned."
+            };
+
+        }
+
+        private static List<ViewWorkoutDTO> MapWorkoutRows(IEnumerable<WorkoutDetailRow> workouts)
+        {
+            return [..workouts.GroupBy(
                                             w => new
                                             {
                                                 w.WorkoutId,
@@ -134,59 +186,7 @@ namespace FitTrack.Application.Services
                                                          })]
                                                      }
                                                      )]
-                                             });
-
-            return [.. workouts];
-        }
-
-        public async Task<Workout?> CopyWorkout(Guid userId, bool isTemplate, Guid? workoutId = null)
-        {
-            // isTemplate value is ignored when workoutId is provided
-            List<ViewWorkoutDTO> result = await GetWorkoutsAsync(userId, false, workoutId);
-
-            if (result.Any() == false)
-            {
-                return null;    
-            }
-            
-            ViewWorkoutDTO workoutResult = result.First();
-
-            var workout = new Workout
-            {
-                Id = Guid.NewGuid(),
-                UserId = userId,
-                Title = workoutResult.Title,
-                Date = DateTime.Now,
-                IsTemplate = isTemplate
-            };
-
-            List<WorkoutExercise> workoutExercises = new List<WorkoutExercise>();
-            List<ExerciseSet> exerciseSets = new List<ExerciseSet>();
-
-            foreach (var workoutExerciseDTO in workoutResult.Exercises)
-            {
-                var workoutExercise = new WorkoutExercise
-                {
-                    Id = Guid.NewGuid(),
-                    WorkoutId = workout.Id,
-                    ExerciseId = workoutExerciseDTO.ExerciseId,
-                    OrderIndex = workoutExerciseDTO.OrderIndex
-                };
-                workoutExercises.Add(workoutExercise);
-
-                foreach (var exerciseSetDTO in workoutExerciseDTO.Sets)
-                {
-                    exerciseSets.Add(new ExerciseSet
-                    {
-                        Id = Guid.NewGuid(),
-                        WorkoutExerciseId = workoutExercise.Id,
-                        SetNumber = exerciseSetDTO.SetNumber,
-                        Reps = exerciseSetDTO.Reps,
-                        Weight = exerciseSetDTO.Weight,
-                    });
-                }
-            }
-            return await _workoutRepository.CreateWorkoutAsync(workout, workoutExercises, exerciseSets);
+                                             })];
         }
     }
 

@@ -15,7 +15,7 @@ namespace FitTrack.Infrastructure.Repositories
             _connectionString = connectionString;
             Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
         }
-        public async Task<Workout> CreateWorkoutAsync(Workout workout, List<WorkoutExercise> workoutExercises, List<ExerciseSet> exerciseSets)
+        public async Task<Workout?> CreateWorkoutAsync(Workout workout, List<WorkoutExercise> workoutExercises, List<ExerciseSet> exerciseSets)
         {
             var createWorkout = "INSERT INTO workouts (id, user_id, title, date, notes, duration_min, is_template)" +
                                 "VALUES (@Id, @UserId, @Title, @Date, @Notes, @DurationMin, @IsTemplate) RETURNING id";
@@ -43,10 +43,10 @@ namespace FitTrack.Infrastructure.Repositories
             var getWorkout = "SELECT * FROM workouts WHERE id = @Id";
 
 
-            return await connection.QuerySingleAsync<Workout>(getWorkout, new { workout.Id });
+            return await connection.QuerySingleOrDefaultAsync<Workout>(getWorkout, new { workout.Id });
         }
 
-        public async Task<List<WorkoutDetailRow>> GetWorkoutsAsync(Guid userId, bool isTemplate, Guid? workoutId)
+        public async Task<List<WorkoutDetailRow>> GetWorkoutsAsync(Guid userId, bool isTemplate)
         {
             var sql = @"SELECT w.id as workout_id, w.title, w.date, w.notes as workout_notes, w.duration_min,
                                 we.id as workout_exercise_id, we.order_index, we.notes as exercise_notes, we.exercise_id,
@@ -56,19 +56,31 @@ namespace FitTrack.Infrastructure.Repositories
                         JOIN workout_exercises we ON w.id = we.workout_id
                         JOIN exercises e ON we.exercise_id = e.id
                         JOIN exercise_sets es ON es.workout_exercise_id = we.id
-                        WHERE w.user_id = @UserId";
-            if (workoutId is not null)
-            {
-                sql += " AND w.id = @WorkoutId";
-            }
-            else
-            {
-                sql += " AND w.is_template = @IsTemplate";
-            }
-            sql += " ORDER BY w.date DESC, we.order_index, es.set_number";
+                        WHERE w.user_id = @UserId
+                        AND w.is_template = @IsTemplate
+                        ORDER BY w.date DESC, we.order_index, es.set_number";
             using var connection = new NpgsqlConnection(_connectionString);
-            return [.. await connection.QueryAsync<WorkoutDetailRow>(sql, new { UserId = userId, WorkoutId = workoutId, IsTemplate = isTemplate })];
+            return [.. await connection.QueryAsync<WorkoutDetailRow>(sql, new { UserId = userId, IsTemplate = isTemplate })];
 
+
+        }
+
+        public async Task<List<WorkoutDetailRow>> GetWorkoutAsync(Guid userId, Guid workoutId)
+        {
+            var sql = @"SELECT w.id as workout_id, w.title, w.date, w.notes as workout_notes, w.duration_min,
+                                we.id as workout_exercise_id, we.order_index, we.notes as exercise_notes, we.exercise_id,
+                                e.name as exercise_name, e.category, e.muscle_group,
+                                es.set_number, es.reps, es.weight, es.rpe, es.is_warmup
+                        FROM workouts w
+                        JOIN workout_exercises we ON w.id = we.workout_id
+                        JOIN exercises e ON we.exercise_id = e.id
+                        JOIN exercise_sets es ON es.workout_exercise_id = we.id
+                        WHERE w.user_id = @UserId
+                        AND w.id = @WorkoutId
+                        ORDER BY w.date DESC, we.order_index, es.set_number";
+
+            using var connection = new NpgsqlConnection(_connectionString);
+            return [.. await connection.QueryAsync<WorkoutDetailRow>(sql, new { UserId = userId, WorkoutId = workoutId})];
 
         }
     }
