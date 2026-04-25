@@ -1,16 +1,14 @@
-﻿using FitTrack.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using FitTrack.Application.Common;
+using FitTrack.Domain.Entities;
 
 namespace FitTrack.Application.Interfaces
 {
     public interface IUserRepository
     {
-        public Task<User?> CreateUserAsync(User user);
-        public Task<User?> GetUserAsync(string email);
-        public Task<User?> GetUserByIdAsync(Guid userId);
-        public Task<IEnumerable<User>> GetUsersAsync();
-        public Task<bool> DeleteUser(Guid userId);
+        Task<(ResultType Code, User? Data)> CreateUserAsync(User user);
+        Task<User?> GetUserAsync(string email);
+        Task<User?> GetUserByIdAsync(Guid userId);
+        Task<IEnumerable<User>> GetUsersAsync();
+        Task<ResultType> DeleteUser(Guid userId);
     }
 }
