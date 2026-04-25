@@ -133,6 +133,7 @@ namespace FitTrack.Tests
 
             Assert.Equal(ResultType.Success, result.Code);
             Assert.NotNull(result.Data);
+            Assert.Empty(result.Data);
         }
 
         [Fact]
