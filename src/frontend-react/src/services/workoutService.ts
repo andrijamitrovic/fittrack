@@ -41,22 +41,13 @@ export async function createWorkout(workout: Workout) {
 }
 
 export async function makeTemplateFromWorkout(workoutId: string): Promise<Workout> {
+    let workoutViewer: WorkoutViewer = await loadWorkout(workoutId);
 
-    let response = await fetchWithAuthAsync("workouts/from-workout/" + workoutId + "/as-template", {
-        method: "POST"
-    })
+    let workout: Workout = mapWorkoutViewerToWorkout(workoutViewer);
 
-    if (!response.ok)
-        throw new Error(`Response status: ${response.status}`);
-    let data: Workout = await response.json();
-    return data;
-}
-
-
-export async function copyWorkoutFromWorkout(workoutId: string): Promise<Workout> {
-
-    let response = await fetchWithAuthAsync("workouts/from-workout/" + workoutId + "/as-workout", {
-        method: "POST"
+    let response = await fetchWithAuthAsync("workouts/workout-templates/", {
+        method: "POST",
+        body: JSON.stringify(workout)
     })
 
     if (!response.ok)
@@ -77,4 +68,24 @@ export async function loadWorkout(id: string): Promise<WorkoutViewer> {
     }
     let data = await response.json();
     return data;
+}
+
+function mapWorkoutViewerToWorkout(workout: WorkoutViewer): Workout {
+    return {
+        title: workout.title || "",
+        notes: workout.workoutNotes || undefined,
+        durationMin: workout.durationMin ?? 1,
+        workoutExercises: workout.exercises.map(e => ({
+            exerciseId: e.exerciseId,
+            orderIndex: e.orderIndex,
+            notes: e.exerciseNotes || undefined,
+            exerciseSets: e.sets.map(s => ({
+                setNumber: s.setNumber,
+                reps: s.reps,
+                weight: s.weight,
+                rpe: s.rpe,
+                isWarmup: s.isWarmup
+            }))
+        }))
+    };
 }

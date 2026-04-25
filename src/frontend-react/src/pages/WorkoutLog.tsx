@@ -95,14 +95,14 @@ export function WorkoutLog() {
             loadWorkout(workoutId)
                 .then(workout => {
                     setTitle(workout.title || "");
-                    setNotes(workout.notes || "");
+                    setNotes(workout.workoutNotes || "");
                     setExercises(workout.exercises.map(e => ({
                         exerciseId: e.exerciseId,
                         orderIndex: e.orderIndex,
                         exerciseSets: e.sets.map(s => ({
                             setNumber: s.setNumber,
-                            reps: s.reps || 0,
-                            weight: s.weight || 0,
+                            reps: s.reps,
+                            weight: s.weight,
                             rpe: s.rpe,
                             isWarmup: s.isWarmup
                         }))
@@ -118,12 +118,12 @@ export function WorkoutLog() {
             <form className="workout-form" onSubmit={(e) => { e.preventDefault(); saveWorkout(); }}>
                 <div className="field">
                     <label>Title:
-                        <input required type="text" id="title" name="title" onChange={handleChangeTitle} />
+                        <input required type="text" id="title" name="title" value={title} onChange={handleChangeTitle} />
                     </label>
                 </div>
                 <div className="field">
                     <label htmlFor="notes">Notes:
-                        <input type="text" id="notes" name="notes" onChange={handleChangeNotes} />
+                        <input type="text" id="notes" name="notes" value={notes} onChange={handleChangeNotes} />
                     </label>
                 </div>
                 {/* <h2>Duration: </h2>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { copyWorkoutFromWorkout, loadTemplates } from "../services/workoutService";
+import { loadTemplates } from "../services/workoutService";
 import type { Workout, WorkoutExerciseViewer, WorkoutViewer } from "../types";
 import { useNavigate } from "react-router";
 
@@ -10,8 +10,7 @@ export function Templates() {
     const [error, setError] = useState("");
 
     async function makeWorkout(workoutId: string) {
-        let newWorkout: Workout = await copyWorkoutFromWorkout(workoutId);
-        navigate("/newworkout/" + newWorkout.id);
+        navigate("/newworkout/" + workoutId);
     }
 
     useEffect(() => {
