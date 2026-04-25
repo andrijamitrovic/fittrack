@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { loadTemplates } from "../services/workoutService";
-import type { Workout, WorkoutExerciseViewer, WorkoutViewer } from "../types";
+import type { WorkoutExerciseViewer, WorkoutViewer } from "../types";
 import { useNavigate } from "react-router";
 
 export function Templates() {
