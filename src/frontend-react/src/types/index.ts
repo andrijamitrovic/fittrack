@@ -52,7 +52,7 @@ export interface WorkoutViewer {
     workoutId: string;
     title?: string;
     date: string;
-    notes?: string;
+    workoutNotes?: string;
     durationMin?: number;
     exercises: WorkoutExerciseViewer[];
     isTemplate?: boolean;

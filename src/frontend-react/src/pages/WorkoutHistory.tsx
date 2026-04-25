@@ -15,8 +15,7 @@ export function WorkoutHistory() {
     }
 
     async function copyWorkout(workoutId: string) {
-        let newWorkout: WorkoutViewer = await loadWorkout(workoutId);
-        navigate("/newworkout/" + newWorkout.workoutId);
+        navigate("/newworkout/" + workoutId);
     }
 
     useEffect(() => {
