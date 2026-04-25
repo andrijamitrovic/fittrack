@@ -1,3 +1,4 @@
+using FitTrack.Application.Common;
 using FitTrack.Application.DTOs;
 using FitTrack.Application.Interfaces;
 using FitTrack.Application.Services;
@@ -8,10 +9,9 @@ namespace FitTrack.Tests
 {
     public class AuthServiceTests
     {
-
         private readonly Mock<IAuthRepository> _mockAuthRepo;
         private readonly Mock<IUserRepository> _mockUserRepo;
-        private readonly Dictionary<string, string> _jwtSettings = new Dictionary<string, string>
+        private readonly Dictionary<string, string> _jwtSettings = new()
         {
             { "Key", "this-is-a-test-secret-key-at-least-32-characters" },
             { "Issuer", "test" },
@@ -19,16 +19,16 @@ namespace FitTrack.Tests
             { "ExpiryMinutes", "30" }
         };
 
-        private readonly string _userEmail = "email";
+        private readonly string _userEmail = "email@test.com";
         private readonly string _password = "password";
         private readonly string _passwordHash;
         private readonly string _displayName = "name";
         private readonly Guid _userId = Guid.NewGuid();
         private readonly Guid _tokenId = Guid.NewGuid();
         private readonly string _fakeRefreshToken = "fake-refresh-token";
-        private readonly DateTime _expiresAt = DateTime.Now.AddDays(30);
-        private readonly DateTime _createdAt = DateTime.Now;
-
+        private readonly string _rotatedRefreshToken = "rotated-refresh-token";
+        private readonly DateTime _expiresAt = DateTime.UtcNow.AddDays(30);
+        private readonly DateTime _createdAt = DateTime.UtcNow;
 
         private readonly AuthService _service;
 
@@ -41,312 +41,328 @@ namespace FitTrack.Tests
         }
 
         [Fact]
-        public async Task CreateUser_ValidInput_ReturnsUser()
+        public async Task RegisterAsync_ValidInput_ReturnsTokens()
         {
-            _mockUserRepo.Setup(ur => ur.CreateUserAsync(
-                It.IsAny<User>()
-            )).ReturnsAsync(new User
-            {
-                Email = _userEmail,
-                PasswordHash = _passwordHash,
-                DisplayName = _displayName
-            });
+            _mockUserRepo.Setup(ur => ur.CreateUserAsync(It.IsAny<User>()))
+                .ReturnsAsync((Code: ResultType.Success, Data: (User?)new User
+                {
+                    Id = _userId,
+                    Email = _userEmail,
+                    PasswordHash = _passwordHash,
+                    DisplayName = _displayName,
+                    Role = "user"
+                }));
 
-            User? result = await _service.CreateUser(new RegisterDTO
-            {
-                Email = _userEmail,
-                Password = _password,
-                DisplayName = _displayName
-            });
+            _mockAuthRepo.Setup(ar => ar.CreateRefreshTokenAsync(It.IsAny<Guid>(), It.IsAny<string>()))
+                .ReturnsAsync((Code: ResultType.Success, Data: (RefreshToken?)new RefreshToken
+                {
+                    Id = _tokenId,
+                    UserId = _userId,
+                    Token = _fakeRefreshToken,
+                    ExpiresAt = _expiresAt,
+                    CreatedAt = _createdAt
+                }));
 
-            Assert.NotNull(result);
-            Assert.Equal(_userEmail, result.Email);
-            Assert.Equal(_displayName, result.DisplayName);
-        }
-
-        [Fact]
-        public async Task CreateUser_DuplicateEmail_ReturnsNull()
-        {
-            _mockUserRepo.Setup(ur => ur.CreateUserAsync(
-                It.IsAny<User>()
-            )).ReturnsAsync((User?)null);
-
-            User? result = await _service.CreateUser(new RegisterDTO
+            var result = await _service.RegisterAsync(new RegisterDTO
             {
                 Email = _userEmail,
                 Password = _password,
                 DisplayName = _displayName
             });
 
-            Assert.Null(result);
+            Assert.Equal(ResultType.Success, result.Code);
+            Assert.NotNull(result.Data);
+            Assert.NotEmpty(result.Data.AccessToken);
+            Assert.Equal(_fakeRefreshToken, result.Data.RefreshToken);
         }
 
         [Fact]
-        public async Task GetUser_ValidInput_ReturnsAuthTokens()
+        public async Task RegisterAsync_DuplicateEmail_ReturnsConflict()
         {
-            _mockUserRepo.Setup(ur => ur.GetUserAsync(
-                It.IsAny<string>()
-            )).ReturnsAsync(new User
+            _mockUserRepo.Setup(ur => ur.CreateUserAsync(It.IsAny<User>()))
+                .ReturnsAsync((Code: ResultType.Conflict, Data: (User?)null));
+
+            var result = await _service.RegisterAsync(new RegisterDTO
             {
                 Email = _userEmail,
-                PasswordHash = _passwordHash,
+                Password = _password,
                 DisplayName = _displayName
             });
 
-            _mockAuthRepo.Setup(ar => ar.CreateRefreshTokenAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<string>()
-            )).ReturnsAsync(new RefreshToken
-            {
-                Id = _tokenId,
-                UserId = _userId,
-                Token = _fakeRefreshToken,
-                ExpiresAt = _expiresAt,
-                CreatedAt = _createdAt
-            });
+            Assert.Equal(ResultType.Conflict, result.Code);
+            Assert.Null(result.Data);
+        }
 
-            AuthToken? result = await _service.GetUserAsync(new LoginDTO
+        [Fact]
+        public async Task LoginAsync_ValidInput_ReturnsTokens()
+        {
+            _mockUserRepo.Setup(ur => ur.GetUserAsync(It.IsAny<string>()))
+                .ReturnsAsync(new User
+                {
+                    Id = _userId,
+                    Email = _userEmail,
+                    PasswordHash = _passwordHash,
+                    DisplayName = _displayName,
+                    Role = "user"
+                });
+
+            _mockAuthRepo.Setup(ar => ar.CreateRefreshTokenAsync(It.IsAny<Guid>(), It.IsAny<string>()))
+                .ReturnsAsync((Code: ResultType.Success, Data: (RefreshToken?)new RefreshToken
+                {
+                    Id = _tokenId,
+                    UserId = _userId,
+                    Token = _fakeRefreshToken,
+                    ExpiresAt = _expiresAt,
+                    CreatedAt = _createdAt
+                }));
+
+            var result = await _service.LoginAsync(new LoginDTO
             {
                 Email = _userEmail,
                 Password = _password
             });
 
-            Assert.NotNull(result);
-            Assert.NotEmpty(result.AccessToken);
-            Assert.NotEmpty(result.RefreshToken);
+            Assert.Equal(ResultType.Success, result.Code);
+            Assert.NotNull(result.Data);
+            Assert.NotEmpty(result.Data.AccessToken);
+            Assert.Equal(_fakeRefreshToken, result.Data.RefreshToken);
         }
 
         [Fact]
-        public async Task GetUser_WrongPassword_ReturnsNull()
+        public async Task LoginAsync_WrongPassword_ReturnsUnauthorized()
         {
-            _mockUserRepo.Setup(ur => ur.GetUserAsync(
-                It.IsAny<string>()
-            )).ReturnsAsync((User?)null);
+            _mockUserRepo.Setup(ur => ur.GetUserAsync(It.IsAny<string>()))
+                .ReturnsAsync(new User
+                {
+                    Id = _userId,
+                    Email = _userEmail,
+                    PasswordHash = _passwordHash,
+                    DisplayName = _displayName,
+                    Role = "user"
+                });
 
-            _mockAuthRepo.Setup(ar => ar.CreateRefreshTokenAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<string>()
-            )).ReturnsAsync(new RefreshToken
+            var result = await _service.LoginAsync(new LoginDTO
             {
-                Id = _tokenId,
-                UserId = _userId,
-                Token = _fakeRefreshToken,
-                ExpiresAt = _expiresAt,
-                CreatedAt = _createdAt
+                Email = _userEmail,
+                Password = "wrong-password"
             });
 
-            AuthToken? result = await _service.GetUserAsync(new LoginDTO
+            Assert.Equal(ResultType.Unauthorized, result.Code);
+            Assert.Null(result.Data);
+            _mockAuthRepo.Verify(ar => ar.CreateRefreshTokenAsync(It.IsAny<Guid>(), It.IsAny<string>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task LoginAsync_NonexistentEmail_ReturnsUnauthorized()
+        {
+            _mockUserRepo.Setup(ur => ur.GetUserAsync(It.IsAny<string>()))
+                .ReturnsAsync((User?)null);
+
+            var result = await _service.LoginAsync(new LoginDTO
             {
                 Email = _userEmail,
                 Password = _password
             });
 
-            Assert.Null(result);
+            Assert.Equal(ResultType.Unauthorized, result.Code);
+            Assert.Null(result.Data);
         }
 
         [Fact]
-        public async Task GetUser_NonexistentEmail_ReturnsNull()
+        public async Task RefreshTokenAsync_ValidInput_ReturnsTokens()
         {
-            _mockUserRepo.Setup(ur => ur.GetUserAsync(
-                It.IsAny<string>()
-            )).ReturnsAsync((User?)null);
+            _mockAuthRepo.Setup(ar => ar.GetRefreshTokenAsync(It.IsAny<string>()))
+                .ReturnsAsync(new RefreshToken
+                {
+                    Id = _tokenId,
+                    UserId = _userId,
+                    Token = _fakeRefreshToken,
+                    ExpiresAt = _expiresAt,
+                    CreatedAt = _createdAt
+                });
 
-            _mockAuthRepo.Setup(ar => ar.CreateRefreshTokenAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<string>()
-            )).ReturnsAsync(new RefreshToken
-            {
-                Id = _tokenId,
-                UserId = _userId,
-                Token = _fakeRefreshToken,
-                ExpiresAt = _expiresAt,
-                CreatedAt = _createdAt
-            });
+            _mockUserRepo.Setup(ur => ur.GetUserByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(new User
+                {
+                    Id = _userId,
+                    Email = _userEmail,
+                    PasswordHash = _passwordHash,
+                    DisplayName = _displayName,
+                    Role = "user"
+                });
 
-            AuthToken? result = await _service.GetUserAsync(new LoginDTO
-            {
-                Email = _userEmail,
-                Password = _password
-            });
+            _mockAuthRepo.Setup(ar => ar.DeleteRefreshTokenAsync(It.IsAny<RefreshToken>()))
+                .ReturnsAsync(ResultType.Success);
 
-            Assert.Null(result);
+            _mockAuthRepo.Setup(ar => ar.CreateRefreshTokenAsync(It.IsAny<Guid>(), It.IsAny<string>()))
+                .ReturnsAsync((Code: ResultType.Success, Data: (RefreshToken?)new RefreshToken
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = _userId,
+                    Token = _rotatedRefreshToken,
+                    ExpiresAt = _expiresAt,
+                    CreatedAt = _createdAt
+                }));
+
+            var result = await _service.RefreshTokenAsync(_fakeRefreshToken);
+
+            Assert.Equal(ResultType.Success, result.Code);
+            Assert.NotNull(result.Data);
+            Assert.NotEmpty(result.Data.AccessToken);
+            Assert.Equal(_rotatedRefreshToken, result.Data.RefreshToken);
         }
 
         [Fact]
-        public async Task CreateRefreshToken_ValidInput_ReturnsRefreshToken()
+        public async Task RefreshTokenAsync_InvalidToken_ReturnsUnauthorized()
         {
-            _mockAuthRepo.Setup(ar => ar.CreateRefreshTokenAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<string>()
-            )).ReturnsAsync(new RefreshToken
-            {
-                Id = _tokenId,
-                UserId = _userId,
-                Token = _fakeRefreshToken,
-                ExpiresAt = _expiresAt,
-                CreatedAt = _createdAt
-            });
+            _mockAuthRepo.Setup(ar => ar.GetRefreshTokenAsync(It.IsAny<string>()))
+                .ReturnsAsync((RefreshToken?)null);
 
-            RefreshToken? result = await _service.CreateRefreshTokenAsync(_userId);
+            var result = await _service.RefreshTokenAsync(_fakeRefreshToken);
 
-            Assert.NotNull(result);
-        }
-
-
-
-        [Fact]
-        public async Task CreateRefreshToken_InvalidUserId_ReturnsNull()
-        {
-            _mockAuthRepo.Setup(ar => ar.CreateRefreshTokenAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<string>()
-            )).ReturnsAsync((RefreshToken?)null);
-
-            RefreshToken? result = await _service.CreateRefreshTokenAsync(_userId);
-
-            Assert.Null(result);
+            Assert.Equal(ResultType.Unauthorized, result.Code);
+            Assert.Null(result.Data);
         }
 
         [Fact]
-        public async Task VerifyToken_ValidInput_ReturnAuthTokens()
+        public async Task RefreshTokenAsync_UserMissing_ReturnsUnauthorized()
         {
-            _mockAuthRepo.Setup(ar => ar.GetRefreshTokenAsync(
-                It.IsAny<string>()
-            )).ReturnsAsync(new RefreshToken
-            {
-                Id = _tokenId,
-                UserId = _userId,
-                Token = _fakeRefreshToken,
-                ExpiresAt = _expiresAt,
-                CreatedAt = _createdAt
-            });
+            _mockAuthRepo.Setup(ar => ar.GetRefreshTokenAsync(It.IsAny<string>()))
+                .ReturnsAsync(new RefreshToken
+                {
+                    Id = _tokenId,
+                    UserId = _userId,
+                    Token = _fakeRefreshToken,
+                    ExpiresAt = _expiresAt,
+                    CreatedAt = _createdAt
+                });
 
-            _mockAuthRepo.Setup(ar => ar.CreateRefreshTokenAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<string>()
-            )).ReturnsAsync(new RefreshToken
-            {
-                Id = _tokenId,
-                UserId = _userId,
-                Token = _fakeRefreshToken,
-                ExpiresAt = _expiresAt,
-                CreatedAt = _createdAt
-            });
+            _mockUserRepo.Setup(ur => ur.GetUserByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync((User?)null);
 
-            _mockAuthRepo.Setup(ar => ar.DeleteRefreshTokenAsync(
-                It.IsAny<RefreshToken>()
-            )).Returns(Task.CompletedTask);
+            var result = await _service.RefreshTokenAsync(_fakeRefreshToken);
 
-            _mockUserRepo.Setup(ur => ur.GetUserByIdAsync(
-                It.IsAny<Guid>()
-            )).ReturnsAsync(new User
-            {
-                Email = _userEmail,
-                PasswordHash = _passwordHash,
-                DisplayName = _displayName
-            });
-
-
-            AuthToken? result = await _service.VerifyTokenAsync(_fakeRefreshToken);
-
-            Assert.NotNull(result);
+            Assert.Equal(ResultType.Unauthorized, result.Code);
+            Assert.Null(result.Data);
+            _mockAuthRepo.Verify(ar => ar.DeleteRefreshTokenAsync(It.IsAny<RefreshToken>()), Times.Never);
         }
 
         [Fact]
-        public async Task VerifyToken_InvalidToken_ReturnNull()
+        public async Task RefreshTokenAsync_DeleteRefreshTokenNotFound_ReturnsUnauthorized()
         {
-            _mockAuthRepo.Setup(ar => ar.GetRefreshTokenAsync(
-                It.IsAny<string>()
-            )).ReturnsAsync((RefreshToken?)null);
+            _mockAuthRepo.Setup(ar => ar.GetRefreshTokenAsync(It.IsAny<string>()))
+                .ReturnsAsync(new RefreshToken
+                {
+                    Id = _tokenId,
+                    UserId = _userId,
+                    Token = _fakeRefreshToken,
+                    ExpiresAt = _expiresAt,
+                    CreatedAt = _createdAt
+                });
 
-            _mockAuthRepo.Setup(ar => ar.CreateRefreshTokenAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<string>()
-            )).ReturnsAsync((RefreshToken?)null);
+            _mockUserRepo.Setup(ur => ur.GetUserByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(new User
+                {
+                    Id = _userId,
+                    Email = _userEmail,
+                    PasswordHash = _passwordHash,
+                    DisplayName = _displayName,
+                    Role = "user"
+                });
 
-            _mockAuthRepo.Setup(ar => ar.DeleteRefreshTokenAsync(
-                It.IsAny<RefreshToken>()
-            )).Returns(Task.CompletedTask);
+            _mockAuthRepo.Setup(ar => ar.DeleteRefreshTokenAsync(It.IsAny<RefreshToken>()))
+                .ReturnsAsync(ResultType.NotFound);
 
-            _mockUserRepo.Setup(ur => ur.GetUserByIdAsync(
-                It.IsAny<Guid>()
-            )).ReturnsAsync((User?)null);
+            var result = await _service.RefreshTokenAsync(_fakeRefreshToken);
 
-
-            AuthToken? result = await _service.VerifyTokenAsync(_fakeRefreshToken);
-
-            Assert.Null(result);
+            Assert.Equal(ResultType.Unauthorized, result.Code);
+            Assert.Null(result.Data);
+            _mockAuthRepo.Verify(ar => ar.CreateRefreshTokenAsync(It.IsAny<Guid>(), It.IsAny<string>()), Times.Never);
         }
 
         [Fact]
-        public async Task VerifyToken_InvalidNewToken_ReturnNull()
+        public async Task RefreshTokenAsync_NewRefreshTokenFails_ReturnsFailure()
         {
-            _mockAuthRepo.Setup(ar => ar.GetRefreshTokenAsync(
-                It.IsAny<string>()
-            )).ReturnsAsync(new RefreshToken
-            {
-                Id = _tokenId,
-                UserId = _userId,
-                Token = _fakeRefreshToken,
-                ExpiresAt = _expiresAt,
-                CreatedAt = _createdAt
-            });
+            _mockAuthRepo.Setup(ar => ar.GetRefreshTokenAsync(It.IsAny<string>()))
+                .ReturnsAsync(new RefreshToken
+                {
+                    Id = _tokenId,
+                    UserId = _userId,
+                    Token = _fakeRefreshToken,
+                    ExpiresAt = _expiresAt,
+                    CreatedAt = _createdAt
+                });
 
-            _mockAuthRepo.Setup(ar => ar.CreateRefreshTokenAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<string>()
-            )).ReturnsAsync((RefreshToken?)null);
+            _mockUserRepo.Setup(ur => ur.GetUserByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(new User
+                {
+                    Id = _userId,
+                    Email = _userEmail,
+                    PasswordHash = _passwordHash,
+                    DisplayName = _displayName,
+                    Role = "user"
+                });
 
-            _mockAuthRepo.Setup(ar => ar.DeleteRefreshTokenAsync(
-                It.IsAny<RefreshToken>()
-            )).Returns(Task.CompletedTask);
+            _mockAuthRepo.Setup(ar => ar.DeleteRefreshTokenAsync(It.IsAny<RefreshToken>()))
+                .ReturnsAsync(ResultType.Success);
 
-            _mockUserRepo.Setup(ur => ur.GetUserByIdAsync(
-                It.IsAny<Guid>()
-            )).ReturnsAsync((User?)null);
+            _mockAuthRepo.Setup(ar => ar.CreateRefreshTokenAsync(It.IsAny<Guid>(), It.IsAny<string>()))
+                .ReturnsAsync((Code: ResultType.Failure, Data: (RefreshToken?)null));
 
+            var result = await _service.RefreshTokenAsync(_fakeRefreshToken);
 
-            AuthToken? result = await _service.VerifyTokenAsync(_fakeRefreshToken);
-
-            Assert.Null(result);
+            Assert.Equal(ResultType.Failure, result.Code);
+            Assert.Null(result.Data);
         }
 
         [Fact]
-        public async Task VerifyToken_InvalidUser_ReturnNull()
+        public async Task GetUsersAsync_ReturnsMappedUsers()
         {
-            _mockAuthRepo.Setup(ar => ar.GetRefreshTokenAsync(
-                It.IsAny<string>()
-            )).ReturnsAsync(new RefreshToken
-            {
-                Id = _tokenId,
-                UserId = _userId,
-                Token = _fakeRefreshToken,
-                ExpiresAt = _expiresAt,
-                CreatedAt = _createdAt
-            });
+            _mockUserRepo.Setup(ur => ur.GetUsersAsync())
+                .ReturnsAsync(new List<User>
+                {
+                    new User
+                    {
+                        Id = _userId,
+                        Email = _userEmail,
+                        PasswordHash = _passwordHash,
+                        DisplayName = _displayName,
+                        CreatedAt = _createdAt,
+                        UpdatedAt = _createdAt,
+                        Role = "admin"
+                    }
+                });
 
-            _mockAuthRepo.Setup(ar => ar.CreateRefreshTokenAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<string>()
-            )).ReturnsAsync((RefreshToken?)null);
+            var result = await _service.GetUsersAsync();
 
-            _mockAuthRepo.Setup(ar => ar.DeleteRefreshTokenAsync(
-                It.IsAny<RefreshToken>()
-            )).Returns(Task.CompletedTask);
+            Assert.Equal(ResultType.Success, result.Code);
+            Assert.Single(result.Data);
+            Assert.Equal(_userEmail, result.Data[0].Email);
+            Assert.Equal("admin", result.Data[0].Role);
+        }
 
-            _mockUserRepo.Setup(ur => ur.GetUserByIdAsync(
-                It.IsAny<Guid>()
-            )).ReturnsAsync(new User
-            {
-                Email = _userEmail,
-                PasswordHash = _passwordHash,
-                DisplayName = _displayName
-            });
+        [Fact]
+        public async Task DeleteUserAsync_Success_ReturnsSuccess()
+        {
+            _mockUserRepo.Setup(ur => ur.DeleteUser(_userId))
+                .ReturnsAsync(ResultType.Success);
 
+            var result = await _service.DeleteUserAsync(_userId);
 
-            AuthToken? result = await _service.VerifyTokenAsync(_fakeRefreshToken);
+            Assert.Equal(ResultType.Success, result.Code);
+            Assert.True(result.Data);
+        }
 
-            Assert.Null(result);
+        [Fact]
+        public async Task DeleteUserAsync_NotFound_ReturnsNotFound()
+        {
+            _mockUserRepo.Setup(ur => ur.DeleteUser(_userId))
+                .ReturnsAsync(ResultType.NotFound);
+
+            var result = await _service.DeleteUserAsync(_userId);
+
+            Assert.Equal(ResultType.NotFound, result.Code);
+            Assert.False(result.Data);
         }
     }
 }

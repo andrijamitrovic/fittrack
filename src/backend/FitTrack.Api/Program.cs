@@ -7,8 +7,16 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 var connectionString = builder.Configuration.GetConnectionString("PGConnectionString")!;
 var jwtSettings = builder.Configuration.GetSection("JwtSettings")!;
+
+var jwtDictionary = jwtSettings.Get<Dictionary<string, string>>()
+    ?? throw new InvalidOperationException("JwtSettings are missing.");
+
+var key = jwtSettings["Key"]
+    ?? throw new InvalidOperationException("JwtSettings:Key is missing.");
+    
 // Add services to the container.
 builder.Services.AddScoped<IExerciseRepository>(provider => new ExerciseRepository(connectionString));
 builder.Services.AddScoped<ExerciseService>();
@@ -19,10 +27,10 @@ builder.Services.AddScoped<IAuthRepository>(provider => new AuthRepository(conne
 builder.Services.AddScoped<AuthService>(provider => new AuthService(
                                                         provider.GetRequiredService<IUserRepository>(),
                                                         provider.GetRequiredService<IAuthRepository>(),
-                                                        jwtSettings.Get<Dictionary<string,string>>()));
+                                                        jwtDictionary));
 builder.Services.AddControllers();
 
-var secretKey = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
+var secretKey = Encoding.UTF8.GetBytes(key);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {

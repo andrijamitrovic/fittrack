@@ -1,4 +1,7 @@
-﻿using FitTrack.Application.Services;
+﻿using System.Security.Claims;
+using FitTrack.Application.Common;
+using FitTrack.Application.DTOs;
+using FitTrack.Application.Services;
 using FitTrack.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,55 +22,99 @@ namespace FitTrack.Api.Controllers
         [HttpGet]
         public async Task<ActionResult> GetExercises()
         {
-            var exercises = await _exerciseService.GetAllAsync();
-            return Ok(exercises);
+            var result = await _exerciseService.GetAllAsync();
+            return Ok(result.Data);
         }
 
         [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<ActionResult> AddExercise(ExerciseDTO exercise)
         {
-            var userId = Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
-            var createdExercise = await _exerciseService.AddExercise(exercise, userId);
-            if (createdExercise == null)
+            if (GetUserId(User) is not Guid userId)
             {
-                return BadRequest("Unable to add exercise");
+                return Unauthorized();
             }
-            return CreatedAtAction(nameof(GetExercise), new { id = createdExercise.Id }, createdExercise);
+
+            var result = await _exerciseService.AddExerciseAsync(exercise, userId);
+            if (result.Code == ResultType.Conflict)
+            {
+                return Conflict(new { message = result.Message });
+            }
+            else if (result.Code == ResultType.Failure)
+            {
+                return Problem(result.Message);
+            }
+            else
+            {
+                return CreatedAtAction(nameof(GetExercise), new { id = result.Data!.Id }, result.Data);
+            }
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult> GetExercise(Guid id)
         {
-            var exercise = await _exerciseService.GetExerciseAsync(id);
-            if (exercise == null) return NotFound();
-            return Ok(exercise);
+            var result = await _exerciseService.GetExerciseAsync(id);
+            if (result.Code == ResultType.NotFound) return NotFound();
+            return Ok(result.Data);
         }
 
         [Authorize(Roles = "admin")]
         [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateExercise(Guid id,ExerciseDTO exercise)
+        public async Task<ActionResult> UpdateExercise(Guid id, ExerciseDTO exercise)
         {
-            var userId = Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
-
-            var updatedExercise = await _exerciseService.UpdateExerciseAsync(exercise, id, userId);
-            if (updatedExercise == null)
+            if (GetUserId(User) is not Guid userId)
             {
-                return BadRequest("Unable to update exercise");
+                return Unauthorized();
             }
-            return Ok(updatedExercise);
+
+            var result = await _exerciseService.UpdateExerciseAsync(exercise, id, userId);
+            if (result.Code == ResultType.NotFound)
+            {
+                return NotFound(new { message = result.Message });
+            }
+            else if (result.Code == ResultType.Conflict)
+            {
+                return Conflict(new { message = result.Message });
+            }
+            else if (result.Code == ResultType.Failure)
+            {
+                return Problem(result.Message);
+            }
+            else
+            {
+                return Ok(result.Data);
+            }
         }
 
         [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteExercise(Guid id)
         {
-            var deleted = await _exerciseService.DeleteExerciseAsync(id);
-            if (!deleted)
+            var result = await _exerciseService.DeleteExerciseAsync(id);
+
+            if (result.Code == ResultType.NotFound)
             {
-                return Conflict(new { Message = "Exercise is used in a workout." });
+                return NotFound(new { message = result.Message });
             }
-            return NoContent();
+            else if (result.Code == ResultType.Conflict)
+            {
+                return Conflict(new { message = result.Message });
+            }
+            else if (result.Code == ResultType.Failure)
+            {
+                return Problem(result.Message);
+            }
+            else
+            {
+                return NoContent();
+            }
+        }
+
+        private Guid? GetUserId(ClaimsPrincipal principal)
+        {
+            var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null) return null;
+            return Guid.Parse(userIdClaim.Value);
         }
     }
 }
