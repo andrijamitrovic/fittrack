@@ -7,7 +7,7 @@ namespace FitTrack.Application.Interfaces
     {
         Task<IEnumerable<Exercise>> GetAllAsync();
         Task<Exercise?> GetExerciseAsync(Guid id);
-        Task<(ResultType Code, Exercise? Data)> AddExercise(Exercise exercise);
+        Task<(ResultType Code, Exercise? Data)> AddExerciseAsync(Exercise exercise);
         Task<(ResultType Code, Exercise? Data)> UpdateExerciseAsync(Exercise exercise);
         Task<ResultType> DeleteExerciseAsync(Guid id);
     }

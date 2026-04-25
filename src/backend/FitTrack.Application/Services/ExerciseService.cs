@@ -23,10 +23,10 @@ namespace FitTrack.Application.Services
             };
         }
 
-        public async Task<ServiceResult<Exercise?>> AddExercise(ExerciseDTO exercise, Guid userId)
+        public async Task<ServiceResult<Exercise?>> AddExerciseAsync(ExerciseDTO exercise, Guid userId)
         {
 
-            var repoResult = await _exerciseRepository.AddExercise(new Exercise
+            var repoResult = await _exerciseRepository.AddExerciseAsync(new Exercise
             {
                 Name = exercise.Name,
                 Category = exercise.Category,

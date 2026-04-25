@@ -35,7 +35,7 @@ namespace FitTrack.Api.Controllers
                 return Unauthorized();
             }
 
-            var result = await _exerciseService.AddExercise(exercise, userId);
+            var result = await _exerciseService.AddExerciseAsync(exercise, userId);
             if (result.Code == ResultType.Conflict)
             {
                 return Conflict(new { message = result.Message });

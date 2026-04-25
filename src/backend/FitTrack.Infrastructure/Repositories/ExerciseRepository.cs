@@ -33,7 +33,7 @@ namespace FitTrack.Infrastructure.Repositories
             });
         }
 
-        public async Task<(ResultType Code, Exercise? Data)> AddExercise(Exercise exercise)
+        public async Task<(ResultType Code, Exercise? Data)> AddExerciseAsync(Exercise exercise)
         {
             try
             {
