@@ -1,0 +1,122 @@
+.workout-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.exercise-div {
+    display: flex;
+    flex-direction: column;
+}
+
+[class^="set-"] {
+    display: flex;
+    gap: var(--space-sm);
+    align-items: center;
+    padding: var(--space-sm);
+}
+
+.workout-form>* {
+    margin-bottom: var(--space-md);
+}
+
+details {
+    border: 1px solid #eee;
+    border-radius: var(--space-sm);
+    padding: 16px;
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+details:hover {
+    border-color: #ccc;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+::details-content {
+    transition: height 0.5s ease, content-visibility 0.5s ease allow-discrete;
+    height: 0;
+    overflow: clip;
+}
+
+[open]::details-content {
+    height: auto;
+}
+
+summary::-webkit-details-marker {
+    display: none;
+}
+
+summary::after {
+    content: "+";
+    font-size: 18px;
+    transition: transform 0.2s ease;
+}
+
+details[open] summary::after {
+    content: "−";
+}
+
+summary {
+    cursor: pointer;
+    font-weight: 600;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.set-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    align-items: center;
+    padding: var(--space-sm);
+    background: var(--background);
+    border-radius: 4px;
+    margin-bottom: 4px;
+}
+
+.set-row input[type="number"] {
+    width: 80px;
+}
+
+.set-row label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+.exercise-group {
+    background: white;
+    border: 1px solid var(--border);
+    padding: var(--space-md);
+    margin-bottom: var(--space-md);
+    border-radius: 4px;
+}
+
+.exercise-group select {
+    margin-bottom: var(--space-sm);
+}
+
+.workout-form {
+    width: 100%;
+    max-width: 600px;
+}
+
+@media (max-width: 500px) {
+    .set-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .set-row input[type="number"] {
+        width: 100%;
+    }
+
+    .set-row label {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+}

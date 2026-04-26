@@ -1,0 +1,144 @@
+button,
+.btn-submit {
+    background: black;
+    color: white;
+    border: 1px solid black;
+    padding: var(--space-sm) var(--space-md);
+    font-weight: 500;
+    cursor: pointer;
+}
+
+button:hover,
+.btn-submit:hover {
+    background: #111;
+}
+
+button,
+.btn-submit {
+    transition: background 0.15s ease, transform 0.1s ease;
+}
+
+button:active,
+.btn-submit:active {
+    transform: scale(0.98);
+}
+
+.add-btn {
+    background: white;
+    color: black;
+    border: 1px solid var(--border);
+}
+
+.add-btn:hover {
+    background: var(--hover);
+}
+
+.save-btn {
+    background: black;
+    color: white;
+    border: 1px solid var(--border);
+}
+
+.save-btn:hover {
+    background: #313131;
+}
+
+.remove-btn {
+    background: red;
+    color: white;
+    border: 1px solid black;
+}
+
+.remove-btn:hover {
+    background: white;
+    color: black;
+}
+
+h1 {
+    font-size: 28px;
+    font-weight: 600;
+}
+
+h2 {
+    font-size: 22px;
+    font-weight: 600;
+}
+
+p {
+    color: #6b7280;
+}
+
+label {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 4px;
+}
+
+.card {
+    padding: var(--space-md);
+    background: white;
+
+    padding: var(--space-lg);
+    margin-bottom: var(--space-md);
+
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border);
+
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.cardHeader {
+    display: flex;
+    flex-direction: column;
+}
+
+
+
+.page {
+    padding: var(--space-md);
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.section {
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.field {
+    width: 80%;
+}
+
+.error-message {
+    width: 100%;
+    padding: 10px 12px;
+    color: #b00020;
+    background: #fff1f2;
+    border: 1px solid #f0b7c0;
+    font-size: 14px;
+}
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modalContent {
+    background: white;
+    padding: var(--space-md);
+    border-radius: var(--space-sm);
+    min-width: 300px;
+}
