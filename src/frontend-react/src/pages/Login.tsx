@@ -34,29 +34,28 @@ export function Login() {
         <>
             <main className="auth-container">
                 <h2>Log In</h2>
-                <div id="auth-message" />
                 <form className="auth-form" id="login-form" onSubmit={handleSubmit}>
+
                     <label>E-mail:
-                        <input type="email" name="email" id="email" value={email} onChange={handleChangeEmail} />
+                        <input type="email" name="email" id="email" value={email} required onChange={handleChangeEmail} />
                     </label>
+
                     <label>Password:
-                        <input type="password" name="password" id="password" value={password} onChange={handleChangePassword} />
+                        <input type="password" name="password" id="password" value={password} required onChange={handleChangePassword} />
                     </label>
-                    <input type="submit" className="btn-submit" defaultValue="Log In" />
-                    < br />
+
                     {error && <div className="error-message">{error}</div>}
+
+                    <input type="submit" className="btn-submit" defaultValue="Log In" />
+                </form>
+
+                <div className="link-container">
                     Don't have an account?
                     <Link to="/register">
                         Register here.
                     </Link>
-                </form>
-            </main>
-            <footer>
-                <div>Andrija Mitrović </div>
-                <div>
-                    <a href="https://github.com/andrijamitrovic">My github</a>
                 </div>
-            </footer>
+            </main>
         </>
 
     );

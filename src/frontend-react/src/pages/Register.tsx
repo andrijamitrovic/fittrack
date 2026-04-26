@@ -40,35 +40,33 @@ export function Register() {
         <>
             <main className="auth-container">
                 <h2>Register</h2>
-                <div id="auth-message" />
                 <form className="auth-form" id="register" onSubmit={handleSubmit}>
+                    
                     <label htmlFor="name">Name:
-                        <input type="text" id="name" name="name" value={name} onChange={handleChangeName} />
+                        <input type="text" id="name" name="name" required value={name} onChange={handleChangeName} />
                     </label>
+
                     <label htmlFor="email">E-mail:
-                        <input type="email" id="email" name="email" value={email} onChange={handleChangeEmail} />
+                        <input type="email" id="email" name="email" required value={email} onChange={handleChangeEmail} />
                     </label>
+
                     <label htmlFor="password">Password:
-                        <input type="password" id="password" name="password" value={password} onChange={handleChangePassword} />
+                        <input type="password" id="password" name="password" required value={password} onChange={handleChangePassword} />
                     </label>
+
                     {error && <div className="error-message">{error}</div>}
+
                     <input type="submit" className="btn-submit" defaultValue="Register" />
                 </form>
 
-                < br />
-
-                Already have an account?
-                <Link to="/login">
-                    Log In.
-                </Link>
+                <div className="link-container">
+                    Already have an account?
+                    <Link to="/login">
+                        Log In.
+                    </Link>
+                </div>
                 
             </main>
-            <footer>
-                <div>Andrija Mitrović </div>
-                <div>
-                    <a href="https://github.com/andrijamitrovic">My github</a>
-                </div>
-            </footer>
         </>
 
 

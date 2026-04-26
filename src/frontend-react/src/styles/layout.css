@@ -1,0 +1,220 @@
+.site-nav {
+    width: 100%;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: var(--space-lg);
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    padding: var(--space-md) var(--space-lg);
+}
+
+.nav-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    min-width: 0;
+}
+
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 700;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.nav-brand:hover {
+    color: var(--text);
+    text-decoration: none;
+}
+
+.fittrack-logo {
+    width: 28px;
+    height: 28px;
+    color: var(--text);
+    flex-shrink: 0;
+}
+
+.fittrack-text {
+    font-size: 20px;
+    line-height: 1;
+}
+
+.nav-panel {
+    display: flex;
+    justify-content: center;
+    min-width: 0;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+}
+
+.nav-links li {
+    display: flex;
+}
+
+.nav-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 2px 6px;
+    color: var(--muted);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s ease, border-color 0.15s ease;
+    white-space: nowrap;
+}
+
+.nav-link:hover {
+    color: var(--text);
+    text-decoration: none;
+}
+
+.nav-link.is-active {
+    color: var(--text);
+    border-bottom-color: var(--text);
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.nav-toggle {
+    display: none;
+    min-height: 40px;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-link {
+    min-height: 40px;
+    white-space: nowrap;
+}
+
+footer {
+    margin-top: auto;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-lg);
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+}
+
+footer a {
+    color: var(--muted);
+}
+
+footer a:hover {
+    color: var(--text);
+    text-decoration: underline;
+}
+
+.app-title {
+    font-size: 22px;
+    font-weight: 600;
+    text-align: center;
+    margin: 16px 0 24px;
+}
+
+.app-title::after {
+    content: "";
+    display: block;
+    width: 40px;
+    height: 2px;
+    background: black;
+    margin: 8px auto 0;
+}
+
+.title {
+    margin: var(--space-md);
+}
+
+@media (max-width: 768px) {
+    .site-nav {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: var(--space-md);
+    }
+
+    .nav-bar {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .nav-toggle {
+        display: inline-flex;
+    }
+
+    .nav-panel {
+        display: none;
+        width: 100%;
+        padding-top: var(--space-md);
+    }
+
+    .nav-panel.is-open {
+        display: flex;
+    }
+
+    .nav-links {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-sm);
+    }
+
+    .nav-links li {
+        width: 100%;
+    }
+
+    .nav-link {
+        width: 100%;
+        min-height: 44px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .nav-link.is-active {
+        border-bottom-color: var(--text);
+    }
+
+    .nav-actions {
+        display: none;
+        width: 100%;
+        padding-top: var(--space-md);
+    }
+
+    .nav-panel.is-open+.nav-actions {
+        display: flex;
+    }
+
+    .nav-actions .btn-link {
+        width: 100%;
+    }
+
+    footer {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: var(--space-md);
+    }
+}

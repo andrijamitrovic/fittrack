@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { loadTemplates } from "../services/workoutService";
-import type { WorkoutExerciseViewer, WorkoutViewer } from "../types";
+import type { ExerciseSetViewer, WorkoutExerciseViewer, WorkoutViewer } from "../types";
 import { useNavigate } from "react-router";
 
 export function Templates() {
@@ -9,7 +9,7 @@ export function Templates() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    async function makeWorkout(workoutId: string) {
+    function makeWorkout(workoutId: string) {
         navigate("/newworkout/" + workoutId);
     }
 
@@ -20,31 +20,100 @@ export function Templates() {
             .finally(() => setLoading(false));
     }, []);
 
-    if (loading) return <p>Loading...</p>
-    if (error) return <p>{error}</p>
+    if (loading) {
+        return (
+            <div className="page history-page">
+                <div className="history-page-header">
+                    <h1 className="history-page-title">Templates</h1>
+                    <p className="history-page-subtitle">Reusable workout structures for fast planning.</p>
+                </div>
+                <p className="history-status">Loading...</p>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="page history-page">
+                <div className="history-page-header">
+                    <h1 className="history-page-title">Templates</h1>
+                    <p className="history-page-subtitle">Reusable workout structures for fast planning.</p>
+                </div>
+                <p className="history-status">{error}</p>
+            </div>
+        );
+    }
+
+    if (workouts.length === 0) {
+        return (
+            <div className="page history-page">
+                <div className="history-page-header">
+                    <h1 className="history-page-title">Templates</h1>
+                    <p className="history-page-subtitle">Reusable workout structures for fast planning.</p>
+                </div>
+                <p className="history-status">No templates yet.</p>
+            </div>
+        );
+    }
 
     return (
-        <>
-            {
-                workouts.map((workout: WorkoutViewer) => {
-                    return (
-                        <div className="card" key={workout.workoutId}>
-                            <div className="cardHeader">
+        <div className="page history-page">
+            <div className="history-page-header">
+                <h1 className="history-page-title">Templates</h1>
+                <p className="history-page-subtitle">Reusable workout structures for fast planning.</p>
+            </div>
+
+            <div className="history-list">
+                {workouts.map((workout: WorkoutViewer) => (
+                    <div className="card history-card" key={workout.workoutId}>
+                        <div className="history-card-top">
+                            <div className="history-card-head">
                                 <h3>{workout.title}</h3>
-                                <p>{workout.date!.split("T")[0]}</p>
-                                <button type="button" onClick={() => makeWorkout(workout.workoutId)}>Use template</button>
+                                <div className="history-meta">
+                                    <span>
+                                        {workout.exercises.length === 1
+                                            ? `${workout.exercises.length} exercise`
+                                            : `${workout.exercises.length} exercises`}
+                                    </span>
+                                    {workout.durationMin && <span>{workout.durationMin} min</span>}
+                                </div>
+                                {workout.workoutNotes && (
+                                    <p className="history-notes">{workout.workoutNotes}</p>
+                                )}
                             </div>
-                            {workout.exercises.map((exercise: WorkoutExerciseViewer) => {
-                                return (
-                                    <div key={exercise.workoutExerciseId}>
-                                        {exercise.exerciseName} - {exercise.sets.length} sets
-                                    </div>
-                                );
-                            })}
+
+                            <div className="history-actions">
+                                <button
+                                    type="button"
+                                    onClick={() => makeWorkout(workout.workoutId)}
+                                >
+                                    Use template
+                                </button>
+                            </div>
                         </div>
-                    );
-                })
-            }
-        </>
-    )
+
+                        <div className="history-exercise-list">
+                            {workout.exercises.map((exercise: WorkoutExerciseViewer) => (
+                                <details key={exercise.workoutExerciseId}>
+                                    <summary>
+                                        <span>{exercise.exerciseName}</span>
+                                        <span>{exercise.sets.length} sets</span>
+                                    </summary>
+
+                                    {exercise.sets.map((set: ExerciseSetViewer) => (
+                                        <div className="set-row" key={set.setNumber}>
+                                            <span className="set-label">Set {set.setNumber}</span>
+                                            <span>{set.reps ?? "-"} reps</span>
+                                            <span>{set.weight ?? "-"} kg</span>
+                                            <span>RPE {set.rpe ?? "-"}</span>
+                                        </div>
+                                    ))}
+                                </details>
+                            ))}
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
 }
