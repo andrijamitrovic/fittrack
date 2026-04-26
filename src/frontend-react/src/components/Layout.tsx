@@ -130,7 +130,7 @@ export function Layout() {
             </main>
 
             <footer>
-                <p>Andrija MitroviÄ‡</p>
+                <p>Andrija Mitrović</p>
                 <p>
                     <a
                         href="https://github.com/andrijamitrovic"

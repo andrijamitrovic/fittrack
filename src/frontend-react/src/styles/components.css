@@ -44,14 +44,15 @@ button:active,
 }
 
 .remove-btn {
-    background: red;
-    color: white;
-    border: 1px solid black;
+    background: white;
+    color: #b42318;
+    border: 1px solid #f1b4ad;
 }
 
 .remove-btn:hover {
-    background: white;
-    color: black;
+    background: #fef3f2;
+    color: #912018;
+    border-color: #e58f86;
 }
 
 h1 {
