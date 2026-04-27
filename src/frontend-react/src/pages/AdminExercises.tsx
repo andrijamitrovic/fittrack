@@ -37,47 +37,57 @@ export function AdminExercises() {
     if (error) return <p>{error}</p>
 
     return (
-        <>
-            <button onClick={() => setShowForm(true)}>Add Exercise</button>
-            {
-                exercises.map((exercise: Exercise) => {
-                    return (
+        <div className="page admin-page">
+            <div className="admin-page-header">
+                <h1 className="admin-page-title">Exercises</h1>
+                <p className="admin-page-subtitle">Manage the exercise library.</p>
+            </div>
 
-                        <div className="card" key={exercise.id}>
-                            <div className="cardHeader">
-                                <h3>{exercise.name}</h3>
-                                <p>{exercise.category}</p>
-                                <p>{exercise.muscleGroup}</p>
+            <div className="admin-toolbar">
+                <button onClick={() => setShowForm(true)}>Add Exercise</button>
+            </div>
+
+            <div className="admin-list">
+                {
+                    exercises.map((exercise: Exercise) => {
+                        return (
+
+                            <div className="card" key={exercise.id}>
+                                <div className="cardHeader">
+                                    <h3>{exercise.name}</h3>
+                                    <p>{exercise.category}</p>
+                                    <p>{exercise.muscleGroup}</p>
+                                </div>
+                                <button onClick={() => setEditingExercise(exercise)}>Update Exercise</button>
+
+                                <button className="remove-btn" onClick={() => deleteExercise(exercise.id)}>Delete Exercise</button>
                             </div>
-                            <button onClick={() => setEditingExercise(exercise)}>Update Exercise</button>
+                        );
+                    })
+                }
 
-                            <button className="remove-btn" onClick={() => deleteExercise(exercise.id)}>Delete Exercise</button>
-                        </div>
-                    );
-                })
-            }
+                {editingExercise && (
+                    <Modal onClose={() => setEditingExercise(null)}>
+                        <ExerciseForm
+                            formExercise={editingExercise}
+                            onAdd={async (updated) => {
+                                await updateExercise(updated);
+                                setEditingExercise(null);
+                            }}
+                        />
+                    </Modal>
+                )}
 
-            {editingExercise && (
-                <Modal onClose={() => setEditingExercise(null)}>
-                    <ExerciseForm
-                        formExercise={editingExercise}
-                        onAdd={async (updated) => {
-                            await updateExercise(updated);
-                            setEditingExercise(null);
-                        }}
-                    />
-                </Modal>
-            )}
-
-            {showForm && (
-                <Modal onClose={() => setShowForm(false)}>
-                    <ExerciseForm onAdd={(e) => {
+                {showForm && (
+                    <Modal onClose={() => setShowForm(false)}>
+                        <ExerciseForm onAdd={(e) => {
                             saveExercise(e);
                             setShowForm(false);
                         }} formExercise={null}
-                    />
-                </Modal>
-            )}
-        </>
+                        />
+                    </Modal>
+                )}
+            </div>
+        </div>
     )
 }

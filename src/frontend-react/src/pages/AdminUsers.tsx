@@ -6,7 +6,7 @@ export function AdminUsers() {
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    const [deleteId,setDeleteId] = useState<string | null>(null);
+    const [deleteId, setDeleteId] = useState<string | null>(null);
 
     async function deleteUserButton(userId: string) {
         setDeleteId(userId);
@@ -32,21 +32,28 @@ export function AdminUsers() {
     if (error) return <p>{error}</p>
 
     return (
-        <>
-            {
-                users.map((user: User) => {
-                    return (
+        <div className="page admin-page">
+            <div className="admin-page-header">
+                <h1 className="admin-page-title">Users</h1>
+                <p className="admin-page-subtitle">Manage registered users.</p>
+            </div>
 
-                        <div className="card" key={user.id}>
-                            <div className="cardHeader">
-                                <h3>{user.displayName}</h3>
-                                <p>{user.email}</p>
-                                <button className="remove-btn" type="button" onClick={() => deleteUserButton(user.id!)}>{deleteId === user.id ? "Deleting..." : "Delete user"}</button>
+            <div className="admin-list">
+                {
+                    users.map((user: User) => {
+                        return (
+
+                            <div className="card" key={user.id}>
+                                <div className="cardHeader">
+                                    <h3>{user.displayName}</h3>
+                                    <p>{user.email}</p>
+                                    <button className="remove-btn" type="button" onClick={() => deleteUserButton(user.id!)}>{deleteId === user.id ? "Deleting..." : "Delete user"}</button>
+                                </div>
                             </div>
-                        </div>
-                    );
-                })
-            }
-        </>
+                        );
+                    })
+                }
+            </div>
+        </div>
     )
 }

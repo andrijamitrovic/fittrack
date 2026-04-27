@@ -603,3 +603,11 @@ summary span:last-child {
 .exercise-picker-header .add-btn {
     width: 100%;
 }
+
+.history-page {
+    max-width: 900px;
+}
+
+.workout-page {
+    max-width: 900px;
+}

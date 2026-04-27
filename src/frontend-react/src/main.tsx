@@ -7,6 +7,8 @@ import './styles/auth.css'
 import './styles/workouts.css'
 import './styles/layout.css'
 import './styles/components.css'
+import "./styles/dashboard.css";
+
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
