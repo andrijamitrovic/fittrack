@@ -30,7 +30,8 @@
 }
 
 input,
-select {
+select,
+textarea {
   padding: var(--space-sm) var(--space-md);
   background: white;
   border: 1px solid var(--border);

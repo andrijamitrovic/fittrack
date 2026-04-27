@@ -28,16 +28,20 @@ export function WorkoutHistory() {
     if (loading) {
         return (
             <div className="page history-page">
-                <h1 className="title">Workout History</h1>
-                <p className="history-status">Loading...</p>
+                <div className="history-page-header">
+                    <h1 className="history-page-title">Workout History</h1>
+                    <p className="history-page-subtitle">Completed sessions and saved workout data.</p>
+                </div>
             </div>
         );
     }
     if (error) {
         return (
             <div className="page history-page">
-                <h1 className="title">Workout History</h1>
-                <p className="history-status">{error}</p>
+                <div className="history-page-header">
+                    <h1 className="history-page-title">Workout History</h1>
+                    <p className="history-page-subtitle">Completed sessions and saved workout data.</p>
+                </div>
             </div>
         );
     }
@@ -45,8 +49,10 @@ export function WorkoutHistory() {
     if (workouts.length === 0) {
         return (
             <div className="page history-page">
-                <h1 className="title">Workout History</h1>
-                <p className="history-status">No workouts yet.</p>
+                <div className="history-page-header">
+                    <h1 className="history-page-title">Workout History</h1>
+                    <p className="history-page-subtitle">Completed sessions and saved workout data.</p>
+                </div>
             </div>
         );
     }

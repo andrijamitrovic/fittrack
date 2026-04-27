@@ -19,7 +19,7 @@ export function WorkoutLog() {
         setTitle(e.target.value);
     }
 
-    function handleChangeNotes(e: React.ChangeEvent<HTMLInputElement>) {
+    function handleChangeNotes(e: React.ChangeEvent<HTMLTextAreaElement>) {
         setNotes(e.target.value);
     }
 
@@ -69,8 +69,24 @@ export function WorkoutLog() {
     }
 
     async function saveWorkout() {
+        if (exercises.length === 0) {
+            setSaveError("Add at least one exercise.");
+            return;
+        }
+
+        if (exercises.some((exercise) => !exercise.exerciseId)) {
+            setSaveError("Pick an exercise for each exercise group.");
+            return;
+        }
+
+        if (exercises.some((exercise) => exercise.exerciseSets.length === 0)) {
+            setSaveError("Add at least one set for each exercise.");
+            return;
+        }
+
         setSaving(true);
         setSaveError("");
+
         try {
             await createWorkout({
                 notes: notes || undefined,
@@ -85,6 +101,7 @@ export function WorkoutLog() {
             setSaving(false);
         }
     }
+
 
     useEffect(() => {
         loadExercises()
@@ -113,46 +130,74 @@ export function WorkoutLog() {
     }, []);
 
     return (
-        <div className="page">
-            <h1 className="title">Add Workout</h1>
+        <div className="page workout-page">
+            <div className="workout-page-header">
+                <h1 className="workout-page-title">
+                    {workoutId ? "Copy Workout" : "Add Workout"}
+                </h1>
+                <p className="workout-page-subtitle">
+                    Build the session, add sets, then save it to your history.
+                </p>
+            </div>
+
             <form className="workout-form" onSubmit={(e) => { e.preventDefault(); saveWorkout(); }}>
-                <div className="field">
-                    <label>Title:
-                        <input required type="text" id="title" name="title" value={title} onChange={handleChangeTitle} />
-                    </label>
-                </div>
-                <div className="field">
-                    <label htmlFor="notes">Notes:
-                        <input type="text" id="notes" name="notes" value={notes} onChange={handleChangeNotes} />
-                    </label>
+                <div className="workout-top-panel">
+                    <div className="field">
+                        <label>Title:
+                            <input required type="text" id="title" name="title" value={title} onChange={handleChangeTitle} />
+                        </label>
+                    </div>
+                    <div className="field">
+                        <label htmlFor="notes">Notes:
+                            <textarea
+                                rows={5}
+                                id="notes"
+                                name="notes"
+                                value={notes}
+                                onChange={handleChangeNotes}
+                            />
+                        </label>
+                    </div>
                 </div>
                 {/* <h2>Duration: </h2>
                 <label for="durationHour">Hours:</label>
                 <input type="number" min="0" max="10" id="durationHour" name="durationMin">
                 <label for="durationMin">Minutes:</label>
                 <input type="number" min="0" max="60" id="durationMin" name="durationMin"> */}
-                <div className="section">
-                    <h2>Add excercises</h2>
-                    {exercises.map((exercise, index) => (
-                        <WorkoutExerciseComponent
-                            key={index}
-                            exercisesList={exercisesList}
-                            exercise={exercise}
-                            onAddSet={() => addSet(index)}
-                            onUpdateSet={(setIndex: number, field: string, value: number | undefined) => updateSet(index, setIndex, field, value)}
-                            onDeleteExercise={() => deleteExercise(index)}
-                            onDeleteSet={(setIndex: number) => deleteSet(index, setIndex)}
-                            onSelectExercise={(id) => selectExercise(index, id)}
-                        />
-                    ))}
+                <div className="workout-builder">
+                    <div className="workout-builder-header">
+                        <h2>Exercises</h2>
+
+                        <button type="button" className="add-btn" onClick={addExercise} >
+                            + Add exercise
+                        </button>
+                    </div>
+                    {exercises.length === 0 ? (
+                        <div className="workout-empty-state">
+                            No exercises added yet.
+                        </div>
+                    ) : (
+                        exercises.map((exercise, index) => (
+                            <WorkoutExerciseComponent
+                                key={index}
+                                exercisesList={exercisesList}
+                                exercise={exercise}
+                                onAddSet={() => addSet(index)}
+                                onUpdateSet={(setIndex: number, field: string, value: number | undefined) => updateSet(index, setIndex, field, value)}
+                                onDeleteExercise={() => deleteExercise(index)}
+                                onDeleteSet={(setIndex: number) => deleteSet(index, setIndex)}
+                                onSelectExercise={(id) => selectExercise(index, id)}
+                            />
+                        )))}
 
                 </div>
 
-                <button type="button" className="add-btn" onClick={addExercise} > + Add exercise </button>
-                {saveError && <p className="error">{saveError}</p>}
-                <button type="submit" className="save-btn" disabled={saving}>
-                    {saving ? "Saving..." : "Save Workout"}
-                </button>
+                <div className="workout-form-actions">
+                    {saveError && <p className="error-message">{saveError}</p>}
+                    <button type="submit" className="save-btn" disabled={saving}>
+                        {saving ? "Saving..." : "Save Workout"}
+                    </button>
+                </div>
 
             </form>
         </div>
