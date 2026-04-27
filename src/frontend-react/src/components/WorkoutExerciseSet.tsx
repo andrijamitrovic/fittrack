@@ -22,7 +22,6 @@ export function WorkoutExerciseSetComponent({
                         max={100}
                         className="reps"
                         name="reps"
-                        id="reps"
                         value={set.reps ?? ""}
                         onChange={(e) => {
                             const val = e.target.value === "" ? undefined : Number(e.target.value);
@@ -39,7 +38,6 @@ export function WorkoutExerciseSetComponent({
                         step="0.5"
                         className="weight"
                         name="weight"
-                        id="weight"
                         value={set.weight ?? ""}
                         onChange={(e) => {
                             const val = e.target.value === "" ? undefined : Number(e.target.value);
@@ -55,7 +53,6 @@ export function WorkoutExerciseSetComponent({
                         max={10}
                         className="rpe"
                         name="rpe"
-                        id="rpe"
                         value={set.rpe ?? ""}
                         onChange={(e) => {
                             const val = e.target.value === "" ? undefined : Number(e.target.value);

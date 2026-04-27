@@ -124,8 +124,8 @@ export function Layout() {
                     </button>
                 </div>
             </nav>
-
-            <main>
+            
+            <main className="app-main">
                 <Outlet />
             </main>
 
