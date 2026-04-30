@@ -5,7 +5,7 @@
         public required Guid Id { get; set; }
         public required Guid UserId { get; set; }
         public string? Title { get; set; }
-        public required DateTime Date { get; set; }
+        public DateTime? Date { get; set; }
         public string? Notes { get; set; }
         public int? DurationMin { get; set; }
         public DateTime? CreatedAt { get; set; }

@@ -27,11 +27,11 @@ namespace FitTrack.Api.Controllers
             }
 
             var result = await _workoutService.CreateWorkoutAsync(workoutDTO, userId, false);
-            if(result.Code == Application.Common.ResultType.Failure)
+            if (result.Code == Application.Common.ResultType.Failure)
             {
                 return BadRequest(new { message = result.Message });
             }
-            return CreatedAtAction(nameof(GetWorkout), new {id = result.Data!.Id}, result.Data);
+            return CreatedAtAction(nameof(GetWorkout), new { id = result.Data!.Id }, result.Data);
         }
 
         [Authorize]
@@ -56,7 +56,24 @@ namespace FitTrack.Api.Controllers
                 return Unauthorized();
             }
 
-            var result = await _workoutService.GetWorkoutAsync(userId, id);
+            var result = await _workoutService.GetWorkoutAsync(userId, id, false);
+            if (result.Code == Application.Common.ResultType.NotFound)
+            {
+                return NotFound(new { message = "Workout not found." });
+            }
+            return Ok(result.Data);
+        }
+
+        [Authorize]
+        [HttpGet("workout-templates/{id}")]
+        public async Task<ActionResult> GetTemplate(Guid id)
+        {
+            if (GetUserId(User) is not Guid userId)
+            {
+                return Unauthorized();
+            }
+
+            var result = await _workoutService.GetWorkoutAsync(userId, id, true);
             if (result.Code == Application.Common.ResultType.NotFound)
             {
                 return NotFound(new { message = "Workout not found." });
@@ -89,6 +106,116 @@ namespace FitTrack.Api.Controllers
 
             var result = await _workoutService.GetWorkoutsAsync(userId, true);
             return Ok(result.Data);
+        }
+
+        [Authorize]
+        [HttpPut("{id}")]
+        public async Task<ActionResult> UpdateWorkout(WorkoutDTO workoutDTO, Guid id)
+        {
+            if (GetUserId(User) is not Guid userId)
+            {
+                return Unauthorized();
+            }
+
+            var result = await _workoutService.UpdateWorkoutAsync(userId, id, workoutDTO, false);
+
+            if (result.Code == Application.Common.ResultType.NotFound)
+            {
+                return NotFound(new { message = result.Message });
+            }
+            else if (result.Code == Application.Common.ResultType.Conflict)
+            {
+                return Conflict(new { message = result.Message });
+            }
+            else if (result.Code == Application.Common.ResultType.Failure)
+            {
+                return Problem(result.Message);
+            }
+            else
+            {
+                return Ok(result.Data);
+            }
+        }
+
+        [Authorize]
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteWorkout(Guid id)
+        {
+            if (GetUserId(User) is not Guid userId)
+            {
+                return Unauthorized();
+            }
+
+            var result = await _workoutService.DeleteWorkoutAsync(userId, id, false);
+
+            if (result.Code == Application.Common.ResultType.NotFound)
+            {
+                return NotFound(new { message = result.Message });
+            }
+            else if (result.Code == Application.Common.ResultType.Conflict)
+            {
+                return Conflict(new { message = result.Message });
+            }
+            else if (result.Code == Application.Common.ResultType.Failure)
+            {
+                return Problem(result.Message);
+            }
+            else
+            {
+                return NoContent();
+            }
+
+        }
+
+        [Authorize]
+        [HttpPut("workout-templates/{id}")]
+        public async Task<ActionResult> UpdateTemplate(WorkoutDTO workoutDTO, Guid id)
+        {
+            if (GetUserId(User) is not Guid userId)
+            {
+                return Unauthorized();
+            }
+
+            var result = await _workoutService.UpdateWorkoutAsync(userId, id, workoutDTO, true);
+
+            if (result.Code == Application.Common.ResultType.NotFound)
+            {
+                return NotFound(new { message = result.Message });
+            }
+            else if (result.Code == Application.Common.ResultType.Failure)
+            {
+                return Problem(result.Message);
+            }
+            else
+            {
+                return Ok(result.Data);
+            }
+        }
+
+        [Authorize]
+        [HttpDelete("workout-templates/{id}")]
+        public async Task<ActionResult> DeleteTemplate(Guid id)
+        {
+            if (GetUserId(User) is not Guid userId)
+            {
+                return Unauthorized();
+            }
+
+            var result = await _workoutService.DeleteWorkoutAsync(userId, id, true);
+
+            if (result.Code == Application.Common.ResultType.NotFound)
+            {
+                return NotFound(new { message = result.Message });
+            }
+            else if (result.Code == Application.Common.ResultType.Failure)
+            {
+                return Problem(result.Message);
+            }
+            else
+            {
+                return NoContent();
+            }
+
         }
 
         private Guid? GetUserId(ClaimsPrincipal principal)

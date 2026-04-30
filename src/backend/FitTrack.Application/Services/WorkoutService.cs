@@ -91,9 +91,9 @@ namespace FitTrack.Application.Services
         }
 
 
-        public async Task<ServiceResult<ViewWorkoutDTO?>> GetWorkoutAsync(Guid userId, Guid workoutId)
+        public async Task<ServiceResult<ViewWorkoutDTO?>> GetWorkoutAsync(Guid userId, Guid workoutId, bool isTemplate)
         {
-            List<WorkoutDetailRow> result = await _workoutRepository.GetWorkoutAsync(userId, workoutId);
+            List<WorkoutDetailRow> result = await _workoutRepository.GetWorkoutAsync(userId, workoutId, isTemplate);
             var workout = MapWorkoutRows(result).FirstOrDefault();
 
             if (workout == null)
@@ -113,6 +113,79 @@ namespace FitTrack.Application.Services
                 Message = "Workout succesfully returned."
             };
 
+        }
+
+        public async Task<ServiceResult<bool>> DeleteWorkoutAsync(Guid userId, Guid workoutId, bool isTemplate)
+        {
+            var result = await _workoutRepository.DeleteWorkoutAsync(userId, workoutId, isTemplate);
+
+            return new ServiceResult<bool>
+            {
+                Code = result,
+                Data = result == ResultType.Success,
+                Message = result switch
+                {
+                    ResultType.Success => "Workout deleted successfully.",
+                    ResultType.NotFound => "Workout not found.",
+                    _ => "Workout could not be deleted."
+                }
+            };
+        }
+
+        public async Task<ServiceResult<Workout?>> UpdateWorkoutAsync(Guid userId, Guid id, WorkoutDTO workoutDTO, bool isTemplate)
+        {
+            var workout = new Workout
+            {
+                Id = id,
+                UserId = userId,
+                Title = workoutDTO.Title,
+                Notes = workoutDTO.Notes,
+                DurationMin = workoutDTO.DurationMin,
+                IsTemplate = isTemplate
+            };
+
+            List<WorkoutExercise> workoutExercises = new List<WorkoutExercise>();
+            List<ExerciseSet> exerciseSets = new List<ExerciseSet>();
+
+            foreach (var workoutExerciseDTO in workoutDTO.WorkoutExercises)
+            {
+                var workoutExercise = new WorkoutExercise
+                {
+                    Id = Guid.NewGuid(),
+                    WorkoutId = workout.Id,
+                    ExerciseId = workoutExerciseDTO.ExerciseId,
+                    OrderIndex = workoutExerciseDTO.OrderIndex,
+                    Notes = workoutExerciseDTO.Notes
+                };
+                workoutExercises.Add(workoutExercise);
+
+                foreach (var exerciseSetDTO in workoutExerciseDTO.ExerciseSets)
+                {
+                    exerciseSets.Add(new ExerciseSet
+                    {
+                        Id = Guid.NewGuid(),
+                        WorkoutExerciseId = workoutExercise.Id,
+                        SetNumber = exerciseSetDTO.SetNumber,
+                        Reps = exerciseSetDTO.Reps,
+                        Weight = exerciseSetDTO.Weight,
+                        Rpe = exerciseSetDTO.Rpe,
+                        IsWarmup = exerciseSetDTO.IsWarmup
+                    });
+                }
+            }
+            var returnWorkout = await _workoutRepository.UpdateWorkoutAsync(userId, workout, workoutExercises, exerciseSets);
+
+            return new ServiceResult<Workout?>
+            {
+                Code = returnWorkout.Code,
+                Data = returnWorkout.Data,
+                Message = returnWorkout.Code switch
+                {
+                    ResultType.Success => "Workout updated successfully.",
+                    ResultType.NotFound => "Workout not found.",
+                    _ => "Workout could not be updated."
+                }
+            };
         }
 
         private static List<ViewWorkoutDTO> MapWorkoutRows(IEnumerable<WorkoutDetailRow> workouts)
