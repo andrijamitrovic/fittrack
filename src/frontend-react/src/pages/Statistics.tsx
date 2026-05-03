@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { type WorkoutViewer, type Exercise, type WorkoutExercise } from "../types";
 import { loadExercises } from "../services/exerciseService";
 import { loadWorkouts } from "../services/workoutService";
-import { WorkoutExerciseSetComponent } from "../components/WorkoutExerciseSet";
 import { Modal } from "../components/Modal";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
@@ -10,7 +9,6 @@ export function Statistics() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [exercises, setExercises] = useState<Exercise[]>([]);
-    const [exercise, setExercise] = useState<WorkoutExercise>();
     const [workouts, setWorkouts] = useState<WorkoutViewer[]>([]);
     const [query, setQuery] = useState("");
 
@@ -18,7 +16,7 @@ export function Statistics() {
     const [selectedExerciseId, setSelectedExerciseId] = useState("");
 
     const selectedExercise = exercises.find(
-        (item) => item.id === exercise?.id
+        (item) => item.id === selectedExerciseId
     );
 
     const filteredExercises = useMemo(() => {
@@ -175,7 +173,7 @@ export function Statistics() {
                                     <button
                                         type="button"
                                         key={item.id}
-                                        className={`exercise-picker-option${item.id === exercise?.exerciseId ? " is-selected" : ""}`}
+                                        className={`exercise-picker-option${item.id === selectedExerciseId ? " is-selected" : ""}`}
                                         onClick={() => {
                                             onSelectExercise(item.id);
                                             closeExercisePicker();
