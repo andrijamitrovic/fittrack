@@ -66,7 +66,7 @@ namespace FitTrack.Infrastructure.Repositories
 
         }
 
-        public async Task<List<WorkoutDetailRow>> GetWorkoutAsync(Guid userId, Guid workoutId, bool isTemplate)
+        public async Task<List<WorkoutDetailRow>> GetWorkoutAsync(Guid userId, Guid workoutId)
         {
             var sql = @"SELECT w.id as workout_id, w.title, w.date, w.notes as workout_notes, w.duration_min,
                                 we.id as workout_exercise_id, we.order_index, we.notes as exercise_notes, we.exercise_id,
@@ -78,11 +78,10 @@ namespace FitTrack.Infrastructure.Repositories
                         JOIN exercise_sets es ON es.workout_exercise_id = we.id
                         WHERE w.user_id = @UserId
                         AND w.id = @WorkoutId
-                        AND is_template = @IsTemplate
                         ORDER BY w.date DESC, we.order_index, es.set_number";
 
             using var connection = new NpgsqlConnection(_connectionString);
-            return [.. await connection.QueryAsync<WorkoutDetailRow>(sql, new { UserId = userId, WorkoutId = workoutId, IsTemplate = isTemplate })];
+            return [.. await connection.QueryAsync<WorkoutDetailRow>(sql, new { UserId = userId, WorkoutId = workoutId })];
 
         }
 

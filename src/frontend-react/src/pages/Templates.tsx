@@ -1,16 +1,29 @@
 import { useEffect, useState } from "react";
-import { loadTemplates } from "../services/workoutService";
+import { deleteTemplateAsync, loadTemplates, updateTemplateAsync } from "../services/workoutService";
 import type { ExerciseSetViewer, WorkoutExerciseViewer, WorkoutViewer } from "../types";
 import { useNavigate } from "react-router";
+import { WorkoutEditModal } from "../components/WorkoutEditModal";
 
 export function Templates() {
     const navigate = useNavigate();
     const [workouts, setWorkouts] = useState<WorkoutViewer[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [editingTemplate, setEditingTemplate] = useState<WorkoutViewer | null>(null);
 
     function makeWorkout(workoutId: string) {
         navigate("/newworkout/" + workoutId);
+    }
+
+    async function deleteTemplate(workoutId: string) {
+        await deleteTemplateAsync(workoutId);
+        setWorkouts(current => current.filter(w => w.workoutId !== workoutId));
+    }
+
+    async function updateTemplate(workoutId: string, workout: WorkoutViewer) {
+        await updateTemplateAsync(workout, workoutId);
+        const refreshedTemplates = await loadTemplates();
+        setWorkouts(refreshedTemplates);
     }
 
     useEffect(() => {
@@ -89,6 +102,20 @@ export function Templates() {
                                 >
                                     Use template
                                 </button>
+                                <button
+                                    type="button"
+                                    className="add-btn"
+                                    onClick={() => setEditingTemplate(workout)}
+                                >
+                                    Update
+                                </button>
+                                <button
+                                    type="button"
+                                    className="remove-btn"
+                                    onClick={() => deleteTemplate(workout.workoutId)}
+                                >
+                                    Delete
+                                </button>
                             </div>
                         </div>
 
@@ -114,6 +141,14 @@ export function Templates() {
                     </div>
                 ))}
             </div>
+            {editingTemplate && (
+                <WorkoutEditModal
+                    heading="Update template"
+                    workout={editingTemplate}
+                    onClose={() => setEditingTemplate(null)}
+                    onSave={(updatedWorkout) => updateTemplate(updatedWorkout.workoutId, updatedWorkout)}
+                />
+            )}
         </div>
     );
 }

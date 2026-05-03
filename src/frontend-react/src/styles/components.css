@@ -139,7 +139,81 @@ label {
 
 .modalContent {
     background: white;
-    padding: var(--space-md);
+    padding: var(--space-lg);
     border-radius: var(--space-sm);
-    min-width: 300px;
+    width: min(100%, 560px);
+    max-height: 90vh;
+    overflow: auto;
+}
+
+.modalHeader {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: var(--space-md);
+}
+
+.modalHeader h2,
+.modalHeader p {
+    margin: 0;
+}
+
+.modalForm {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    width: 100%;
+}
+
+.modalField {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+}
+
+.modalActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-sm);
+}
+
+.workoutEditContent {
+    width: min(100%, 920px);
+}
+
+.workoutEditModal {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.workoutEditForm {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    width: 100%;
+}
+
+.workoutEditField {
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .modalContent {
+        padding: var(--space-md);
+        width: min(100%, calc(100vw - 32px));
+    }
+
+    .workoutEditContent {
+        width: min(100%, calc(100vw - 32px));
+    }
+
+    .modalActions {
+        flex-direction: column;
+    }
+
+    .modalActions button {
+        width: 100%;
+    }
 }
