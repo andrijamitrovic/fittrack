@@ -92,6 +92,15 @@ export function Layout() {
                                 Templates
                             </NavLink>
                         </li>
+                        <li>
+                            <NavLink
+                                to="/statistics"
+                                className={({ isActive }) => `nav-link${isActive ? " is-active" : ""}`}
+                                onClick={closeMenu}
+                            >
+                                Statistics
+                            </NavLink>
+                        </li>
 
                         {isAdmin() && (
                             <>

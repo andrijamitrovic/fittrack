@@ -1,0 +1,82 @@
+.statistics-page {
+    width: 100%;
+    max-width: 1100px;
+    align-items: stretch;
+    padding-top: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.statistics-page-header {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+    padding: var(--space-lg);
+    background: white;
+    border: 1px solid var(--border);
+}
+
+.statistics-page-title {
+    margin: 0;
+    font-size: 28px;
+    line-height: 1.1;
+}
+
+.statistics-page-subtitle {
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.statistics-page .exercise-picker-field {
+    width: 100%;
+    padding: var(--space-lg);
+    background: white;
+    border: 1px solid var(--border);
+}
+
+.statistics-page .exercise-picker-trigger {
+    min-height: 72px;
+}
+
+.statistics-page .recharts-responsive-container {
+    width: 100%;
+    background: white;
+    border: 1px solid var(--border);
+    padding: var(--space-md);
+    overflow: hidden;
+}
+
+.statistics-page .recharts-surface {
+    overflow: visible;
+}
+
+.statistics-page .recharts-cartesian-axis-tick-value {
+    fill: #6b7280;
+    font-size: 12px;
+}
+
+.statistics-page .recharts-label {
+    fill: #6b7280;
+}
+
+.statistics-page .recharts-default-tooltip {
+    border: 1px solid var(--border) !important;
+    background: white !important;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+@media (max-width: 768px) {
+
+    .statistics-page-header,
+    .statistics-page .exercise-picker-field,
+    .statistics-page .recharts-responsive-container {
+        padding: var(--space-md);
+    }
+
+    .statistics-page .exercise-picker-trigger {
+        min-height: 64px;
+    }
+}
