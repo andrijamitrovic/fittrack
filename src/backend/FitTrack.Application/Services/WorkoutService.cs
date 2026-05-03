@@ -91,9 +91,9 @@ namespace FitTrack.Application.Services
         }
 
 
-        public async Task<ServiceResult<ViewWorkoutDTO?>> GetWorkoutAsync(Guid userId, Guid workoutId, bool isTemplate)
+        public async Task<ServiceResult<ViewWorkoutDTO?>> GetWorkoutAsync(Guid userId, Guid workoutId)
         {
-            List<WorkoutDetailRow> result = await _workoutRepository.GetWorkoutAsync(userId, workoutId, isTemplate);
+            List<WorkoutDetailRow> result = await _workoutRepository.GetWorkoutAsync(userId, workoutId);
             var workout = MapWorkoutRows(result).FirstOrDefault();
 
             if (workout == null)

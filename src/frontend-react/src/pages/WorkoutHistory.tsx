@@ -1,17 +1,30 @@
 import { useEffect, useState } from "react";
-import { loadWorkouts, makeTemplateFromWorkout } from "../services/workoutService";
+import { deleteWorkoutAsync, loadWorkouts, makeTemplateFromWorkout, updateWorkoutAsync } from "../services/workoutService";
 import type { ExerciseSetViewer, WorkoutExerciseViewer, WorkoutViewer } from "../types";
 import { useNavigate } from "react-router";
+import { WorkoutEditModal } from "../components/WorkoutEditModal";
 
 export function WorkoutHistory() {
     const navigate = useNavigate();
     const [workouts, setWorkouts] = useState<WorkoutViewer[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [editingWorkout, setEditingWorkout] = useState<WorkoutViewer | null>(null);
 
     async function makeTemplate(workoutId: string) {
         await makeTemplateFromWorkout(workoutId);
         navigate("/templates");
+    }
+
+    async function deleteWorkout(workoutId: string) {
+        await deleteWorkoutAsync(workoutId);
+        setWorkouts(current => current.filter(w => w.workoutId !== workoutId));
+    }
+
+    async function updateWorkout(workoutId: string, workout: WorkoutViewer) {
+        await updateWorkoutAsync(workout, workoutId);
+        const refreshedWorkouts = await loadWorkouts();
+        setWorkouts(refreshedWorkouts);
     }
 
     async function copyWorkout(workoutId: string) {
@@ -90,6 +103,9 @@ export function WorkoutHistory() {
                                             <button type="button" onClick={() => makeTemplate(workout.workoutId)}>
                                                 Make template
                                             </button>
+                                            <button type="button" onClick={() => setEditingWorkout(workout)}>
+                                                Update
+                                            </button>
                                             <button
                                                 type="button"
                                                 className="add-btn"
@@ -98,7 +114,7 @@ export function WorkoutHistory() {
                                                 Copy workout
                                             </button>
 
-                                            <button type="button" className="remove-btn">
+                                            <button type="button" className="remove-btn" onClick={() => deleteWorkout(workout.workoutId)}>
                                                 Delete
                                             </button>
                                         </div>
@@ -132,6 +148,14 @@ export function WorkoutHistory() {
                     }
                 </div>
             </div>
+            {editingWorkout && (
+                <WorkoutEditModal
+                    heading="Update workout"
+                    workout={editingWorkout}
+                    onClose={() => setEditingWorkout(null)}
+                    onSave={(updatedWorkout) => updateWorkout(updatedWorkout.workoutId, updatedWorkout)}
+                />
+            )}
         </>
     )
 }

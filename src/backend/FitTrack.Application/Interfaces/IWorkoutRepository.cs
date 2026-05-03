@@ -8,7 +8,7 @@ namespace FitTrack.Application.Interfaces
     {
         Task<Workout?> CreateWorkoutAsync(Workout workout, List<WorkoutExercise> workoutExercises, List<ExerciseSet> exerciseSets);
         Task<List<WorkoutDetailRow>> GetWorkoutsAsync(Guid userId, bool isTemplate);
-        Task<List<WorkoutDetailRow>> GetWorkoutAsync(Guid userId, Guid workoutId, bool isTemplate);
+        Task<List<WorkoutDetailRow>> GetWorkoutAsync(Guid userId, Guid workoutId);
         Task<(ResultType Code, Workout? Data)> UpdateWorkoutAsync(Guid userId, Workout workout, List<WorkoutExercise> workoutExercises, List<ExerciseSet> exerciseSets);
         Task<ResultType> DeleteWorkoutAsync(Guid userId, Guid workoutId, bool isTemplate);
     }

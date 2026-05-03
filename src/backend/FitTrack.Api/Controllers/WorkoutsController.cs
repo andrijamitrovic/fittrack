@@ -56,7 +56,7 @@ namespace FitTrack.Api.Controllers
                 return Unauthorized();
             }
 
-            var result = await _workoutService.GetWorkoutAsync(userId, id, false);
+            var result = await _workoutService.GetWorkoutAsync(userId, id);
             if (result.Code == Application.Common.ResultType.NotFound)
             {
                 return NotFound(new { message = "Workout not found." });
@@ -64,22 +64,22 @@ namespace FitTrack.Api.Controllers
             return Ok(result.Data);
         }
 
-        [Authorize]
-        [HttpGet("workout-templates/{id}")]
-        public async Task<ActionResult> GetTemplate(Guid id)
-        {
-            if (GetUserId(User) is not Guid userId)
-            {
-                return Unauthorized();
-            }
+        // [Authorize]
+        // [HttpGet("workout-templates/{id}")]
+        // public async Task<ActionResult> GetTemplate(Guid id)
+        // {
+        //     if (GetUserId(User) is not Guid userId)
+        //     {
+        //         return Unauthorized();
+        //     }
 
-            var result = await _workoutService.GetWorkoutAsync(userId, id, true);
-            if (result.Code == Application.Common.ResultType.NotFound)
-            {
-                return NotFound(new { message = "Workout not found." });
-            }
-            return Ok(result.Data);
-        }
+        //     var result = await _workoutService.GetWorkoutAsync(userId, id, true);
+        //     if (result.Code == Application.Common.ResultType.NotFound)
+        //     {
+        //         return NotFound(new { message = "Workout not found." });
+        //     }
+        //     return Ok(result.Data);
+        // }
 
         [Authorize]
         [HttpPost("workout-templates")]

@@ -70,6 +70,48 @@ export async function loadWorkout(id: string): Promise<WorkoutViewer> {
     return data;
 }
 
+export async function deleteWorkoutAsync(id: string): Promise<void> {
+    let response = await fetchWithAuthAsync("workouts/" + id, {
+        method: "DELETE"
+    })
+
+    if (!response.ok)
+        throw new Error(`Response status: ${response.status}`);
+}
+
+export async function deleteTemplateAsync(id: string): Promise<void> {
+    let response = await fetchWithAuthAsync("workouts/workout-templates/" + id, {
+        method: "DELETE"
+    })
+
+    if (!response.ok)
+        throw new Error(`Response status: ${response.status}`);
+}
+
+export async function updateWorkoutAsync(workoutViewer: WorkoutViewer, id: string): Promise<void> {
+    let workout: Workout = mapWorkoutViewerToWorkout(workoutViewer);
+
+    let response = await fetchWithAuthAsync("workouts/" + id, {
+        method: "PUT",
+        body: JSON.stringify(workout)
+    })
+
+    if (!response.ok)
+        throw new Error(`Response status: ${response.status}`);
+}
+
+export async function updateTemplateAsync(workoutViewer: WorkoutViewer, id: string): Promise<void> {
+    let workout: Workout = mapWorkoutViewerToWorkout(workoutViewer);
+    
+    let response = await fetchWithAuthAsync("workouts/workout-templates/" + id, {
+        method: "PUT",
+        body: JSON.stringify(workout)
+    })
+
+    if (!response.ok)
+        throw new Error(`Response status: ${response.status}`);
+}
+
 function mapWorkoutViewerToWorkout(workout: WorkoutViewer): Workout {
     return {
         title: workout.title || "",
