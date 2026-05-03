@@ -8,7 +8,7 @@ import './styles/workouts.css'
 import './styles/layout.css'
 import './styles/components.css'
 import "./styles/dashboard.css";
-
+import "./styles/statistics.css";
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

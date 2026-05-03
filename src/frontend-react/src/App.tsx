@@ -12,6 +12,7 @@ import { Templates } from './pages/Templates'
 import { AdminRoute } from './components/AdminRoute'
 import { AdminUsers } from './pages/AdminUsers'
 import { AdminExercises } from './pages/AdminExercises'
+import { Statistics } from './pages/Statistics'
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         <Route path="newworkout" element={<WorkoutLog />} />
         <Route path="newworkout/:workoutId" element={<WorkoutLog />} />
         <Route path="templates" element={<Templates />} />
+        <Route path="statistics" element={<Statistics />} />
       </Route>
       <Route path="/admin/" element={
         <ProtectedRoute>
