@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { type WorkoutViewer, type Exercise, type WorkoutExercise } from "../types";
 import { loadExercises } from "../services/exerciseService";
 import { loadWorkouts } from "../services/workoutService";
-import { WorkoutExerciseSetComponent } from "../components/WorkoutExerciseSet";
 import { Modal } from "../components/Modal";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
