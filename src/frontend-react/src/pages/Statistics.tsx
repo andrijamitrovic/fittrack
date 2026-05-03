@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { type WorkoutViewer, type Exercise, type WorkoutExercise } from "../types";
+import { type WorkoutViewer, type Exercise } from "../types";
 import { loadExercises } from "../services/exerciseService";
 import { loadWorkouts } from "../services/workoutService";
 import { Modal } from "../components/Modal";
