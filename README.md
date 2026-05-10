@@ -114,23 +114,57 @@ The production compose file mounts certificates from `/etc/letsencrypt`, as conf
 
 ## Running Locally
 
+Before starting the app, update your local environment files.
+
+Create or update `.env` in the project root:
+
+```bash
+cp .env.example .env
+```
+
+Set your local database and JWT values:
+
+```env
+POSTGRES_USER=your_db_user
+POSTGRES_PASSWORD=your_db_password
+POSTGRES_DB=fittrack
+JWT_KEY=your-secret-key-at-least-32-characters
+JWT_ISSUER=fittrack.com
+JWT_AUDIENCE=fittrack.com
+JWT_EXPIRY=1440
+```
+
+Create `src/backend/FitTrack.Api/appsettings.Development.json`.
+
+This file is ignored by git and should contain your local backend settings:
+
+```json
+{
+  "ConnectionStrings": {
+    "PGConnectionString": "Host=localhost;Port=5432;Database=fittrack;Username=your_db_user;Password=your_db_password"
+  },
+  "JwtSettings": {
+    "Key": "your-secret-key-at-least-32-characters",
+    "Issuer": "fittrack.com",
+    "Audience": "fittrack.com",
+    "ExpiryMinutes": "1440"
+  }
+}
+```
+
+Make sure the database name, username, password, and JWT values match your `.env`.
+
 Start PostgreSQL with Docker:
 
 ```bash
 docker compose -f docker-compose.dev.yml up -d
 ```
 
-Make sure the PostgreSQL credentials in `.env` match the connection string in:
-
-```txt
-src/backend/FitTrack.Api/appsettings.Development.json
-```
-
 Start the backend:
 
 ```bash
 cd src/backend
-dotnet run --project .\FitTrack.Api\
+ASPNETCORE_ENVIRONMENT=Development dotnet run --project FitTrack.Api
 ```
 
 The backend API will be available at:
@@ -154,7 +188,6 @@ http://localhost:5173
 ```
 
 The frontend proxies `/api` requests to the backend during local development.
-
 ## Usage
 
 Open the frontend in your browser, register a user, and log in.
