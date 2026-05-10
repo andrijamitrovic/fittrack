@@ -4,6 +4,7 @@ import { useState } from "react";
 import { cn } from "../lib/utils";
 import { Button } from "./ui/button";
 import { Menu, X } from "lucide-react";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function Layout() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -96,9 +97,11 @@ export function Layout() {
                 ))}
             </nav>
 
-            <div className="hidden md:block">
+            <div className="hidden items-center gap-2 md:flex">
+              <ThemeToggle />
+
               <Button type="button" variant="outline" onClick={handleLogout}>
-                Log Out
+                Log out
               </Button>
             </div>
 
@@ -156,7 +159,7 @@ export function Layout() {
                       {item.label}
                     </NavLink>
                   ))}
-
+                <ThemeToggle showLabel className="justify-start" />
                 <Button
                   type="button"
                   variant="outline"
