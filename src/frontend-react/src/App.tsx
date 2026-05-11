@@ -44,6 +44,11 @@ function App() {
         }
       >
         <Route index element={<Dashboard />} />
+        <Route
+          path="templates/edit/:workoutId"
+          element={<WorkoutLog mode="edit-template" />}
+        />
+
         <Route path="workouts" element={<WorkoutHistory />} />
         <Route path="workouts/new" element={<WorkoutLog mode="create" />} />
         <Route

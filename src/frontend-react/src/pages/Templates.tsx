@@ -1,154 +1,206 @@
+import { Copy, Pencil, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { deleteTemplateAsync, loadTemplates, updateTemplateAsync } from "../services/workoutService";
-import type { ExerciseSetViewer, WorkoutExerciseViewer, WorkoutViewer } from "../types";
 import { useNavigate } from "react-router";
-import { WorkoutEditModal } from "../components/WorkoutEditModal";
+import { Button } from "../components/ui/button";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { deleteTemplateAsync, loadTemplates } from "../services/workoutService";
+import type { WorkoutViewer } from "../types";
 
 export function Templates() {
-    const navigate = useNavigate();
-    const [workouts, setWorkouts] = useState<WorkoutViewer[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
-    const [editingTemplate, setEditingTemplate] = useState<WorkoutViewer | null>(null);
+  const navigate = useNavigate();
+  const [workouts, setWorkouts] = useState<WorkoutViewer[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-    function makeWorkout(workoutId: string) {
-        navigate("/newworkout/" + workoutId);
-    }
+  function makeWorkout(workoutId: string) {
+    navigate(`/workouts/new/${workoutId}`);
+  }
 
-    async function deleteTemplate(workoutId: string) {
-        await deleteTemplateAsync(workoutId);
-        setWorkouts(current => current.filter(w => w.workoutId !== workoutId));
-    }
+  async function deleteTemplate(workoutId: string) {
+    await deleteTemplateAsync(workoutId);
+    setWorkouts((current) => current.filter((w) => w.workoutId !== workoutId));
+  }
 
-    async function updateTemplate(workoutId: string, workout: WorkoutViewer) {
-        await updateTemplateAsync(workout, workoutId);
-        const refreshedTemplates = await loadTemplates();
-        setWorkouts(refreshedTemplates);
-    }
+  function formatExerciseCount(count: number) {
+    return `${count} ${count === 1 ? "exercise" : "exercises"}`;
+  }
 
-    useEffect(() => {
-        loadTemplates()
-            .then(setWorkouts)
-            .catch(err => setError(err.message))
-            .finally(() => setLoading(false));
-    }, []);
-
-    if (loading) {
-        return (
-            <div className="page history-page">
-                <div className="history-page-header">
-                    <h1 className="history-page-title">Templates</h1>
-                    <p className="history-page-subtitle">Reusable workout structures for fast planning.</p>
-                </div>
-                <p className="history-status">Loading...</p>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="page history-page">
-                <div className="history-page-header">
-                    <h1 className="history-page-title">Templates</h1>
-                    <p className="history-page-subtitle">Reusable workout structures for fast planning.</p>
-                </div>
-                <p className="history-status">{error}</p>
-            </div>
-        );
-    }
-
-    if (workouts.length === 0) {
-        return (
-            <div className="page history-page">
-                <div className="history-page-header">
-                    <h1 className="history-page-title">Templates</h1>
-                    <p className="history-page-subtitle">Reusable workout structures for fast planning.</p>
-                </div>
-                <p className="history-status">No templates yet.</p>
-            </div>
-        );
-    }
-
+  function PageHeader() {
     return (
-        <div className="page history-page">
-            <div className="history-page-header">
-                <h1 className="history-page-title">Templates</h1>
-                <p className="history-page-subtitle">Reusable workout structures for fast planning.</p>
-            </div>
-
-            <div className="history-list">
-                {workouts.map((workout: WorkoutViewer) => (
-                    <div className="card history-card" key={workout.workoutId}>
-                        <div className="history-card-top">
-                            <div className="history-card-head">
-                                <h3>{workout.title}</h3>
-                                <div className="history-meta">
-                                    <span>
-                                        {workout.exercises.length === 1
-                                            ? `${workout.exercises.length} exercise`
-                                            : `${workout.exercises.length} exercises`}
-                                    </span>
-                                    {workout.durationMin && <span>{workout.durationMin} min</span>}
-                                </div>
-                                {workout.workoutNotes && (
-                                    <p className="history-notes">{workout.workoutNotes}</p>
-                                )}
-                            </div>
-
-                            <div className="history-actions">
-                                <button
-                                    type="button"
-                                    onClick={() => makeWorkout(workout.workoutId)}
-                                >
-                                    Use template
-                                </button>
-                                <button
-                                    type="button"
-                                    className="add-btn"
-                                    onClick={() => setEditingTemplate(workout)}
-                                >
-                                    Update
-                                </button>
-                                <button
-                                    type="button"
-                                    className="remove-btn"
-                                    onClick={() => deleteTemplate(workout.workoutId)}
-                                >
-                                    Delete
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="history-exercise-list">
-                            {workout.exercises.map((exercise: WorkoutExerciseViewer) => (
-                                <details key={exercise.workoutExerciseId}>
-                                    <summary>
-                                        <span>{exercise.exerciseName}</span>
-                                        <span>{exercise.sets.length} sets</span>
-                                    </summary>
-
-                                    {exercise.sets.map((set: ExerciseSetViewer) => (
-                                        <div className="set-row" key={set.setNumber}>
-                                            <span className="set-label">Set {set.setNumber}</span>
-                                            <span>{set.reps ?? "-"} reps</span>
-                                            <span>{set.weight ?? "-"} kg</span>
-                                            <span>RPE {set.rpe ?? "-"}</span>
-                                        </div>
-                                    ))}
-                                </details>
-                            ))}
-                        </div>
-                    </div>
-                ))}
-            </div>
-            {editingTemplate && (
-                <WorkoutEditModal
-                    heading="Update template"
-                    workout={editingTemplate}
-                    onClose={() => setEditingTemplate(null)}
-                    onSave={(updatedWorkout) => updateTemplate(updatedWorkout.workoutId, updatedWorkout)}
-                />
-            )}
-        </div>
+      <div className="space-y-1">
+        <h1 className="text-3xl font-semibold tracking-tight">Templates</h1>
+        <p className="text-sm text-muted-foreground">
+          Reusable workout structures for fast planning.
+        </p>
+      </div>
     );
+  }
+
+  useEffect(() => {
+    loadTemplates()
+      .then(setWorkouts)
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col gap-6">
+        <PageHeader />
+
+        <div className="space-y-4">
+          {[1, 2, 3].map((item) => (
+            <Card key={item}>
+              <CardHeader>
+                <div className="h-6 w-48 animate-pulse rounded-md bg-muted" />
+                <div className="h-4 w-64 animate-pulse rounded-md bg-muted" />
+              </CardHeader>
+              <CardContent>
+                <div className="h-24 animate-pulse rounded-md bg-muted" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col gap-6">
+        <PageHeader />
+
+        <Card className="border-destructive/30">
+          <CardHeader>
+            <CardTitle>Could not load templates</CardTitle>
+            <CardDescription>{error}</CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
+  if (workouts.length === 0) {
+    return (
+      <div className="flex flex-col gap-6">
+        <PageHeader />
+
+        <Card>
+          <CardHeader>
+            <CardTitle>No templates yet</CardTitle>
+            <CardDescription>
+              Turn a workout into a template to reuse it later.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-6">
+      <PageHeader />
+
+      <div className="space-y-4">
+        {workouts.map((workout) => (
+          <Card key={workout.workoutId}>
+            <CardHeader>
+              <div className="min-w-0 space-y-1">
+                <CardTitle>{workout.title || "Untitled template"}</CardTitle>
+                <CardDescription className="flex flex-wrap items-center gap-3">
+                  <span>{formatExerciseCount(workout.exercises.length)}</span>
+                  {workout.durationMin && (
+                    <span>{workout.durationMin} min</span>
+                  )}
+                </CardDescription>
+              </div>
+
+              <CardAction className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => makeWorkout(workout.workoutId)}
+                >
+                  <Copy className="size-4" />
+                  Use
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    navigate(`/templates/edit/${workout.workoutId}`)
+                  }
+                >
+                  <Pencil className="size-4" />
+                  Edit
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => deleteTemplate(workout.workoutId)}
+                >
+                  <Trash2 className="size-4" />
+                  Delete
+                </Button>
+              </CardAction>
+            </CardHeader>
+
+            <CardContent className="space-y-4">
+              {workout.workoutNotes && (
+                <p className="text-sm text-muted-foreground">
+                  {workout.workoutNotes}
+                </p>
+              )}
+
+              <div className="space-y-2">
+                {workout.exercises.map((exercise) => (
+                  <details
+                    key={exercise.workoutExerciseId}
+                    className="rounded-lg border bg-background"
+                  >
+                    <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3 text-sm font-medium">
+                      <span>{exercise.exerciseName}</span>
+                      <span className="text-muted-foreground">
+                        {exercise.sets.length} sets
+                      </span>
+                    </summary>
+
+                    <div className="border-t px-4 py-3">
+                      <div className="grid gap-2">
+                        {exercise.sets.map((set) => (
+                          <div
+                            key={set.setNumber}
+                            className="grid grid-cols-4 gap-3 rounded-md bg-muted/30 px-3 py-2 text-sm"
+                          >
+                            <span className="font-medium">
+                              Set {set.setNumber}
+                            </span>
+                            <span>{set.reps ?? "-"} reps</span>
+                            <span>{set.weight ?? "-"} kg</span>
+                            <span>RPE {set.rpe ?? "-"}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </details>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
 }

@@ -5,6 +5,7 @@ import {
   createWorkout,
   loadWorkout,
   updateWorkoutAsync,
+  updateTemplateAsync,
 } from "../services/workoutService";
 import { loadExercises } from "../services/exerciseService";
 import { useNavigate, useParams } from "react-router";
@@ -36,7 +37,7 @@ type DraftWorkoutExercise = Omit<WorkoutExercise, "exerciseSets"> & {
   exerciseSets: DraftExerciseSet[];
 };
 
-type WorkoutLogMode = "create" | "copy" | "edit";
+type WorkoutLogMode = "create" | "copy" | "edit" | "edit-template";
 
 type WorkoutLogProps = {
   mode: WorkoutLogMode;
@@ -53,18 +54,27 @@ export function WorkoutLog({ mode }: WorkoutLogProps) {
   const [exercises, setExercises] = useState<DraftWorkoutExercise[]>([]);
 
   const pageTitle =
-    mode === "edit"
-      ? "Edit Workout"
-      : mode === "copy"
-        ? "Copy Workout"
-        : "Add Workout";
+    mode === "edit-template"
+      ? "Edit Template"
+      : mode === "edit"
+        ? "Edit Workout"
+        : mode === "copy"
+          ? "Copy Workout"
+          : "Add Workout";
 
   const pageDescription =
-    mode === "edit"
-      ? "Update the session, reorder sets, then save your changes."
-      : "Build the session, add sets, then save it to your history.";
+    mode === "edit-template"
+      ? "Update the reusable workout structure and save your template."
+      : mode === "edit"
+        ? "Update the session, reorder sets, then save your changes."
+        : "Build the session, add sets, then save it to your history.";
 
-  const submitLabel = mode === "edit" ? "Save changes" : "Save workout";
+  const submitLabel =
+    mode === "edit-template"
+      ? "Save template"
+      : mode === "edit"
+        ? "Save changes"
+        : "Save workout";
 
   const workoutExercises = exercises.map((exercise, exerciseIndex) => ({
     exerciseId: exercise.exerciseId,
@@ -192,12 +202,16 @@ export function WorkoutLog({ mode }: WorkoutLogProps) {
     setSaveError("");
 
     try {
-      if (mode === "edit") {
+      if (mode === "edit" || mode === "edit-template") {
         if (!workoutId) {
           throw new Error("Workout id is required for editing.");
         }
 
-        await updateWorkoutAsync(buildWorkoutViewerForUpdate(), workoutId);
+        if (mode === "edit-template") {
+          await updateTemplateAsync(buildWorkoutViewerForUpdate(), workoutId);
+        } else {
+          await updateWorkoutAsync(buildWorkoutViewerForUpdate(), workoutId);
+        }
       } else {
         await createWorkout({
           notes: notes || undefined,
@@ -207,7 +221,7 @@ export function WorkoutLog({ mode }: WorkoutLogProps) {
         });
       }
 
-      navigate("/workouts");
+      navigate(mode === "edit-template" ? "/templates" : "/workouts");
     } catch (err: any) {
       setSaveError(err.message || "Failed to save workout");
     } finally {

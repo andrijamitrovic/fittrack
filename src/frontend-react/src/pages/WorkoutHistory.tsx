@@ -14,12 +14,9 @@ import {
   deleteWorkoutAsync,
   loadWorkouts,
   makeTemplateFromWorkout,
-  updateWorkoutAsync,
 } from "../services/workoutService";
-import { WorkoutEditModal } from "../components/WorkoutEditModal";
+
 import type {
-  ExerciseSetViewer,
-  WorkoutExerciseViewer,
   WorkoutViewer,
 } from "../types";
 
@@ -28,9 +25,6 @@ export function WorkoutHistory() {
   const [workouts, setWorkouts] = useState<WorkoutViewer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [editingWorkout, setEditingWorkout] = useState<WorkoutViewer | null>(
-    null,
-  );
 
   async function makeTemplate(workoutId: string) {
     await makeTemplateFromWorkout(workoutId);
@@ -40,12 +34,6 @@ export function WorkoutHistory() {
   async function deleteWorkout(workoutId: string) {
     await deleteWorkoutAsync(workoutId);
     setWorkouts((current) => current.filter((w) => w.workoutId !== workoutId));
-  }
-
-  async function updateWorkout(workoutId: string, workout: WorkoutViewer) {
-    await updateWorkoutAsync(workout, workoutId);
-    const refreshedWorkouts = await loadWorkouts();
-    setWorkouts(refreshedWorkouts);
   }
 
   async function copyWorkout(workoutId: string) {
