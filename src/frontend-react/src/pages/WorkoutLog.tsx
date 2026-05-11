@@ -1,7 +1,11 @@
 import { useEffect, useState, type ChangeEvent } from "react";
 import type { Exercise, WorkoutExercise } from "../types";
 import { WorkoutExerciseComponent } from "../components/WorkoutExercise";
-import { createWorkout, loadWorkout } from "../services/workoutService";
+import {
+  createWorkout,
+  loadWorkout,
+  updateWorkoutAsync,
+} from "../services/workoutService";
 import { loadExercises } from "../services/exerciseService";
 import { useNavigate, useParams } from "react-router";
 import { Button } from "../components/ui/button";
@@ -32,7 +36,13 @@ type DraftWorkoutExercise = Omit<WorkoutExercise, "exerciseSets"> & {
   exerciseSets: DraftExerciseSet[];
 };
 
-export function WorkoutLog() {
+type WorkoutLogMode = "create" | "copy" | "edit";
+
+type WorkoutLogProps = {
+  mode: WorkoutLogMode;
+};
+
+export function WorkoutLog({ mode }: WorkoutLogProps) {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
   const navigate = useNavigate();
@@ -41,6 +51,20 @@ export function WorkoutLog() {
   const [notes, setNotes] = useState("");
   const [exercisesList, setExercisesList] = useState<Exercise[]>([]);
   const [exercises, setExercises] = useState<DraftWorkoutExercise[]>([]);
+
+  const pageTitle =
+    mode === "edit"
+      ? "Edit Workout"
+      : mode === "copy"
+        ? "Copy Workout"
+        : "Add Workout";
+
+  const pageDescription =
+    mode === "edit"
+      ? "Update the session, reorder sets, then save your changes."
+      : "Build the session, add sets, then save it to your history.";
+
+  const submitLabel = mode === "edit" ? "Save changes" : "Save workout";
 
   const workoutExercises = exercises.map((exercise, exerciseIndex) => ({
     exerciseId: exercise.exerciseId,
@@ -168,12 +192,21 @@ export function WorkoutLog() {
     setSaveError("");
 
     try {
-      await createWorkout({
-        notes: notes || undefined,
-        title: title,
-        durationMin: 1,
-        workoutExercises,
-      });
+      if (mode === "edit") {
+        if (!workoutId) {
+          throw new Error("Workout id is required for editing.");
+        }
+
+        await updateWorkoutAsync(buildWorkoutViewerForUpdate(), workoutId);
+      } else {
+        await createWorkout({
+          notes: notes || undefined,
+          title,
+          durationMin: 1,
+          workoutExercises,
+        });
+      }
+
       navigate("/workouts");
     } catch (err: any) {
       setSaveError(err.message || "Failed to save workout");
@@ -235,16 +268,43 @@ export function WorkoutLog() {
     });
   }
 
+  function buildWorkoutViewerForUpdate() {
+    return {
+      workoutId: workoutId!,
+      title,
+      date: new Date().toISOString(),
+      workoutNotes: notes || undefined,
+      durationMin: 1,
+      exercises: workoutExercises.map((exercise, exerciseIndex) => {
+        const selectedExercise = exercisesList.find(
+          (item) => item.id === exercise.exerciseId,
+        );
+
+        return {
+          workoutExerciseId: `local-${exerciseIndex}`,
+          exerciseId: exercise.exerciseId,
+          orderIndex: exercise.orderIndex,
+          exerciseName: selectedExercise?.name ?? "Unknown exercise",
+          category: selectedExercise?.category ?? "",
+          muscleGroup: selectedExercise?.muscleGroup ?? "",
+          sets: exercise.exerciseSets.map((set) => ({
+            setNumber: set.setNumber,
+            reps: set.reps,
+            weight: set.weight,
+            rpe: set.rpe,
+            isWarmup: set.isWarmup ?? false,
+          })),
+        };
+      }),
+    };
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">
-            {workoutId ? "Copy Workout" : "Add Workout"}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Build the session, add sets, then save it to your history.
-          </p>
+          <h1 className="text-3xl font-semibold tracking-tight">{pageTitle}</h1>
+          <p className="text-sm text-muted-foreground">{pageDescription}</p>
         </div>
       </div>
 
@@ -339,7 +399,7 @@ export function WorkoutLog() {
 
         <div className="flex justify-end">
           <Button type="submit" disabled={saving}>
-            {saving ? "Saving..." : "Save workout"}
+            {saving ? "Saving..." : submitLabel}
           </Button>
         </div>
       </form>

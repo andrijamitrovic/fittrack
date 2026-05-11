@@ -12,8 +12,8 @@ export function Layout() {
 
   const navItems = [
     { to: "/", label: "Dashboard", end: true },
-    { to: "/workouts", label: "Workouts" },
-    { to: "/newworkout", label: "Add workout" },
+    { to: "/workouts", label: "Workouts", end: true},
+    { to: "/workouts/new", label: "Add workout" },
     { to: "/templates", label: "Templates" },
     { to: "/statistics", label: "Statistics" },
   ];
