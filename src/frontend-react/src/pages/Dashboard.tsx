@@ -116,7 +116,7 @@ export function Dashboard() {
 
       <div className="grid gap-4 md:grid-cols-3">
         <QuickActionCard
-          to="/newworkout"
+          to="/workouts/new"
           icon={<Plus className="size-5" />}
           title="Add Workout"
           description="Start a new session."
@@ -184,7 +184,7 @@ export function Dashboard() {
                           variant="outline"
                           size="sm"
                           onClick={() =>
-                            navigate(`/newworkout/${workout.workoutId}`)
+                            navigate(`/workouts/new/${workout.workoutId}`)
                           }
                         >
                           Copy
@@ -262,7 +262,7 @@ export function Dashboard() {
                           variant="outline"
                           size="sm"
                           onClick={() =>
-                            navigate(`/newworkout/${template.workoutId}`)
+                            navigate(`/workouts/new/${template.workoutId}`)
                           }
                         >
                           Use

@@ -8,7 +8,7 @@ public class AddWorkoutPage
     public AddWorkoutPage(IPage page) => _page = page;
 
     public async Task GoToAsync() =>
-        await _page.GotoAsync(TestConfig.BaseUrl + "/newworkout");
+        await _page.GotoAsync(TestConfig.BaseUrl + "/workouts/new");
 
     public async Task AddWorkoutAsync(string title, string notes, string selectOption, string reps, string weight, string rpe)
     {
