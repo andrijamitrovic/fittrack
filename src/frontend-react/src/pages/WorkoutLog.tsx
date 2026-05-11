@@ -1,5 +1,5 @@
-import { useEffect, useState, type ChangeEvent } from "react";
-import type { Exercise, WorkoutExercise } from "../types";
+import { useEffect, useMemo, useState, type ChangeEvent } from "react";
+import type { Exercise, WorkoutExercise, WorkoutViewer } from "../types";
 import { WorkoutExerciseComponent } from "../components/WorkoutExercise";
 import {
   createWorkout,
@@ -27,6 +27,14 @@ import {
   arrayMove,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { loadWorkouts } from "../services/workoutService";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "../components/ui/dialog";
 
 type DraftExerciseSet = WorkoutExercise["exerciseSets"][number] & {
   clientId: string;
@@ -52,6 +60,37 @@ export function WorkoutLog({ mode }: WorkoutLogProps) {
   const [notes, setNotes] = useState("");
   const [exercisesList, setExercisesList] = useState<Exercise[]>([]);
   const [exercises, setExercises] = useState<DraftWorkoutExercise[]>([]);
+  const [recentWorkouts, setRecentWorkouts] = useState<WorkoutViewer[]>([]);
+  const [workoutSearchOpen, setWorkoutSearchOpen] = useState(false);
+  const [workoutQuery, setWorkoutQuery] = useState("");
+
+  function copyFromWorkout(workoutId: string) {
+    setWorkoutSearchOpen(false);
+    setWorkoutQuery("");
+    navigate(`/workouts/new/${workoutId}`);
+  }
+
+  const filteredWorkouts = useMemo(() => {
+    const normalizedQuery = workoutQuery.trim().toLowerCase();
+
+    if (!normalizedQuery) {
+      return recentWorkouts;
+    }
+
+    return recentWorkouts.filter((workout) => {
+      const title = workout.title?.toLowerCase() ?? "";
+      const notes = workout.workoutNotes?.toLowerCase() ?? "";
+      const exerciseNames = workout.exercises
+        .map((exercise) => exercise.exerciseName.toLowerCase())
+        .join(" ");
+
+      return (
+        title.includes(normalizedQuery) ||
+        notes.includes(normalizedQuery) ||
+        exerciseNames.includes(normalizedQuery)
+      );
+    });
+  }, [recentWorkouts, workoutQuery]);
 
   const pageTitle =
     mode === "edit-template"
@@ -234,30 +273,50 @@ export function WorkoutLog({ mode }: WorkoutLogProps) {
       .then(setExercisesList)
       .catch((err) => console.error(err));
 
-    if (workoutId) {
-      loadWorkout(workoutId)
-        .then((workout) => {
-          setTitle(workout.title || "");
-          setNotes(workout.workoutNotes || "");
-          setExercises(
-            workout.exercises.map((e, index) => ({
-              clientId: createClientId(),
-              exerciseId: e.exerciseId,
-              orderIndex: index + 1,
-              exerciseSets: e.sets.map((s, setIndex) => ({
-                clientId: createClientId(),
-                setNumber: setIndex + 1,
-                reps: s.reps,
-                weight: s.weight,
-                rpe: s.rpe,
-                isWarmup: s.isWarmup,
-              })),
-            })),
-          );
-        })
-        .catch((err) => console.error(err));
-    }
+    loadWorkouts()
+      .then((items) => {
+        const sorted = [...items].sort(
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+        );
+
+        setRecentWorkouts(sorted);
+      })
+      .catch((err) => console.error(err));
   }, []);
+
+  useEffect(() => {
+    if (!workoutId) {
+      if (mode === "create") {
+        setTitle("");
+        setNotes("");
+        setExercises([]);
+      }
+
+      return;
+    }
+
+    loadWorkout(workoutId)
+      .then((workout) => {
+        setTitle(workout.title || "");
+        setNotes(workout.workoutNotes || "");
+        setExercises(
+          workout.exercises.map((e, index) => ({
+            clientId: createClientId(),
+            exerciseId: e.exerciseId,
+            orderIndex: index + 1,
+            exerciseSets: e.sets.map((s, setIndex) => ({
+              clientId: createClientId(),
+              setNumber: setIndex + 1,
+              reps: s.reps,
+              weight: s.weight,
+              rpe: s.rpe,
+              isWarmup: s.isWarmup,
+            })),
+          })),
+        );
+      })
+      .catch((err) => console.error(err));
+  }, [workoutId, mode]);
 
   function handleSubmit(e: React.SubmitEvent) {
     e.preventDefault();
@@ -321,6 +380,52 @@ export function WorkoutLog({ mode }: WorkoutLogProps) {
           <p className="text-sm text-muted-foreground">{pageDescription}</p>
         </div>
       </div>
+      {mode === "create" && recentWorkouts.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Start from existing workout</CardTitle>
+            <CardDescription>
+              Copy a recent workout and adjust it for today.
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent className="space-y-3">
+            {recentWorkouts.slice(0, 3).map((workout) => (
+              <div
+                key={workout.workoutId}
+                className="flex items-center justify-between gap-4 rounded-lg border p-3"
+              >
+                <div className="min-w-0">
+                  <p className="font-medium">
+                    {workout.title || "Untitled workout"}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {workout.date.split("T")[0]} · {workout.exercises.length}{" "}
+                    exercises
+                  </p>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => copyFromWorkout(workout.workoutId)}
+                >
+                  Copy
+                </Button>
+              </div>
+            ))}
+
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full"
+              onClick={() => setWorkoutSearchOpen(true)}
+            >
+              Browse all workouts
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       <form className="space-y-6" onSubmit={handleSubmit}>
         <Card>
@@ -417,6 +522,43 @@ export function WorkoutLog({ mode }: WorkoutLogProps) {
           </Button>
         </div>
       </form>
+
+      <Dialog open={workoutSearchOpen} onOpenChange={setWorkoutSearchOpen}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Copy workout</DialogTitle>
+            <DialogDescription>
+              Search your workout history and copy one into a new session.
+            </DialogDescription>
+          </DialogHeader>
+
+          <Input
+            autoFocus
+            placeholder="Search by title, notes, or exercise"
+            value={workoutQuery}
+            onChange={(e) => setWorkoutQuery(e.target.value)}
+          />
+
+          <div className="max-h-96 space-y-2 overflow-y-auto">
+            {filteredWorkouts.map((workout) => (
+              <button
+                type="button"
+                key={workout.workoutId}
+                className="w-full rounded-lg border p-3 text-left transition-colors hover:bg-muted"
+                onClick={() => copyFromWorkout(workout.workoutId)}
+              >
+                <span className="block font-medium">
+                  {workout.title || "Untitled workout"}
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  {workout.date.split("T")[0]} · {workout.exercises.length}{" "}
+                  exercises
+                </span>
+              </button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
