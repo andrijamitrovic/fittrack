@@ -4,7 +4,7 @@ export function PublicRoute({ children }: { children: React.ReactNode }) {
 
     const token = localStorage.getItem("accessToken");
     if (token) {
-        return <Navigate to='/' />;
+        return <Navigate to='/app' />;
     }
 
     return <>{children}</>

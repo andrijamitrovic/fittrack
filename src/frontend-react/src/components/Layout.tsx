@@ -11,16 +11,16 @@ export function Layout() {
   const navigate = useNavigate();
 
   const navItems = [
-    { to: "/", label: "Dashboard", end: true },
-    { to: "/workouts", label: "Workouts", end: true},
-    { to: "/workouts/new", label: "Add workout" },
-    { to: "/templates", label: "Templates" },
-    { to: "/statistics", label: "Statistics" },
+    { to: "/app", label: "Dashboard", end: true },
+    { to: "/app/workouts", label: "Workouts", end: true },
+    { to: "/app/workouts/new", label: "Add workout" },
+    { to: "/app/templates", label: "Templates" },
+    { to: "/app/statistics", label: "Statistics" },
   ];
 
   const adminItems = [
-    { to: "/admin/users", label: "Users" },
-    { to: "/admin/exercises", label: "Exercises" },
+    { to: "/app/admin/users", label: "Users" },
+    { to: "/app/admin/exercises", label: "Exercises" },
   ];
 
   function closeMenu() {
@@ -47,7 +47,7 @@ export function Layout() {
         <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
           <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-6">
             <NavLink
-              to="/"
+              to="/app"
               className="flex items-center gap-2"
               onClick={closeMenu}
             >

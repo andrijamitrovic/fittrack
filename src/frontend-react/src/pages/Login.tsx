@@ -34,7 +34,7 @@ export function Login() {
         email: email,
         password: password,
       });
-      navigate("/");
+      navigate("/app");
     } catch (error) {
       setError("Invalid email or password");
     }

@@ -67,7 +67,7 @@ export function WorkoutLog({ mode }: WorkoutLogProps) {
   function copyFromWorkout(workoutId: string) {
     setWorkoutSearchOpen(false);
     setWorkoutQuery("");
-    navigate(`/workouts/new/${workoutId}`);
+    navigate(`/app/workouts/new/${workoutId}`);
   }
 
   const filteredWorkouts = useMemo(() => {
@@ -260,7 +260,7 @@ export function WorkoutLog({ mode }: WorkoutLogProps) {
         });
       }
 
-      navigate(mode === "edit-template" ? "/templates" : "/workouts");
+      navigate(mode === "edit-template" ? "/app/templates" : "/app/workouts");
     } catch (err: any) {
       setSaveError(err.message || "Failed to save workout");
     } finally {
