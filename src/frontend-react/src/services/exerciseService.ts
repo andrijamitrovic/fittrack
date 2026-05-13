@@ -3,19 +3,19 @@ import { fetchWithAuthAsync } from "./api";
 
 export async function loadExercises() {
 
-    let response = await fetchWithAuthAsync("exercises", {
+    const response = await fetchWithAuthAsync("exercises", {
         method: "GET"
     })
     if (!response.ok)
         throw new Error(`Response status: ${response.status}`);
-    let data: Exercise[] = await response.json();
+    const data: Exercise[] = await response.json();
     return data;
 }
 
 
 export async function addExerciseAsync(exercise: Exercise) {
 
-    let response = await fetchWithAuthAsync("exercises", {
+    const response = await fetchWithAuthAsync("exercises", {
         method: "POST",
         body: JSON.stringify(exercise)
     })
@@ -26,7 +26,7 @@ export async function addExerciseAsync(exercise: Exercise) {
 
 export async function updateExerciseAsync(exercise: Exercise) {
 
-    let response = await fetchWithAuthAsync("exercises/" + exercise.id, {
+    const response = await fetchWithAuthAsync("exercises/" + exercise.id, {
         method: "PUT",
         body: JSON.stringify({
             name: exercise.name,
@@ -39,7 +39,7 @@ export async function updateExerciseAsync(exercise: Exercise) {
 }
 
 export async function deleteExerciseAsync(id: string) {
-    let response = await fetchWithAuthAsync("exercises/" + id, {
+    const response = await fetchWithAuthAsync("exercises/" + id, {
         method: "DELETE"
     })
     if (!response.ok)
