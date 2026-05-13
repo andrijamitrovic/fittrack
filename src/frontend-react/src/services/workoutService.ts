@@ -3,32 +3,32 @@ import { fetchWithAuthAsync } from "./api";
 
 export async function loadWorkouts(): Promise<WorkoutViewer[]> {
 
-    let response = await fetchWithAuthAsync("workouts", {
+    const response = await fetchWithAuthAsync("workouts", {
         method: "GET"
     })
 
     if (!response.ok)
         throw new Error(`Response status: ${response.status}`);
 
-    let data = await response.json();
+    const data = await response.json();
     return data;
 }
 
 export async function loadTemplates(): Promise<WorkoutViewer[]> {
 
-    let response = await fetchWithAuthAsync("workouts/workout-templates", {
+    const response = await fetchWithAuthAsync("workouts/workout-templates", {
         method: "GET"
     })
 
     if (!response.ok)
         throw new Error(`Response status: ${response.status}`);
 
-    let data = await response.json();
+    const data = await response.json();
     return data;
 }
 
 export async function createWorkout(workout: Workout) {
-    let response = await fetchWithAuthAsync("workouts", {
+    const response = await fetchWithAuthAsync("workouts", {
         method: "POST",
         body: JSON.stringify(workout)
 
@@ -36,29 +36,29 @@ export async function createWorkout(workout: Workout) {
 
     if (!response.ok)
         throw new Error(`Response status: ${response.status}`);
-    let data: string = await response.json();
+    const data: string = await response.json();
     return data;
 }
 
 export async function makeTemplateFromWorkout(workoutId: string): Promise<Workout> {
-    let workoutViewer: WorkoutViewer = await loadWorkout(workoutId);
+    const workoutViewer: WorkoutViewer = await loadWorkout(workoutId);
 
-    let workout: Workout = mapWorkoutViewerToWorkout(workoutViewer);
+    const workout: Workout = mapWorkoutViewerToWorkout(workoutViewer);
 
-    let response = await fetchWithAuthAsync("workouts/workout-templates/", {
+    const response = await fetchWithAuthAsync("workouts/workout-templates/", {
         method: "POST",
         body: JSON.stringify(workout)
     })
 
     if (!response.ok)
         throw new Error(`Response status: ${response.status}`);
-    let data: Workout = await response.json();
+    const data: Workout = await response.json();
     return data;
 }
 
 export async function loadWorkout(id: string): Promise<WorkoutViewer> {
 
-    let response = await fetchWithAuthAsync("workouts/" + id, {
+    const response = await fetchWithAuthAsync("workouts/" + id, {
         method: "GET"
     })
 
@@ -66,12 +66,12 @@ export async function loadWorkout(id: string): Promise<WorkoutViewer> {
         throw new Error(`Response status: ${response.status}`);
     if (response.status === 401) {
     }
-    let data = await response.json();
+    const data = await response.json();
     return data;
 }
 
 export async function deleteWorkoutAsync(id: string): Promise<void> {
-    let response = await fetchWithAuthAsync("workouts/" + id, {
+    const response = await fetchWithAuthAsync("workouts/" + id, {
         method: "DELETE"
     })
 
@@ -80,7 +80,7 @@ export async function deleteWorkoutAsync(id: string): Promise<void> {
 }
 
 export async function deleteTemplateAsync(id: string): Promise<void> {
-    let response = await fetchWithAuthAsync("workouts/workout-templates/" + id, {
+    const response = await fetchWithAuthAsync("workouts/workout-templates/" + id, {
         method: "DELETE"
     })
 
@@ -89,9 +89,9 @@ export async function deleteTemplateAsync(id: string): Promise<void> {
 }
 
 export async function updateWorkoutAsync(workoutViewer: WorkoutViewer, id: string): Promise<void> {
-    let workout: Workout = mapWorkoutViewerToWorkout(workoutViewer);
+    const workout: Workout = mapWorkoutViewerToWorkout(workoutViewer);
 
-    let response = await fetchWithAuthAsync("workouts/" + id, {
+    const response = await fetchWithAuthAsync("workouts/" + id, {
         method: "PUT",
         body: JSON.stringify(workout)
     })
@@ -101,9 +101,9 @@ export async function updateWorkoutAsync(workoutViewer: WorkoutViewer, id: strin
 }
 
 export async function updateTemplateAsync(workoutViewer: WorkoutViewer, id: string): Promise<void> {
-    let workout: Workout = mapWorkoutViewerToWorkout(workoutViewer);
+    const workout: Workout = mapWorkoutViewerToWorkout(workoutViewer);
     
-    let response = await fetchWithAuthAsync("workouts/workout-templates/" + id, {
+    const response = await fetchWithAuthAsync("workouts/workout-templates/" + id, {
         method: "PUT",
         body: JSON.stringify(workout)
     })
