@@ -261,8 +261,8 @@ export function WorkoutLog({ mode }: WorkoutLogProps) {
       }
 
       navigate(mode === "edit-template" ? "/app/templates" : "/app/workouts");
-    } catch (err: any) {
-      setSaveError(err.message || "Failed to save workout");
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : "Failed to save workout");
     } finally {
       setSaving(false);
     }
