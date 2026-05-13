@@ -18,6 +18,6 @@ public class WorkoutTests : AuthenticatedPageTest
 
         await addWorkoutPage.AddWorkoutAsync(title, notes, selectOption, reps, weight, rpe);
 
-        await Expect(Page).ToHaveURLAsync(TestConfig.BaseUrl + "/workouts");
+        await Expect(Page).ToHaveURLAsync(TestConfig.BaseUrl + "/app/workouts");
     }
 }

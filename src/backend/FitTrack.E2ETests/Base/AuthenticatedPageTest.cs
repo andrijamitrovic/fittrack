@@ -11,6 +11,6 @@ public class AuthenticatedPageTest : PageTest
         => new()
         {
             BaseURL = TestConfig.BaseUrl,
-            StorageStatePath = ".playwright/.auth"
+            StorageStatePath = Path.Combine(AppContext.BaseDirectory, ".playwright", ".auth")
         };
 }

@@ -1,12 +1,181 @@
-name: Deploy to Server
+name: CI/CD
 
 on:
+  pull_request:
   push:
     branches: [main]
 
+env:
+  DOTNET_VERSION: "10.0.x"
+  NODE_VERSION: "22"
+  POSTGRES_DB: fittrack_test
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+  JWT_KEY: "local-ci-test-key-that-is-long-enough-for-hmac"
+  JWT_ISSUER: "FitTrack"
+  JWT_AUDIENCE: "FitTrack"
+  JWT_EXPIRY: "60"
+
 jobs:
+  backend:
+    name: Backend tests
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        working-directory: src/backend
+        run: dotnet restore
+
+      - name: Build
+        working-directory: src/backend
+        run: dotnet build --no-restore
+
+      - name: Run unit tests
+        working-directory: src/backend
+        run: dotnet test FitTrack.Tests/FitTrack.Tests.csproj --no-build
+
+  frontend:
+    name: Frontend checks
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: src/frontend-react/package-lock.json
+
+      - name: Install dependencies
+        working-directory: src/frontend-react
+        run: npm ci
+
+      - name: Lint
+        working-directory: src/frontend-react
+        run: npm run lint
+
+      - name: Build
+        working-directory: src/frontend-react
+        run: npm run build
+
+  e2e:
+    name: E2E tests
+    runs-on: ubuntu-24.04
+    needs: [backend, frontend]
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: fittrack_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d fittrack_test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      ConnectionStrings__PGConnectionString: "Host=localhost;Port=5432;Database=fittrack_test;Username=postgres;Password=postgres"
+      JwtSettings__Key: "local-ci-test-key-that-is-long-enough-for-hmac"
+      JwtSettings__Issuer: "FitTrack"
+      JwtSettings__Audience: "FitTrack"
+      JwtSettings__ExpiryMinutes: "60"
+      TEST_BASE_URL: "http://localhost:5173"
+      TEST_API_URL: "http://localhost:5212"
+      TEST_EMAIL: "test@test.com"
+      TEST_PASSWORD: "password"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: src/frontend-react/package-lock.json
+
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Apply database migrations
+        env:
+          PGPASSWORD: postgres
+        run: |
+          for file in database/migrations/*.sql; do
+            psql -h localhost -U postgres -d fittrack_test -f "$file"
+          done
+
+      - name: Restore backend
+        working-directory: src/backend
+        run: dotnet restore
+
+      - name: Install frontend dependencies
+        working-directory: src/frontend-react
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: src/backend
+        run: |
+          dotnet build FitTrack.E2ETests/FitTrack.E2ETests.csproj
+          pwsh FitTrack.E2ETests/bin/Debug/net10.0/playwright.ps1 install --with-deps chromium
+
+      - name: Start API
+        working-directory: src/backend/FitTrack.Api
+        run: |
+          dotnet run --urls http://localhost:5212 > api.log 2>&1 &
+
+      - name: Start frontend
+        working-directory: src/frontend-react
+        run: |
+          npm run dev -- --host 0.0.0.0 --port 5173 > frontend.log 2>&1 &
+
+      - name: Wait for apps
+        run: |
+          timeout 60 bash -c 'until curl -fsS http://localhost:5212 >/dev/null; do sleep 2; done'
+          timeout 60 bash -c 'until curl -fsS http://localhost:5173 >/dev/null; do sleep 2; done'
+
+      - name: Create E2E user
+        run: |
+          curl -fsS -X POST http://localhost:5212/api/auth/register \
+            -H "Content-Type: application/json" \
+            -d '{"email":"test@test.com","password":"password","displayName":"E2E Test User"}' || true
+
+      - name: Run E2E tests
+        working-directory: src/backend
+        run: dotnet test FitTrack.E2ETests/FitTrack.E2ETests.csproj --no-build
+
+      - name: Upload logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-logs
+          path: |
+            src/backend/FitTrack.Api/api.log
+            src/frontend-react/frontend.log
+
   deploy:
-    runs-on: ubuntu-latest
+    name: Deploy to server
+    runs-on: ubuntu-24.04
+    needs: [backend, frontend, e2e]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1
