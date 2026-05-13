@@ -32,17 +32,6 @@ export function Templates() {
     return `${count} ${count === 1 ? "exercise" : "exercises"}`;
   }
 
-  function PageHeader() {
-    return (
-      <div className="space-y-1">
-        <h1 className="text-3xl font-semibold tracking-tight">Templates</h1>
-        <p className="text-sm text-muted-foreground">
-          Reusable workout structures for fast planning.
-        </p>
-      </div>
-    );
-  }
-
   useEffect(() => {
     loadTemplates()
       .then(setWorkouts)
@@ -53,7 +42,7 @@ export function Templates() {
   if (loading) {
     return (
       <div className="flex flex-col gap-6">
-        <PageHeader />
+        <TemplatesPageHeader />
 
         <div className="space-y-4">
           {[1, 2, 3].map((item) => (
@@ -75,7 +64,7 @@ export function Templates() {
   if (error) {
     return (
       <div className="flex flex-col gap-6">
-        <PageHeader />
+        <TemplatesPageHeader />
 
         <Card className="border-destructive/30">
           <CardHeader>
@@ -90,7 +79,7 @@ export function Templates() {
   if (workouts.length === 0) {
     return (
       <div className="flex flex-col gap-6">
-        <PageHeader />
+        <TemplatesPageHeader />
 
         <Card>
           <CardHeader>
@@ -106,7 +95,7 @@ export function Templates() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader />
+      <TemplatesPageHeader />
 
       <div className="space-y-4">
         {workouts.map((workout) => (
@@ -201,6 +190,17 @@ export function Templates() {
           </Card>
         ))}
       </div>
+    </div>
+  );
+}
+
+function TemplatesPageHeader() {
+  return (
+    <div className="space-y-1">
+      <h1 className="text-3xl font-semibold tracking-tight">Templates</h1>
+      <p className="text-sm text-muted-foreground">
+        Reusable workout structures for fast planning.
+      </p>
     </div>
   );
 }
