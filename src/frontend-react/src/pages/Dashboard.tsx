@@ -116,19 +116,19 @@ export function Dashboard() {
 
       <div className="grid gap-4 md:grid-cols-3">
         <QuickActionCard
-          to="/workouts/new"
+          to="/app/workouts/new"
           icon={<Plus className="size-5" />}
           title="Add Workout"
           description="Start a new session."
         />
         <QuickActionCard
-          to="/workouts"
+          to="/app/workouts"
           icon={<History className="size-5" />}
           title="Workout History"
           description="Review and reuse past workouts."
         />
         <QuickActionCard
-          to="/templates"
+          to="/app/templates"
           icon={<LayoutTemplate className="size-5" />}
           title="Templates"
           description="Jump into saved plans."
@@ -151,7 +151,7 @@ export function Dashboard() {
 
             <CardAction>
               <Button variant="outline" size="sm" asChild>
-                <Link to="/workouts">View all</Link>
+                <Link to="/app/workouts">View all</Link>
               </Button>
             </CardAction>
           </CardHeader>
@@ -184,7 +184,7 @@ export function Dashboard() {
                           variant="outline"
                           size="sm"
                           onClick={() =>
-                            navigate(`/workouts/new/${workout.workoutId}`)
+                            navigate(`/app/workouts/new/${workout.workoutId}`)
                           }
                         >
                           Copy
@@ -229,7 +229,7 @@ export function Dashboard() {
 
             <CardAction>
               <Button variant="outline" size="sm" asChild>
-                <Link to="/templates">View all</Link>
+                <Link to="/app/templates">View all</Link>
               </Button>
             </CardAction>
           </CardHeader>
@@ -262,7 +262,7 @@ export function Dashboard() {
                           variant="outline"
                           size="sm"
                           onClick={() =>
-                            navigate(`/workouts/new/${template.workoutId}`)
+                            navigate(`/app/workouts/new/${template.workoutId}`)
                           }
                         >
                           Use

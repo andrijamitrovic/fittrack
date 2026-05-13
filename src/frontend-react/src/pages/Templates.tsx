@@ -20,7 +20,7 @@ export function Templates() {
   const [error, setError] = useState("");
 
   function makeWorkout(workoutId: string) {
-    navigate(`/workouts/new/${workoutId}`);
+    navigate(`/app/workouts/new/${workoutId}`);
   }
 
   async function deleteTemplate(workoutId: string) {
@@ -138,7 +138,7 @@ export function Templates() {
                   variant="outline"
                   size="sm"
                   onClick={() =>
-                    navigate(`/templates/edit/${workout.workoutId}`)
+                    navigate(`/app/templates/edit/${workout.workoutId}`)
                   }
                 >
                   <Pencil className="size-4" />

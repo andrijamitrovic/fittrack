@@ -28,7 +28,7 @@ export function WorkoutHistory() {
 
   async function makeTemplate(workoutId: string) {
     await makeTemplateFromWorkout(workoutId);
-    navigate("/templates");
+    navigate("/app/templates");
   }
 
   async function deleteWorkout(workoutId: string) {
@@ -37,7 +37,7 @@ export function WorkoutHistory() {
   }
 
   async function copyWorkout(workoutId: string) {
-    navigate(`/workouts/new/${workoutId}`);
+    navigate(`/app/workouts/new/${workoutId}`);
   }
 
   useEffect(() => {
@@ -154,7 +154,7 @@ export function WorkoutHistory() {
                     variant="outline"
                     size="sm"
                     onClick={() =>
-                      navigate(`/workouts/edit/${workout.workoutId}`)
+                      navigate(`/app/workouts/edit/${workout.workoutId}`)
                     }
                   >
                     <Pencil className="size-4" />
