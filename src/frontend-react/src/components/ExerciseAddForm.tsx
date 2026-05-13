@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -10,36 +10,35 @@ type ExerciseFormProps = {
 };
 
 export function ExerciseForm({ onAdd, formExercise }: ExerciseFormProps) {
-  const [name, setName] = useState("");
-  const [category, setCategory] = useState("");
-  const [muscleGroup, setMuscleGroup] = useState("");
+  const [form, setForm] = useState({
+    name: formExercise?.name ?? "",
+    category: formExercise?.category ?? "",
+    muscleGroup: formExercise?.muscleGroup ?? "",
+  });
 
-  useEffect(() => {
-    if (formExercise) {
-      setName(formExercise.name);
-      setCategory(formExercise.category);
-      setMuscleGroup(formExercise.muscleGroup);
-    } else {
-      setName("");
-      setCategory("");
-      setMuscleGroup("");
-    }
-  }, [formExercise]);
+  function updateField(field: keyof typeof form, value: string) {
+    setForm((current) => ({
+      ...current,
+      [field]: value,
+    }));
+  }
 
-  function handleSubmit(e: React.SubmitEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    onAdd({
+    await onAdd({
       id: formExercise?.id ?? "",
-      name,
-      category,
-      muscleGroup,
+      name: form.name,
+      category: form.category,
+      muscleGroup: form.muscleGroup,
     });
 
     if (!formExercise) {
-      setName("");
-      setCategory("");
-      setMuscleGroup("");
+      setForm({
+        name: "",
+        category: "",
+        muscleGroup: "",
+      });
     }
   }
 
@@ -49,9 +48,9 @@ export function ExerciseForm({ onAdd, formExercise }: ExerciseFormProps) {
         <Label htmlFor="exercise-name">Name</Label>
         <Input
           id="exercise-name"
-          value={name}
+          value={form.name}
           required
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => updateField("name", e.target.value)}
         />
       </div>
 
@@ -59,9 +58,9 @@ export function ExerciseForm({ onAdd, formExercise }: ExerciseFormProps) {
         <Label htmlFor="exercise-category">Category</Label>
         <Input
           id="exercise-category"
-          value={category}
+          value={form.category}
           required
-          onChange={(e) => setCategory(e.target.value)}
+          onChange={(e) => updateField("category", e.target.value)}
         />
       </div>
 
@@ -69,9 +68,9 @@ export function ExerciseForm({ onAdd, formExercise }: ExerciseFormProps) {
         <Label htmlFor="exercise-muscle">Muscle group</Label>
         <Input
           id="exercise-muscle"
-          value={muscleGroup}
+          value={form.muscleGroup}
           required
-          onChange={(e) => setMuscleGroup(e.target.value)}
+          onChange={(e) => updateField("muscleGroup", e.target.value)}
         />
       </div>
 

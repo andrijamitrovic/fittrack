@@ -177,6 +177,7 @@ export function AdminExercises() {
           </DialogHeader>
 
           <ExerciseForm
+            key="new-exercise"
             formExercise={null}
             onAdd={async (exercise) => {
               await saveExercise(exercise);
@@ -200,6 +201,7 @@ export function AdminExercises() {
 
           {editingExercise && (
             <ExerciseForm
+              key={editingExercise.id}
               formExercise={editingExercise}
               onAdd={async (updated) => {
                 await updateExercise(updated);
