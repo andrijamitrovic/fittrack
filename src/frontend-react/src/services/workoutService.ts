@@ -64,8 +64,6 @@ export async function loadWorkout(id: string): Promise<WorkoutViewer> {
 
     if (!response.ok)
         throw new Error(`Response status: ${response.status}`);
-    if (response.status === 401) {
-    }
     const data = await response.json();
     return data;
 }
