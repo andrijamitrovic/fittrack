@@ -40,8 +40,8 @@ export function AdminUsers() {
       await deleteUser(userId);
       const updatedUsers = await getUsers();
       setUsers(updatedUsers);
-    } catch (err: any) {
-      setError(err.message || "Failed to delete user");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete user");
     } finally {
       setDeleteId(null);
     }

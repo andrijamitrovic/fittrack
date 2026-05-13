@@ -41,7 +41,7 @@ export function Register() {
         password: password,
       });
       navigate("/app");
-    } catch (error) {
+    } catch {
       setError("Invalid email or password");
     }
   }
