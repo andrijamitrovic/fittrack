@@ -191,5 +191,137 @@ namespace FitTrack.Tests
             Assert.Single(result.Data[0].Exercises);
             Assert.Single(result.Data[0].Exercises[0].Sets);
         }
+
+        [Fact]
+        public async Task UpdateWorkoutAsync_ValidInput_ReturnsSuccess()
+        {
+            var userId = Guid.NewGuid();
+            var workoutId = Guid.NewGuid();
+            var exerciseId = Guid.NewGuid();
+
+            var dto = new WorkoutDTO
+            {
+                Title = "Updated Push Day",
+                Notes = "Updated notes",
+                DurationMin = 75,
+                WorkoutExercises =
+                [
+                    new WorkoutExerciseDTO
+                    {
+                        ExerciseId = exerciseId,
+                        OrderIndex = 1,
+                        Notes = "Bench notes",
+                        ExerciseSets =
+                        [
+                            new ExerciseSetDTO
+                            {
+                                SetNumber = 1,
+                                Reps = 5,
+                                Weight = 100,
+                                Rpe = 8,
+                                IsWarmup = false
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            _mockRepo
+                .Setup(r => r.UpdateWorkoutAsync(
+                    userId,
+                    It.IsAny<Workout>(),
+                    It.IsAny<List<WorkoutExercise>>(),
+                    It.IsAny<List<ExerciseSet>>()
+                ))
+                .ReturnsAsync((ResultType.Success, new Workout
+                {
+                    Id = workoutId,
+                    UserId = userId,
+                    Title = dto.Title,
+                    Notes = dto.Notes,
+                    DurationMin = dto.DurationMin,
+                    IsTemplate = false
+                }));
+
+            var result = await _service.UpdateWorkoutAsync(userId, workoutId, dto, false);
+
+            Assert.Equal(ResultType.Success, result.Code);
+            Assert.NotNull(result.Data);
+            Assert.Equal("Workout updated successfully.", result.Message);
+            Assert.Equal(dto.Title, result.Data.Title);
+        }
+
+        [Fact]
+        public async Task UpdateWorkoutAsync_Template_SetsIsTemplateTrue()
+        {
+            var userId = Guid.NewGuid();
+            var workoutId = Guid.NewGuid();
+            Workout? capturedWorkout = null;
+
+            var dto = new WorkoutDTO
+            {
+                Title = "Template",
+                DurationMin = 60,
+                WorkoutExercises = []
+            };
+
+            _mockRepo
+                .Setup(r => r.UpdateWorkoutAsync(
+                    userId,
+                    It.IsAny<Workout>(),
+                    It.IsAny<List<WorkoutExercise>>(),
+                    It.IsAny<List<ExerciseSet>>()
+                ))
+                .Callback<Guid, Workout, List<WorkoutExercise>, List<ExerciseSet>>(
+                    (_, workout, _, _) => capturedWorkout = workout
+                )
+                .ReturnsAsync((ResultType.Success, new Workout
+                {
+                    Id = workoutId,
+                    UserId = userId,
+                    Title = dto.Title,
+                    DurationMin = dto.DurationMin,
+                    IsTemplate = true
+                }));
+
+            var result = await _service.UpdateWorkoutAsync(userId, workoutId, dto, true);
+
+            Assert.Equal(ResultType.Success, result.Code);
+            Assert.NotNull(capturedWorkout);
+            Assert.True(capturedWorkout.IsTemplate);
+        }
+
+        [Fact]
+        public async Task DeleteWorkoutAsync_NotFound_ReturnsNotFound()
+        {
+            var userId = Guid.NewGuid();
+            var workoutId = Guid.NewGuid();
+
+            _mockRepo
+                .Setup(r => r.DeleteWorkoutAsync(userId, workoutId, false))
+                .ReturnsAsync(ResultType.NotFound);
+
+            var result = await _service.DeleteWorkoutAsync(userId, workoutId, false);
+
+            Assert.Equal(ResultType.NotFound, result.Code);
+            Assert.False(result.Data);
+            Assert.Equal("Workout not found.", result.Message);
+        }
+
+        [Fact]
+        public async Task GetWorkoutAsync_EmptyRepositoryResult_ReturnsNotFound()
+        {
+            var userId = Guid.NewGuid();
+            var workoutId = Guid.NewGuid();
+
+            _mockRepo
+                .Setup(r => r.GetWorkoutAsync(userId, workoutId))
+                .ReturnsAsync([]);
+
+            var result = await _service.GetWorkoutAsync(userId, workoutId);
+
+            Assert.Equal(ResultType.NotFound, result.Code);
+            Assert.Null(result.Data);
+        }
     }
 }
