@@ -1,4 +1,5 @@
 using FitTrack.E2ETests.PageObjects;
+using Microsoft.Playwright;
 using Microsoft.Playwright.Xunit.v3;
 using Xunit;
 
@@ -15,7 +16,7 @@ public class AuthTests : PageTest
         var password = TestConfig.TestPassword;
 
         await logInPage.LogInAsync(email, password);
-        
+
         await Expect(Page).ToHaveURLAsync(TestConfig.BaseUrl + "/app");
     }
 
@@ -31,5 +32,28 @@ public class AuthTests : PageTest
         await registerPage.RegisterAsync(name, email, password);
 
         await Expect(Page).ToHaveURLAsync(TestConfig.BaseUrl + "/app");
+    }
+
+    [Fact]
+    public async Task Logout_AuthenticatedUser_RedirectsToLogin()
+    {
+        var loginPage = new LogInPage(Page);
+
+        await loginPage.LogInAsync(TestConfig.TestEmail, TestConfig.TestPassword);
+
+        await Page.GetByRole(AriaRole.Button, new PageGetByRoleOptions
+        {
+            Name = "Log out"
+        }).ClickAsync();
+
+        await Expect(Page).ToHaveURLAsync(TestConfig.BaseUrl + "/login");
+    }
+
+    [Fact]
+    public async Task Dashboard_UnauthenticatedUser_RedirectsToLogin()
+    {
+        await Page.GotoAsync(TestConfig.BaseUrl + "/app");
+
+        await Expect(Page).ToHaveURLAsync(TestConfig.BaseUrl + "/login");
     }
 }
