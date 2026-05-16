@@ -45,7 +45,7 @@ public class WorkoutTests : AuthenticatedPageTest
 
         await Page.GetByRole(AriaRole.Button, new PageGetByRoleOptions
         {
-            Name = "Save workout"
+            Name = "Save changes"
         }).ClickAsync();
 
         await Expect(Page).ToHaveURLAsync(TestConfig.BaseUrl + "/app/workouts");
