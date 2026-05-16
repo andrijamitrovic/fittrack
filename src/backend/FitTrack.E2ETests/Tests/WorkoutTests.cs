@@ -41,6 +41,8 @@ public class WorkoutTests : AuthenticatedPageTest
 
         await Expect(Page).ToHaveURLAsync(new Regex(".*/app/workouts/edit/.*"));
 
+        await Expect(Page.GetByLabel("Title")).ToHaveValueAsync(title);
+
         await Page.GetByLabel("Title").FillAsync(updatedTitle);
 
         await Page.GetByRole(AriaRole.Button, new PageGetByRoleOptions
@@ -70,6 +72,8 @@ public class WorkoutTests : AuthenticatedPageTest
 
         await Expect(Page).ToHaveURLAsync(new Regex(".*/app/workouts/new/.*"));
 
+        await Expect(Page.GetByLabel("Title")).ToHaveValueAsync(title);
+
         await Page.GetByLabel("Title").FillAsync(copiedTitle);
 
         await Page.GetByRole(AriaRole.Button, new PageGetByRoleOptions
@@ -78,7 +82,7 @@ public class WorkoutTests : AuthenticatedPageTest
         }).ClickAsync();
 
         await Expect(Page).ToHaveURLAsync(TestConfig.BaseUrl + "/app/workouts");
-        await Expect(historyPage.WorkoutTitle(copiedTitle)).ToHaveCountAsync(2);
+        await Expect(historyPage.WorkoutTitle(copiedTitle)).ToBeVisibleAsync();
     }
 
     [Fact]
