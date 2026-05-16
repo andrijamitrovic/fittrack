@@ -1,6 +1,8 @@
 using FitTrack.E2ETests;
 using Microsoft.Playwright;
 
+namespace FitTrack.E2ETests.PageObjects;
+
 public class AddWorkoutPage
 {
     private readonly IPage _page;
