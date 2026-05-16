@@ -78,8 +78,7 @@ public class WorkoutTests : AuthenticatedPageTest
         }).ClickAsync();
 
         await Expect(Page).ToHaveURLAsync(TestConfig.BaseUrl + "/app/workouts");
-        await Expect(historyPage.WorkoutTitle(title)).ToBeVisibleAsync();
-        await Expect(historyPage.WorkoutTitle(copiedTitle)).ToBeVisibleAsync();
+        await Expect(historyPage.WorkoutTitle(copiedTitle)).ToHaveCountAsync(2);
     }
 
     [Fact]
