@@ -24,7 +24,16 @@ import { CSS } from "@dnd-kit/utilities";
 import { useSortable } from "@dnd-kit/sortable";
 import { GripVertical } from "lucide-react";
 
-import { DndContext, type DragEndEvent, closestCenter } from "@dnd-kit/core";
+import {
+  DndContext,
+  type DragEndEvent,
+  closestCenter,
+  PointerSensor,
+  TouchSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
 import {
   SortableContext,
   verticalListSortingStrategy,
@@ -66,6 +75,21 @@ export function WorkoutExerciseComponent({
   onSelectExercise,
   onReorderSets,
 }: WorkoutExerciseProps) {
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 200,
+        tolerance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor),
+  );
+
   const {
     attributes,
     listeners,
@@ -135,47 +159,55 @@ export function WorkoutExerciseComponent({
       className={isDragging ? "opacity-60" : undefined}
     >
       <CardHeader>
-        <div>
-          <CardTitle>
-            {selectedExercise?.name ?? "No exercise selected"}
-          </CardTitle>
-          <CardDescription>
-            {selectedExercise
-              ? `${selectedExercise.category} - ${selectedExercise.muscleGroup}`
-              : "Pick an exercise to start adding sets."}
-          </CardDescription>
-        </div>
-
-        <CardAction className="flex gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setShowExercisePicker(true)}
-          >
-            Pick exercise
-          </Button>
-          <Button
-            type="button"
-            variant="destructive"
-            size="icon"
-            onClick={onDeleteExercise}
-          >
-            <Trash2 className="size-4" />
-          </Button>
+        <div className="flex min-w-0 items-start gap-3">
           <Button
             type="button"
             variant="ghost"
             size="icon"
+            className="mt-0.5 shrink-0 touch-none"
+            aria-label="Drag exercise"
             {...attributes}
             {...listeners}
           >
             <GripVertical className="size-4" />
           </Button>
+
+          <div className="min-w-0 space-y-1">
+            <CardTitle className="truncate">
+              {selectedExercise?.name ?? "No exercise selected"}
+            </CardTitle>
+            <CardDescription>
+              {selectedExercise
+                ? `${selectedExercise.category} - ${selectedExercise.muscleGroup}`
+                : "Pick an exercise to start adding sets."}
+            </CardDescription>
+          </div>
+        </div>
+
+        <CardAction>
+          <Button
+            type="button"
+            variant="destructive"
+            size="icon"
+            aria-label="Delete exercise"
+            onClick={onDeleteExercise}
+          >
+            <Trash2 className="size-4" />
+          </Button>
         </CardAction>
       </CardHeader>
-
       <CardContent className="space-y-3">
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full sm:w-fit"
+          onClick={() => setShowExercisePicker(true)}
+        >
+          Pick exercise
+        </Button>
+
         <DndContext
+          sensors={sensors}
           collisionDetection={closestCenter}
           onDragEnd={handleSetDragEnd}
         >

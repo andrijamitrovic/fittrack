@@ -21,7 +21,16 @@ import {
 import { Label } from "../components/ui/label";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
-import { DndContext, type DragEndEvent, closestCenter } from "@dnd-kit/core";
+import {
+  DndContext,
+  type DragEndEvent,
+  closestCenter,
+  PointerSensor,
+  TouchSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
 import {
   SortableContext,
   arrayMove,
@@ -63,6 +72,21 @@ export function WorkoutLog({ mode }: WorkoutLogProps) {
   const [recentWorkouts, setRecentWorkouts] = useState<WorkoutViewer[]>([]);
   const [workoutSearchOpen, setWorkoutSearchOpen] = useState(false);
   const [workoutQuery, setWorkoutQuery] = useState("");
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 200,
+        tolerance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor),
+  );
 
   function copyFromWorkout(workoutId: string) {
     setWorkoutSearchOpen(false);
@@ -262,7 +286,9 @@ export function WorkoutLog({ mode }: WorkoutLogProps) {
 
       navigate(mode === "edit-template" ? "/app/templates" : "/app/workouts");
     } catch (err) {
-      setSaveError(err instanceof Error ? err.message : "Failed to save workout");
+      setSaveError(
+        err instanceof Error ? err.message : "Failed to save workout",
+      );
     } finally {
       setSaving(false);
     }
@@ -467,6 +493,7 @@ export function WorkoutLog({ mode }: WorkoutLogProps) {
 
           <CardContent className="space-y-4">
             <DndContext
+              sensors={sensors}
               collisionDetection={closestCenter}
               onDragEnd={handleExerciseDragEnd}
             >

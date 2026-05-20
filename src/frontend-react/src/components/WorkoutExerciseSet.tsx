@@ -37,20 +37,23 @@ export function WorkoutExerciseSetComponent({
     <div
       ref={setNodeRef}
       style={style}
-      className={`grid gap-3 rounded-lg border bg-background p-3 sm:grid-cols-[auto_1fr_1fr_1fr_auto] sm:items-end ${
+      className={`grid grid-cols-[2.25rem_1fr] gap-3 rounded-lg border bg-background p-3 sm:grid-cols-[auto_1fr_1fr_1fr_auto] sm:items-end ${
         isDragging ? "opacity-60" : ""
       }`}
     >
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className="self-end"
-        {...attributes}
-        {...listeners}
-      >
-        <GripVertical className="size-4" />
-      </Button>
+      <div className="pt-7 sm:pt-0">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="touch-none"
+          aria-label="Drag set"
+          {...attributes}
+          {...listeners}
+        >
+          <GripVertical className="size-4" />
+        </Button>
+      </div>
       <div className="space-y-2">
         <Label>Reps</Label>
         <Input
@@ -100,7 +103,12 @@ export function WorkoutExerciseSetComponent({
         />
       </div>
 
-      <Button type="button" variant="destructive" onClick={onDelete}>
+      <Button
+        type="button"
+        variant="destructive"
+        className="col-start-2 sm:col-start-auto"
+        onClick={onDelete}
+      >
         Delete
       </Button>
     </div>
