@@ -116,32 +116,35 @@ export function Templates() {
                   type="button"
                   variant="outline"
                   size="sm"
+                  aria-label="Use"
                   onClick={() => makeWorkout(workout.workoutId)}
                 >
                   <Copy className="size-4" />
-                  Use
+                  <span className="hidden sm:inline">Use</span>{" "}
                 </Button>
 
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
+                  aria-label="Edit"
                   onClick={() =>
                     navigate(`/app/templates/edit/${workout.workoutId}`)
                   }
                 >
                   <Pencil className="size-4" />
-                  Edit
+                  <span className="hidden sm:inline">Edit</span>{" "}
                 </Button>
 
                 <Button
                   type="button"
                   variant="destructive"
                   size="sm"
+                  aria-label="Delete"
                   onClick={() => deleteTemplate(workout.workoutId)}
                 >
                   <Trash2 className="size-4" />
-                  Delete
+                  <span className="hidden sm:inline">Delete</span>{" "}
                 </Button>
               </CardAction>
             </CardHeader>

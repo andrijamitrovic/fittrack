@@ -16,9 +16,7 @@ import {
   makeTemplateFromWorkout,
 } from "../services/workoutService";
 
-import type {
-  WorkoutViewer,
-} from "../types";
+import type { WorkoutViewer } from "../types";
 
 export function WorkoutHistory() {
   const navigate = useNavigate();
@@ -137,48 +135,51 @@ export function WorkoutHistory() {
                     )}
                   </CardDescription>
                 </div>
-
-                <CardAction className="flex flex-wrap gap-2">
+                <CardAction className="flex flex-wrap gap-1.5 sm:gap-2">
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
+                    aria-label="Template"
                     onClick={() => makeTemplate(workout.workoutId)}
                   >
                     <FilePlus2 className="size-4" />
-                    Template
+                    <span className="hidden sm:inline">Template</span>
                   </Button>
 
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
+                    aria-label="Edit"
                     onClick={() =>
                       navigate(`/app/workouts/edit/${workout.workoutId}`)
                     }
                   >
                     <Pencil className="size-4" />
-                    Edit
+                    <span className="hidden sm:inline">Edit</span>{" "}
                   </Button>
 
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
+                    aria-label="Copy"
                     onClick={() => copyWorkout(workout.workoutId)}
                   >
                     <Copy className="size-4" />
-                    Copy
+                    <span className="hidden sm:inline">Copy</span>
                   </Button>
 
                   <Button
                     type="button"
                     variant="destructive"
                     size="sm"
+                    aria-label="Delete"
                     onClick={() => deleteWorkout(workout.workoutId)}
                   >
                     <Trash2 className="size-4" />
-                    Delete
+                    <span className="hidden sm:inline">Delete</span>
                   </Button>
                 </CardAction>
               </CardHeader>
