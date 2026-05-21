@@ -54,7 +54,7 @@ export function WorkoutExerciseSetComponent({
           <GripVertical className="size-4" />
         </Button>
       </div>
-      <div className="space-y-2">
+      <div className="col-start-2 space-y-2 sm:col-start-auto">
         <Label>Reps</Label>
         <Input
           required
@@ -70,7 +70,7 @@ export function WorkoutExerciseSetComponent({
         />
       </div>
 
-      <div className="space-y-2">
+      <div className="col-start-2 space-y-2 sm:col-start-auto">
         <Label>Weight</Label>
         <Input
           required
@@ -87,7 +87,7 @@ export function WorkoutExerciseSetComponent({
         />
       </div>
 
-      <div className="space-y-2">
+      <div className="col-start-2 space-y-2 sm:col-start-auto">
         <Label>RPE</Label>
         <Input
           required
