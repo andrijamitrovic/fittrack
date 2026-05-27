@@ -1,4 +1,4 @@
-namespace FitTrack.Domain.Entities;
+namespace FitTrack.Infrastructure.Repositories.Models;
 
 public class WorkoutTemplateDetailRow
 {

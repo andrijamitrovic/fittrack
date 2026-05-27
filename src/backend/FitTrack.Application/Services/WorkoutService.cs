@@ -1,7 +1,10 @@
-﻿using FitTrack.Application.Common;
+﻿using System.Data;
+using FitTrack.Application.Common;
 using FitTrack.Application.DTOs;
+using FitTrack.Application.ReadModels.Workouts;
 using FitTrack.Application.Interfaces;
 using FitTrack.Domain.Entities;
+using Microsoft.VisualBasic;
 
 namespace FitTrack.Application.Services
 {
@@ -78,13 +81,12 @@ namespace FitTrack.Application.Services
 
         public async Task<ServiceResult<List<ViewWorkoutDTO>>> GetWorkoutsAsync(Guid userId, bool isTemplate)
         {
-            var result = await _workoutRepository.GetWorkoutsAsync(userId, isTemplate);
-            var workouts = MapWorkoutRows(result);
+            var workouts = await _workoutRepository.GetWorkoutsAsync(userId, isTemplate);
 
             return new ServiceResult<List<ViewWorkoutDTO>>
             {
                 Code = ResultType.Success,
-                Data = [.. workouts],
+                Data = MapWorkoutReadModelToViewWorkoutDTO(workouts),
                 Message = "Workouts succesfully returned."
             };
 
@@ -93,8 +95,7 @@ namespace FitTrack.Application.Services
 
         public async Task<ServiceResult<ViewWorkoutDTO?>> GetWorkoutAsync(Guid userId, Guid workoutId)
         {
-            List<WorkoutDetailRow> result = await _workoutRepository.GetWorkoutAsync(userId, workoutId);
-            var workout = MapWorkoutRows(result).FirstOrDefault();
+            var workout = await _workoutRepository.GetWorkoutAsync(userId, workoutId);
 
             if (workout == null)
             {
@@ -109,7 +110,7 @@ namespace FitTrack.Application.Services
             return new ServiceResult<ViewWorkoutDTO?>
             {
                 Code = ResultType.Success,
-                Data = workout,
+                Data = MapWorkoutReadModelToViewWorkoutDTO(new List<WorkoutReadModel>{workout}).FirstOrDefault(),
                 Message = "Workout succesfully returned."
             };
 
@@ -188,78 +189,65 @@ namespace FitTrack.Application.Services
             };
         }
 
-        private static List<ViewWorkoutDTO> MapWorkoutRows(IEnumerable<WorkoutDetailRow> workouts)
+        private static List<ViewWorkoutDTO> MapWorkoutReadModelToViewWorkoutDTO(IEnumerable<WorkoutReadModel> workouts)
         {
-            return [..workouts.GroupBy(
-                                            w => new
-                                            {
-                                                w.WorkoutId,
-                                                w.Title,
-                                                w.Date,
-                                                w.WorkoutNotes,
-                                                w.DurationMin
-                                            },
-                                             w => new
-                                             {
-                                                 w.WorkoutExerciseId,
-                                                 w.ExerciseId,
-                                                 w.OrderIndex,
-                                                 w.ExerciseNotes,
-                                                 w.ExerciseName,
-                                                 w.Category,
-                                                 w.MuscleGroup,
-                                                 w.SetNumber,
-                                                 w.Reps,
-                                                 w.Weight,
-                                                 w.Rpe,
-                                                 w.IsWarmup
-                                             },
-                                             (key, g) => new ViewWorkoutDTO
-                                             {
-                                                 WorkoutId = key.WorkoutId,
-                                                 Title = key.Title,
-                                                 Date = key.Date,
-                                                 WorkoutNotes = key.WorkoutNotes,
-                                                 DurationMin = key.DurationMin,
-                                                 Exercises = [.. g.GroupBy(
-                                                     e => new
-                                                     {
-                                                         e.WorkoutExerciseId,
-                                                         e.ExerciseId,
-                                                         e.OrderIndex,
-                                                         e.ExerciseNotes,
-                                                         e.ExerciseName,
-                                                         e.Category,
-                                                         e.MuscleGroup
-                                                     },
-                                                     e => new
-                                                     {
-                                                         e.SetNumber,
-                                                         e.Reps,
-                                                         e.Weight,
-                                                         e.Rpe,
-                                                         e.IsWarmup
-                                                     },
-                                                     (key, g) => new ViewExerciseDTO
-                                                     {
-                                                         WorkoutExerciseId = key.WorkoutExerciseId,
-                                                         ExerciseId = key.ExerciseId,
-                                                         OrderIndex = key.OrderIndex,
-                                                         ExerciseNotes = key.ExerciseNotes,
-                                                         ExerciseName = key.ExerciseName,
-                                                         Category = key.Category,
-                                                         MuscleGroup = key.MuscleGroup,
-                                                         Sets = [.. g.Select(s => new ViewSetDTO
-                                                         {
-                                                             SetNumber = s.SetNumber,
-                                                             Reps = s.Reps,
-                                                             Weight = s.Weight,
-                                                             Rpe = s.Rpe,
-                                                             IsWarmup = s.IsWarmup
-                                                         })]
-                                                     }
-                                                     )]
-                                             })];
+            var workoutViews = new List<ViewWorkoutDTO>();
+
+            foreach (var workout in workouts)
+            {
+                workoutViews.Add(new ViewWorkoutDTO
+                {
+                    WorkoutId = workout.WorkoutId,
+                    Title = workout.Title,
+                    Date = workout.Date,
+                    WorkoutNotes = workout.WorkoutNotes,
+                    DurationMin = workout.DurationMin,
+                    Exercises = MapWorkoutExerciseReadModelToViewExerciseDTO(workout.Exercises)
+                });
+            }
+
+            return workoutViews;
+        }
+
+        private static List<ViewExerciseDTO> MapWorkoutExerciseReadModelToViewExerciseDTO(List<WorkoutExerciseReadModel> exercises)
+        {
+            var exerciseViews = new List<ViewExerciseDTO>();
+
+            foreach (var exercise in exercises)
+            {
+                exerciseViews.Add(new ViewExerciseDTO
+                {
+                    WorkoutExerciseId = exercise.WorkoutExerciseId,
+                    ExerciseId = exercise.ExerciseId,
+                    OrderIndex = exercise.OrderIndex,
+                    ExerciseNotes = exercise.ExerciseNotes,
+                    ExerciseName = exercise.ExerciseName,
+                    Category = exercise.Category,
+                    MuscleGroup = exercise.MuscleGroup,
+                    Sets = MapWorkoutSetReadModelToViewSetDTO(exercise.Sets)
+                });
+            }
+
+            return exerciseViews;
+        }
+
+        private static List<ViewSetDTO> MapWorkoutSetReadModelToViewSetDTO(List<WorkoutSetReadModel> sets)
+        {
+            var setViews = new List<ViewSetDTO>();
+
+            foreach (var set in sets)
+            {
+                setViews.Add(new ViewSetDTO
+                {
+                    SetNumber = set.SetNumber,
+                    Reps = set.Reps,
+                    Weight = set.Weight,
+                    Rpe = set.Rpe,
+                    IsWarmup = set.IsWarmup 
+                });
+            }
+
+            return setViews;
         }
     }
 

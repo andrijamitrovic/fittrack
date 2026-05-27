@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using FitTrack.Application.Common;
 using FitTrack.Application.DTOs;
+using FitTrack.Application.ReadModels.Workouts;
 using FitTrack.Application.Interfaces;
 using FitTrack.Domain.Entities;
 using Npgsql;
@@ -47,7 +48,7 @@ namespace FitTrack.Infrastructure.Repositories
             return await connection.QuerySingleOrDefaultAsync<Workout>(getWorkout, new { workout.Id });
         }
 
-        public async Task<List<WorkoutDetailRow>> GetWorkoutsAsync(Guid userId, bool isTemplate)
+        public async Task<List<WorkoutReadModel>> GetWorkoutsAsync(Guid userId, bool isTemplate)
         {
             var sql = @"SELECT w.id as workout_id, w.title, w.date, w.notes as workout_notes, w.duration_min,
                                 we.id as workout_exercise_id, we.order_index, we.notes as exercise_notes, we.exercise_id,
@@ -61,12 +62,13 @@ namespace FitTrack.Infrastructure.Repositories
                         AND w.is_template = @IsTemplate
                         ORDER BY w.date DESC, we.order_index, es.set_number";
             using var connection = new NpgsqlConnection(_connectionString);
-            return [.. await connection.QueryAsync<WorkoutDetailRow>(sql, new { UserId = userId, IsTemplate = isTemplate })];
+            var workouts = await connection.QueryAsync<WorkoutDetailRow>(sql, new { UserId = userId, IsTemplate = isTemplate }); 
+            return MapWorkoutRows(workouts);
 
 
         }
 
-        public async Task<List<WorkoutDetailRow>> GetWorkoutAsync(Guid userId, Guid workoutId)
+        public async Task<WorkoutReadModel?> GetWorkoutAsync(Guid userId, Guid workoutId)
         {
             var sql = @"SELECT w.id as workout_id, w.title, w.date, w.notes as workout_notes, w.duration_min,
                                 we.id as workout_exercise_id, we.order_index, we.notes as exercise_notes, we.exercise_id,
@@ -81,8 +83,8 @@ namespace FitTrack.Infrastructure.Repositories
                         ORDER BY w.date DESC, we.order_index, es.set_number";
 
             using var connection = new NpgsqlConnection(_connectionString);
-            return [.. await connection.QueryAsync<WorkoutDetailRow>(sql, new { UserId = userId, WorkoutId = workoutId })];
-
+            var workouts = await connection.QueryAsync<WorkoutDetailRow>(sql, new { UserId = userId, WorkoutId = workoutId });
+            return MapWorkoutRows(workouts).FirstOrDefault();
         }
 
         public async Task<ResultType> DeleteWorkoutAsync(Guid userId, Guid workoutId, bool isTemplate)
@@ -188,6 +190,80 @@ namespace FitTrack.Infrastructure.Repositories
                 return (ResultType.Failure, null);
             }
 
+        }
+
+        private static List<WorkoutReadModel> MapWorkoutRows(IEnumerable<WorkoutDetailRow> workouts)
+        {
+            return [..workouts.GroupBy(
+                                            w => new
+                                            {
+                                                w.WorkoutId,
+                                                w.Title,
+                                                w.Date,
+                                                w.WorkoutNotes,
+                                                w.DurationMin
+                                            },
+                                             w => new
+                                             {
+                                                 w.WorkoutExerciseId,
+                                                 w.ExerciseId,
+                                                 w.OrderIndex,
+                                                 w.ExerciseNotes,
+                                                 w.ExerciseName,
+                                                 w.Category,
+                                                 w.MuscleGroup,
+                                                 w.SetNumber,
+                                                 w.Reps,
+                                                 w.Weight,
+                                                 w.Rpe,
+                                                 w.IsWarmup
+                                             },
+                                             (key, g) => new WorkoutReadModel
+                                             {
+                                                 WorkoutId = key.WorkoutId,
+                                                 Title = key.Title,
+                                                 Date = key.Date,
+                                                 WorkoutNotes = key.WorkoutNotes,
+                                                 DurationMin = key.DurationMin,
+                                                 Exercises = [.. g.GroupBy(
+                                                     e => new
+                                                     {
+                                                         e.WorkoutExerciseId,
+                                                         e.ExerciseId,
+                                                         e.OrderIndex,
+                                                         e.ExerciseNotes,
+                                                         e.ExerciseName,
+                                                         e.Category,
+                                                         e.MuscleGroup
+                                                     },
+                                                     e => new
+                                                     {
+                                                         e.SetNumber,
+                                                         e.Reps,
+                                                         e.Weight,
+                                                         e.Rpe,
+                                                         e.IsWarmup
+                                                     },
+                                                     (key, g) => new WorkoutExerciseReadModel
+                                                     {
+                                                         WorkoutExerciseId = key.WorkoutExerciseId,
+                                                         ExerciseId = key.ExerciseId,
+                                                         OrderIndex = key.OrderIndex,
+                                                         ExerciseNotes = key.ExerciseNotes,
+                                                         ExerciseName = key.ExerciseName,
+                                                         Category = key.Category,
+                                                         MuscleGroup = key.MuscleGroup,
+                                                         Sets = [.. g.Select(s => new WorkoutSetReadModel
+                                                         {
+                                                             SetNumber = s.SetNumber,
+                                                             Reps = s.Reps,
+                                                             Weight = s.Weight,
+                                                             Rpe = s.Rpe,
+                                                             IsWarmup = s.IsWarmup
+                                                         })]
+                                                     }
+                                                     )]
+                                             })];
         }
     }
 }
