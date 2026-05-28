@@ -23,7 +23,7 @@ namespace FitTrack.Application.Services
                 Id = Guid.NewGuid(),
                 UserId = userId,
                 Title = workoutDTO.Title,
-                Date = DateTime.Now,
+                Date = DateTime.UtcNow.Date,
                 Notes = workoutDTO.Notes,
                 DurationMin = workoutDTO.DurationMin,
                 IsTemplate = isTemplate
