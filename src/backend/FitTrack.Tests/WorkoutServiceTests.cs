@@ -1,6 +1,7 @@
 using FitTrack.Application.Common;
 using FitTrack.Application.DTOs;
 using FitTrack.Application.Interfaces;
+using FitTrack.Application.ReadModels.Workouts;
 using FitTrack.Application.Services;
 using FitTrack.Domain.Entities;
 using Moq;
@@ -127,7 +128,7 @@ namespace FitTrack.Tests
             _mockRepo.Setup(r => r.GetWorkoutsAsync(
                 It.IsAny<Guid>(),
                 It.IsAny<bool>()
-            )).ReturnsAsync(new List<WorkoutDetailRow>());
+            )).ReturnsAsync(new List<WorkoutReadModel>());
 
             var result = await _service.GetWorkoutsAsync(userId, false);
 
@@ -151,35 +152,46 @@ namespace FitTrack.Tests
             var exerciseName = "Bench Press";
             var category = "Strength";
             var muscleGroup = "Chest";
-
-            var rows = new List<WorkoutDetailRow>
+            var workouts = new List<WorkoutReadModel>
             {
-                new WorkoutDetailRow
+                new WorkoutReadModel
                 {
                     WorkoutId = workoutId,
                     Title = title,
                     Date = date,
                     WorkoutNotes = workoutNotes,
                     DurationMin = durationMin,
-                    WorkoutExerciseId = workoutExerciseId,
-                    ExerciseId = exerciseId,
-                    OrderIndex = 0,
-                    ExerciseNotes = exerciseNotes,
-                    ExerciseName = exerciseName,
-                    Category = category,
-                    MuscleGroup = muscleGroup,
-                    SetNumber = 1,
-                    Reps = 10,
-                    Weight = 60,
-                    Rpe = 8,
-                    IsWarmup = false
+                    Exercises =
+                    [
+                        new WorkoutExerciseReadModel
+                        {
+                            WorkoutExerciseId = workoutExerciseId,
+                            ExerciseId = exerciseId,
+                            OrderIndex = 0,
+                            ExerciseNotes = exerciseNotes,
+                            ExerciseName = exerciseName,
+                            Category = category,
+                            MuscleGroup = muscleGroup,
+                            Sets =
+                            [
+                                new WorkoutSetReadModel
+                                {
+                                    SetNumber = 1,
+                                    Reps = 10,
+                                    Weight = 60,
+                                    Rpe = 8,
+                                    IsWarmup = false
+                                }
+                            ]
+                        }
+                    ]
                 }
             };
 
             _mockRepo.Setup(r => r.GetWorkoutsAsync(
                 It.IsAny<Guid>(),
                 It.IsAny<bool>()
-            )).ReturnsAsync(rows);
+            )).ReturnsAsync(workouts);
 
             var result = await _service.GetWorkoutsAsync(userId, false);
 
@@ -316,7 +328,7 @@ namespace FitTrack.Tests
 
             _mockRepo
                 .Setup(r => r.GetWorkoutAsync(userId, workoutId))
-                .ReturnsAsync([]);
+                .ReturnsAsync((WorkoutReadModel?)null);
 
             var result = await _service.GetWorkoutAsync(userId, workoutId);
 
