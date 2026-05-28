@@ -42,7 +42,18 @@ namespace FitTrack.Infrastructure.Repositories
 
             await transaction.CommitAsync();
 
-            var getWorkout = "SELECT * FROM workouts WHERE id = @Id";
+            var getWorkout = @"
+                    SELECT id,
+                        user_id,
+                        title,
+                        date::timestamp as date,
+                        notes,
+                        duration_min,
+                        created_at,
+                        updated_at,
+                        is_template
+                    FROM workouts
+                    WHERE id = @Id";
 
 
             return await connection.QuerySingleOrDefaultAsync<Workout>(getWorkout, new { workout.Id });
@@ -50,7 +61,7 @@ namespace FitTrack.Infrastructure.Repositories
 
         public async Task<List<WorkoutReadModel>> GetWorkoutsAsync(Guid userId, bool isTemplate)
         {
-            var sql = @"SELECT w.id as workout_id, w.title, w.date, w.notes as workout_notes, w.duration_min,
+            var sql = @"SELECT w.id as workout_id, w.title, w.date::timestamp as date, w.notes as workout_notes, w.duration_min,
                                 we.id as workout_exercise_id, we.order_index, we.notes as exercise_notes, we.exercise_id,
                                 e.name as exercise_name, e.category, e.muscle_group,
                                 es.set_number, es.reps, es.weight, es.rpe, es.is_warmup
@@ -70,7 +81,7 @@ namespace FitTrack.Infrastructure.Repositories
 
         public async Task<WorkoutReadModel?> GetWorkoutAsync(Guid userId, Guid workoutId)
         {
-            var sql = @"SELECT w.id as workout_id, w.title, w.date, w.notes as workout_notes, w.duration_min,
+            var sql = @"SELECT w.id as workout_id, w.title, w.date::timestamp as date, w.notes as workout_notes, w.duration_min,
                                 we.id as workout_exercise_id, we.order_index, we.notes as exercise_notes, we.exercise_id,
                                 e.name as exercise_name, e.category, e.muscle_group,
                                 es.set_number, es.reps, es.weight, es.rpe, es.is_warmup
@@ -178,7 +189,18 @@ namespace FitTrack.Infrastructure.Repositories
 
             try
             {
-                var getWorkoutSql = "SELECT * FROM workouts WHERE id = @Id";
+                var getWorkoutSql = @"
+                    SELECT id,
+                           user_id,
+                           title,
+                           date::timestamp as date,
+                           notes,
+                           duration_min,
+                           created_at,
+                           updated_at,
+                           is_template
+                    FROM workouts
+                    WHERE id = @Id";
                 var savedWorkout = await connection.QuerySingleOrDefaultAsync<Workout>(
                     getWorkoutSql,
                     new { workout.Id }
