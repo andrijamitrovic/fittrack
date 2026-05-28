@@ -1,7 +1,9 @@
 using FitTrack.Application.Interfaces;
 using FitTrack.Application.Services;
+using FitTrack.Infrastructure.Persistence.EfCore;
 using FitTrack.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -29,6 +31,9 @@ builder.Services.AddScoped<AuthService>(provider => new AuthService(
                                                         provider.GetRequiredService<IAuthRepository>(),
                                                         jwtDictionary));
 builder.Services.AddControllers();
+
+builder.Services.AddDbContext<FitTrackDbContext>(options => 
+    options.UseNpgsql(connectionString));
 
 var secretKey = Encoding.UTF8.GetBytes(key);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
