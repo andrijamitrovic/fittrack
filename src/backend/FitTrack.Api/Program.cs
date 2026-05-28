@@ -2,6 +2,7 @@ using FitTrack.Application.Interfaces;
 using FitTrack.Application.Services;
 using FitTrack.Infrastructure.Persistence.EfCore;
 using FitTrack.Infrastructure.Repositories;
+using FitTrack.Infrastructure.Repositories.EfCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -20,7 +21,7 @@ var key = jwtSettings["Key"]
     ?? throw new InvalidOperationException("JwtSettings:Key is missing.");
     
 // Add services to the container.
-builder.Services.AddScoped<IExerciseRepository>(provider => new ExerciseRepository(connectionString));
+builder.Services.AddScoped<IExerciseRepository, EfExerciseRepository>();
 builder.Services.AddScoped<ExerciseService>();
 builder.Services.AddScoped<IWorkoutRepository>(provider => new WorkoutRepository(connectionString));
 builder.Services.AddScoped<WorkoutService>();
