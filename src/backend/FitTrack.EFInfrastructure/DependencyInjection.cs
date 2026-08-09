@@ -2,6 +2,7 @@
 using FitTrack.EFInfrastructure.Identity;
 using FitTrack.EFInfrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,6 +30,26 @@ public static class DependencyInjection
             })
             .AddEntityFrameworkStores<FitTrackDbContext>()
             .AddDefaultTokenProviders();
+
+        services.ConfigureApplicationCookie(options =>
+        {
+            options.LoginPath = "/api/external-auth/google/login";
+            options.LogoutPath = "/api/external-auth/logout";
+            options.AccessDeniedPath = "/api/external-auth/access-denied";
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SameSite = SameSiteMode.Lax;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        });
+
+        services.AddAuthentication()
+            .AddGoogle(options =>
+            {
+                options.ClientId = configuration["Authentication:Google:ClientId"]
+                    ?? throw new InvalidOperationException("Google ClientId was not configured.");
+
+                options.ClientSecret = configuration["Authentication:Google:ClientSecret"]
+                    ?? throw new InvalidOperationException("Google ClientSecret was not configured.");
+            });
 
         return services;
     }
