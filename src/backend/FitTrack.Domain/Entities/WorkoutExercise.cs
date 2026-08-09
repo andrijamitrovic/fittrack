@@ -7,5 +7,8 @@
         public required Guid ExerciseId { get; set; }
         public required int OrderIndex { get; set; }
         public string? Notes { get; set; }
+        public Workout? Workout { get; set; }
+        public Exercise? Exercise { get; set; }
+        public List<ExerciseSet> ExerciseSets { get; set; } = [];
     }
 }

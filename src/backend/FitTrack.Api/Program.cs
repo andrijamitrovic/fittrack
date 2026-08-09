@@ -1,10 +1,8 @@
 using FitTrack.Application.Interfaces;
 using FitTrack.Application.Services;
-using FitTrack.Infrastructure.Persistence.EfCore;
+using FitTrack.EFInfrastructure;
 using FitTrack.Infrastructure.Repositories;
-using FitTrack.Infrastructure.Repositories.EfCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -19,9 +17,11 @@ var jwtDictionary = jwtSettings.Get<Dictionary<string, string>>()
 
 var key = jwtSettings["Key"]
     ?? throw new InvalidOperationException("JwtSettings:Key is missing.");
+
+builder.Services.AddEFInfrastructure(builder.Configuration);
     
 // Add services to the container.
-builder.Services.AddScoped<IExerciseRepository, EfExerciseRepository>();
+builder.Services.AddScoped<IExerciseRepository>(provider => new ExerciseRepository(connectionString));
 builder.Services.AddScoped<ExerciseService>();
 builder.Services.AddScoped<IWorkoutRepository>(provider => new WorkoutRepository(connectionString));
 builder.Services.AddScoped<WorkoutService>();
@@ -32,9 +32,6 @@ builder.Services.AddScoped<AuthService>(provider => new AuthService(
                                                         provider.GetRequiredService<IAuthRepository>(),
                                                         jwtDictionary));
 builder.Services.AddControllers();
-
-builder.Services.AddDbContext<FitTrackDbContext>(options => 
-    options.UseNpgsql(connectionString));
 
 var secretKey = Encoding.UTF8.GetBytes(key);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

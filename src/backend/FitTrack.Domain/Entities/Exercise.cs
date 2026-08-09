@@ -10,5 +10,6 @@
         public required bool IsCustom { get; set; }
         public Guid? CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; }
+        public List<WorkoutExercise> WorkoutExercises { get; set; } = [];
     }
 }

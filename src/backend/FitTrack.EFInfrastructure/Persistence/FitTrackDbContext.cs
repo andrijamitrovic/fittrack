@@ -1,46 +1,30 @@
 using FitTrack.Domain.Entities;
+using FitTrack.EFInfrastructure.Identity;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace FitTrack.Infrastructure.Persistence.EfCore;
+namespace FitTrack.EFInfrastructure.Persistence;
 
-public class FitTrackDbContext : DbContext
+public class FitTrackDbContext
+    : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
 {
     public FitTrackDbContext(DbContextOptions<FitTrackDbContext> options)
         : base(options)
     {
     }
 
-    public DbSet<User> Users => Set<User>();
     public DbSet<Exercise> Exercises => Set<Exercise>();
     public DbSet<Workout> Workouts => Set<Workout>();
     public DbSet<WorkoutExercise> WorkoutExercises => Set<WorkoutExercise>();
     public DbSet<ExerciseSet> ExerciseSets => Set<ExerciseSet>();
-    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating(ModelBuilder builder)
     {
-        base.OnModelCreating(modelBuilder);
+        base.OnModelCreating(builder);
 
-        modelBuilder.Entity<User>(entity =>
+        builder.Entity<ApplicationUser>(entity =>
         {
-            entity.ToTable("users");
-
-            entity.HasKey(x => x.Id);
-
-            entity.Property(x => x.Id)
-                .HasColumnName("id")
-                .HasDefaultValueSql("gen_random_uuid()");
-
-            entity.Property(x => x.Email)
-                .HasColumnName("email")
-                .HasMaxLength(255)
-                .IsRequired();
-
-            entity.Property(x => x.PasswordHash)
-                .HasColumnName("password_hash")
-                .HasMaxLength(255)
-                .IsRequired();
-
             entity.Property(x => x.DisplayName)
                 .HasColumnName("display_name")
                 .HasMaxLength(100)
@@ -55,17 +39,9 @@ public class FitTrackDbContext : DbContext
                 .HasColumnName("updated_at")
                 .HasColumnType("timestamp with time zone")
                 .HasDefaultValueSql("now()");
-
-            entity.Property(x => x.Role)
-                .HasColumnName("role")
-                .HasMaxLength(20)
-                .HasDefaultValue("user")
-                .IsRequired();
-
-            entity.HasIndex(x => x.Email).IsUnique();
         });
 
-        modelBuilder.Entity<Exercise>(entity =>
+        builder.Entity<Exercise>(entity =>
         {
             entity.ToTable("exercises");
 
@@ -108,14 +84,9 @@ public class FitTrackDbContext : DbContext
 
             entity.HasIndex(x => new { x.Name, x.Category, x.MuscleGroup })
                 .IsUnique();
-
-            entity.HasOne<User>()
-                .WithMany()
-                .HasForeignKey(x => x.CreatedBy)
-                .OnDelete(DeleteBehavior.NoAction);
         });
 
-        modelBuilder.Entity<Workout>(entity =>
+        builder.Entity<Workout>(entity =>
         {
             entity.ToTable("workouts");
 
@@ -159,13 +130,15 @@ public class FitTrackDbContext : DbContext
                 .HasDefaultValue(false)
                 .IsRequired();
 
-            entity.HasOne<User>()
+            entity.HasOne<ApplicationUser>()
                 .WithMany()
                 .HasForeignKey(x => x.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(x => x.UserId);
         });
 
-        modelBuilder.Entity<WorkoutExercise>(entity =>
+        builder.Entity<WorkoutExercise>(entity =>
         {
             entity.ToTable("workout_exercises");
 
@@ -190,18 +163,21 @@ public class FitTrackDbContext : DbContext
             entity.Property(x => x.Notes)
                 .HasColumnName("notes");
 
-            entity.HasOne<Workout>()
-                .WithMany()
+            entity.HasOne(x => x.Workout)
+                .WithMany(x => x.WorkoutExercises)
                 .HasForeignKey(x => x.WorkoutId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            entity.HasOne<Exercise>()
-                .WithMany()
+            entity.HasOne(x => x.Exercise)
+                .WithMany(x => x.WorkoutExercises)
                 .HasForeignKey(x => x.ExerciseId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            entity.HasIndex(x => x.WorkoutId);
+            entity.HasIndex(x => x.ExerciseId);
         });
 
-        modelBuilder.Entity<ExerciseSet>(entity =>
+        builder.Entity<ExerciseSet>(entity =>
         {
             entity.ToTable("exercise_sets");
 
@@ -238,48 +214,12 @@ public class FitTrackDbContext : DbContext
                 .HasColumnName("completed")
                 .HasDefaultValue(true);
 
-            entity.HasOne<WorkoutExercise>()
-                .WithMany()
+            entity.HasOne(x => x.WorkoutExercise)
+                .WithMany(x => x.ExerciseSets)
                 .HasForeignKey(x => x.WorkoutExerciseId)
                 .OnDelete(DeleteBehavior.Cascade);
-        });
 
-        modelBuilder.Entity<RefreshToken>(entity =>
-        {
-            entity.ToTable("refresh_tokens");
-
-            entity.HasKey(x => x.Id);
-
-            entity.Property(x => x.Id)
-                .HasColumnName("id")
-                .HasDefaultValueSql("gen_random_uuid()");
-
-            entity.Property(x => x.UserId)
-                .HasColumnName("user_id")
-                .IsRequired();
-
-            entity.Property(x => x.Token)
-                .HasColumnName("token")
-                .HasMaxLength(255)
-                .IsRequired();
-
-            entity.Property(x => x.ExpiresAt)
-                .HasColumnName("expires_at")
-                .HasColumnType("timestamp with time zone")
-                .IsRequired();
-
-            entity.Property(x => x.CreatedAt)
-                .HasColumnName("created_at")
-                .HasColumnType("timestamp with time zone")
-                .HasDefaultValueSql("now()");
-
-            entity.HasIndex(x => x.Token).IsUnique();
-
-            entity.HasOne<User>()
-                .WithMany()
-                .HasForeignKey(x => x.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(x => x.WorkoutExerciseId);
         });
     }
-
 }
