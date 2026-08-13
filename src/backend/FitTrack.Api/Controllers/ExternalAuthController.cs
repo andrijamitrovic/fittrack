@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using FitTrack.EFInfrastructure.Identity;
 using Microsoft.AspNetCore.Authorization;
@@ -138,5 +139,48 @@ public class ExternalAuthController : ControllerBase
     public IActionResult AccessDenied()
     {
         return Forbid();
+    }
+
+    [Authorize(Roles = "admin")]
+    [HttpGet("users")]
+    public IActionResult GetUsers()
+    {
+        var users = _userManager.Users
+            .Select(user => new
+            {
+                id = user.Id,
+                email = user.Email,
+                displayName = user.DisplayName,
+                createdAt = user.CreatedAt,
+                updatedAt = user.UpdatedAt
+            })
+            .ToList();
+
+        return Ok(users);
+    }
+
+    [Authorize(Roles = "admin")]
+    [HttpDelete("users/{id:guid}")]
+    public async Task<IActionResult> DeleteUser(Guid id)
+    {
+        var user = await _userManager.FindByIdAsync(id.ToString());
+
+        if (user is null)
+        {
+            return NotFound(new { message = "User not found." });
+        }
+
+        var result = await _userManager.DeleteAsync(user);
+
+        if (!result.Succeeded)
+        {
+            return BadRequest(new
+            {
+                message = "User could not be deleted.",
+                errors = result.Errors.Select(error => error.Description)
+            });
+        }
+
+        return NoContent();
     }
 }
