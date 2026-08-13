@@ -92,6 +92,17 @@ public class ExternalAuthController : ControllerBase
             });
         }
 
+        var roleResult = await _userManager.AddToRoleAsync(user, "user");
+
+        if(!roleResult.Succeeded)
+        {
+            return BadRequest(new
+            {
+                message = "Default role could not be assigned.",
+                errors = roleResult.Errors.Select(error => error.Description)
+            });
+        }
+
         await _signInManager.SignInAsync(user, isPersistent: true);
 
         return LocalRedirect(returnUrl ?? "/app");
