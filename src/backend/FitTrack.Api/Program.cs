@@ -1,10 +1,8 @@
 using FitTrack.Application.Interfaces;
 using FitTrack.Application.Services;
 using FitTrack.EFInfrastructure;
+using FitTrack.EFInfrastructure.Identity;
 using FitTrack.Infrastructure.Repositories;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,21 +31,6 @@ builder.Services.AddScoped<AuthService>(provider => new AuthService(
                                                         jwtDictionary));
 builder.Services.AddControllers();
 
-var secretKey = Encoding.UTF8.GetBytes(key);
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = jwtSettings["Issuer"],
-            ValidAudience = jwtSettings["Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(secretKey)
-        };
-    });
 
 builder.Services.AddCors(options =>
 {
@@ -61,6 +44,9 @@ builder.Services.AddCors(options =>
 
 
 var app = builder.Build();
+
+await IdentitySeeder.SeedIdentityAsync(app.Services);
+
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
