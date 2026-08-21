@@ -1,7 +1,8 @@
-﻿using System.Security.Claims;
-using FitTrack.Application.DTOs;
+﻿using FitTrack.Application.DTOs;
 using FitTrack.Application.Services;
+using FitTrack.EFInfrastructure.Identity;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FitTrack.Api.Controllers
@@ -11,22 +12,26 @@ namespace FitTrack.Api.Controllers
     public class WorkoutsController : ControllerBase
     {
         private readonly WorkoutService _workoutService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public WorkoutsController(WorkoutService workoutService)
+        public WorkoutsController(WorkoutService workoutService, UserManager<ApplicationUser> userManager)
         {
             _workoutService = workoutService;
+            _userManager = userManager;
         }
 
         [Authorize]
         [HttpPost]
         public async Task<ActionResult> SetWorkout(WorkoutDTO workoutDTO)
         {
-            if (GetUserId(User) is not Guid userId)
+            var userId = await GetCurrentUserIdAsync();
+
+            if (userId is null)
             {
                 return Unauthorized();
             }
 
-            var result = await _workoutService.CreateWorkoutAsync(workoutDTO, userId, false);
+            var result = await _workoutService.CreateWorkoutAsync(workoutDTO, userId.Value, false);
             if (result.Code == Application.Common.ResultType.Failure)
             {
                 return BadRequest(new { message = result.Message });
@@ -38,12 +43,14 @@ namespace FitTrack.Api.Controllers
         [HttpGet]
         public async Task<ActionResult> GetWorkouts()
         {
-            if (GetUserId(User) is not Guid userId)
+            var userId = await GetCurrentUserIdAsync();
+
+            if (userId is null)
             {
                 return Unauthorized();
             }
 
-            var result = await _workoutService.GetWorkoutsAsync(userId, false);
+            var result = await _workoutService.GetWorkoutsAsync(userId.Value, false);
             return Ok(result.Data);
         }
 
@@ -51,12 +58,14 @@ namespace FitTrack.Api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult> GetWorkout(Guid id)
         {
-            if (GetUserId(User) is not Guid userId)
+            var userId = await GetCurrentUserIdAsync();
+
+            if (userId is null)
             {
                 return Unauthorized();
             }
 
-            var result = await _workoutService.GetWorkoutAsync(userId, id);
+            var result = await _workoutService.GetWorkoutAsync(userId.Value, id);
             if (result.Code == Application.Common.ResultType.NotFound)
             {
                 return NotFound(new { message = "Workout not found." });
@@ -85,12 +94,14 @@ namespace FitTrack.Api.Controllers
         [HttpPost("workout-templates")]
         public async Task<ActionResult> SetWorkoutTemplate(WorkoutDTO workoutDTO)
         {
-            if (GetUserId(User) is not Guid userId)
+            var userId = await GetCurrentUserIdAsync();
+
+            if (userId is null)
             {
                 return Unauthorized();
             }
 
-            var result = await _workoutService.CreateWorkoutAsync(workoutDTO, userId, true);
+            var result = await _workoutService.CreateWorkoutAsync(workoutDTO, userId.Value, true);
             if (result.Code == Application.Common.ResultType.Failure) return BadRequest(new { message = result.Message });
             return StatusCode(201, result.Data);
         }
@@ -99,12 +110,14 @@ namespace FitTrack.Api.Controllers
         [HttpGet("workout-templates")]
         public async Task<ActionResult> GetWorkoutTemplates()
         {
-            if (GetUserId(User) is not Guid userId)
+            var userId = await GetCurrentUserIdAsync();
+
+            if (userId is null)
             {
                 return Unauthorized();
             }
 
-            var result = await _workoutService.GetWorkoutsAsync(userId, true);
+            var result = await _workoutService.GetWorkoutsAsync(userId.Value, true);
             return Ok(result.Data);
         }
 
@@ -112,12 +125,14 @@ namespace FitTrack.Api.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateWorkout(WorkoutDTO workoutDTO, Guid id)
         {
-            if (GetUserId(User) is not Guid userId)
+            var userId = await GetCurrentUserIdAsync();
+
+            if (userId is null)
             {
                 return Unauthorized();
             }
 
-            var result = await _workoutService.UpdateWorkoutAsync(userId, id, workoutDTO, false);
+            var result = await _workoutService.UpdateWorkoutAsync(userId.Value, id, workoutDTO, false);
 
             if (result.Code == Application.Common.ResultType.NotFound)
             {
@@ -141,12 +156,14 @@ namespace FitTrack.Api.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteWorkout(Guid id)
         {
-            if (GetUserId(User) is not Guid userId)
+            var userId = await GetCurrentUserIdAsync();
+
+            if (userId is null)
             {
                 return Unauthorized();
             }
 
-            var result = await _workoutService.DeleteWorkoutAsync(userId, id, false);
+            var result = await _workoutService.DeleteWorkoutAsync(userId.Value, id, false);
 
             if (result.Code == Application.Common.ResultType.NotFound)
             {
@@ -171,12 +188,14 @@ namespace FitTrack.Api.Controllers
         [HttpPut("workout-templates/{id}")]
         public async Task<ActionResult> UpdateTemplate(WorkoutDTO workoutDTO, Guid id)
         {
-            if (GetUserId(User) is not Guid userId)
+            var userId = await GetCurrentUserIdAsync();
+
+            if (userId is null)
             {
                 return Unauthorized();
             }
 
-            var result = await _workoutService.UpdateWorkoutAsync(userId, id, workoutDTO, true);
+            var result = await _workoutService.UpdateWorkoutAsync(userId.Value, id, workoutDTO, true);
 
             if (result.Code == Application.Common.ResultType.NotFound)
             {
@@ -196,12 +215,14 @@ namespace FitTrack.Api.Controllers
         [HttpDelete("workout-templates/{id}")]
         public async Task<ActionResult> DeleteTemplate(Guid id)
         {
-            if (GetUserId(User) is not Guid userId)
+            var userId = await GetCurrentUserIdAsync();
+
+            if (userId is null)
             {
                 return Unauthorized();
             }
 
-            var result = await _workoutService.DeleteWorkoutAsync(userId, id, true);
+            var result = await _workoutService.DeleteWorkoutAsync(userId.Value, id, true);
 
             if (result.Code == Application.Common.ResultType.NotFound)
             {
@@ -218,11 +239,10 @@ namespace FitTrack.Api.Controllers
 
         }
 
-        private Guid? GetUserId(ClaimsPrincipal principal)
+        private async Task<Guid?> GetCurrentUserIdAsync()
         {
-            var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null) return null;
-            return Guid.Parse(userIdClaim.Value);
+            var user = await _userManager.GetUserAsync(User);
+            return user?.Id;
         }
     }
 }
