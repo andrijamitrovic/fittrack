@@ -8,13 +8,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 var connectionString = builder.Configuration.GetConnectionString("PGConnectionString")!;
-var jwtSettings = builder.Configuration.GetSection("JwtSettings")!;
-
-var jwtDictionary = jwtSettings.Get<Dictionary<string, string>>()
-    ?? throw new InvalidOperationException("JwtSettings are missing.");
-
-var key = jwtSettings["Key"]
-    ?? throw new InvalidOperationException("JwtSettings:Key is missing.");
 
 builder.Services.AddEFInfrastructure(builder.Configuration);
     
@@ -23,12 +16,6 @@ builder.Services.AddScoped<IExerciseRepository>(provider => new ExerciseReposito
 builder.Services.AddScoped<ExerciseService>();
 builder.Services.AddScoped<IWorkoutRepository>(provider => new WorkoutRepository(connectionString));
 builder.Services.AddScoped<WorkoutService>();
-builder.Services.AddScoped<IUserRepository>(provider => new UserRepository(connectionString));
-builder.Services.AddScoped<IAuthRepository>(provider => new AuthRepository(connectionString));
-builder.Services.AddScoped<AuthService>(provider => new AuthService(
-                                                        provider.GetRequiredService<IUserRepository>(),
-                                                        provider.GetRequiredService<IAuthRepository>(),
-                                                        jwtDictionary));
 builder.Services.AddControllers();
 
 
