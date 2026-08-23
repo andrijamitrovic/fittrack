@@ -2,6 +2,7 @@ using FitTrack.Application.Interfaces;
 using FitTrack.Application.Services;
 using FitTrack.EFInfrastructure;
 using FitTrack.EFInfrastructure.Identity;
+using FitTrack.EFInfrastructure.Repositories;
 using FitTrack.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,7 +13,7 @@ var connectionString = builder.Configuration.GetConnectionString("PGConnectionSt
 builder.Services.AddEFInfrastructure(builder.Configuration);
     
 // Add services to the container.
-builder.Services.AddScoped<IExerciseRepository>(provider => new ExerciseRepository(connectionString));
+builder.Services.AddScoped<IExerciseRepository, EfExerciseRepository>();
 builder.Services.AddScoped<ExerciseService>();
 builder.Services.AddScoped<IWorkoutRepository>(provider => new WorkoutRepository(connectionString));
 builder.Services.AddScoped<WorkoutService>();
