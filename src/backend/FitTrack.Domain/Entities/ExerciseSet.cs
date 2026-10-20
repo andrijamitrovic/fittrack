@@ -10,5 +10,6 @@
         public decimal? Rpe { get; set; }
         public bool? IsWarmup { get; set; }
         public bool? Completed { get; set; }
+        public WorkoutExercise? WorkoutExercise { get; set; }
     }
 }

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router";
-import { register } from "../services/authService";
+import { Link } from "react-router";
+import { startGoogleLogin } from "../services/authService";
 import {
   Card,
   CardContent,
@@ -14,11 +14,10 @@ import { Button } from "../components/ui/button";
 import { ThemeToggle } from "../components/ThemeToggle";
 
 export function Register() {
-  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [error] = useState("");
 
   function handleChangeName(e: React.ChangeEvent<HTMLInputElement>) {
     setName(e.target.value);
@@ -32,18 +31,9 @@ export function Register() {
     setPassword(e.target.value);
   }
 
-  async function handleSubmit(e: React.SubmitEvent) {
+  function handleSubmit(e: React.SubmitEvent) {
     e.preventDefault();
-    try {
-      await register({
-        displayName: name,
-        email: email,
-        password: password,
-      });
-      navigate("/app");
-    } catch {
-      setError("Invalid email or password");
-    }
+    startGoogleLogin();
   }
 
   return (

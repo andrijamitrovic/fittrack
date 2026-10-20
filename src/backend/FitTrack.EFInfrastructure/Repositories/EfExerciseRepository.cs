@@ -1,13 +1,13 @@
 using FitTrack.Application.Common;
 using FitTrack.Application.Interfaces;
 using FitTrack.Domain.Entities;
-using FitTrack.Infrastructure.Persistence.EfCore;
+using FitTrack.EFInfrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
-namespace FitTrack.Infrastructure.Repositories.EfCore;
+namespace FitTrack.EFInfrastructure.Repositories;
 
-public class EfExerciseRepository : IExerciseRepository
+public class EfExerciseRepository: IExerciseRepository
 {
     private readonly FitTrackDbContext _dbContext;
 
@@ -55,7 +55,7 @@ public class EfExerciseRepository : IExerciseRepository
         {
             var existing = await _dbContext.Exercises
                 .FirstOrDefaultAsync(x => x.Id == exercise.Id);
-
+            
             if (existing is null)
             {
                 return (ResultType.NotFound, null);
@@ -112,6 +112,4 @@ public class EfExerciseRepository : IExerciseRepository
         return exception.InnerException is PostgresException postgresException
             && postgresException.SqlState == sqlState;
     }
-
-
 }

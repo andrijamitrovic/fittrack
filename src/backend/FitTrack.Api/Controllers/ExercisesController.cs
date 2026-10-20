@@ -1,9 +1,9 @@
-﻿using System.Security.Claims;
-using FitTrack.Application.Common;
+﻿using FitTrack.Application.Common;
 using FitTrack.Application.DTOs;
 using FitTrack.Application.Services;
-using FitTrack.Domain.Entities;
+using FitTrack.EFInfrastructure.Identity;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FitTrack.Api.Controllers
@@ -13,10 +13,12 @@ namespace FitTrack.Api.Controllers
     public class ExercisesController : ControllerBase
     {
         private readonly ExerciseService _exerciseService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public ExercisesController(ExerciseService exerciseService)
+        public ExercisesController(ExerciseService exerciseService, UserManager<ApplicationUser> userManager)
         {
             _exerciseService = exerciseService;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -30,12 +32,14 @@ namespace FitTrack.Api.Controllers
         [HttpPost]
         public async Task<ActionResult> AddExercise(ExerciseDTO exercise)
         {
-            if (GetUserId(User) is not Guid userId)
+            var userId = await GetCurrentUserIdAsync();
+
+            if (userId is null)
             {
                 return Unauthorized();
             }
 
-            var result = await _exerciseService.AddExerciseAsync(exercise, userId);
+            var result = await _exerciseService.AddExerciseAsync(exercise, userId.Value);
             if (result.Code == ResultType.Conflict)
             {
                 return Conflict(new { message = result.Message });
@@ -62,12 +66,14 @@ namespace FitTrack.Api.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateExercise(Guid id, ExerciseDTO exercise)
         {
-            if (GetUserId(User) is not Guid userId)
+            var userId = await GetCurrentUserIdAsync();
+
+            if (userId is null)
             {
                 return Unauthorized();
             }
 
-            var result = await _exerciseService.UpdateExerciseAsync(exercise, id, userId);
+            var result = await _exerciseService.UpdateExerciseAsync(exercise, id, userId.Value);
             if (result.Code == ResultType.NotFound)
             {
                 return NotFound(new { message = result.Message });
@@ -110,11 +116,10 @@ namespace FitTrack.Api.Controllers
             }
         }
 
-        private Guid? GetUserId(ClaimsPrincipal principal)
+        private async Task<Guid?> GetCurrentUserIdAsync()
         {
-            var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null) return null;
-            return Guid.Parse(userIdClaim.Value);
+            var user = await _userManager.GetUserAsync(User);
+            return user?.Id;
         }
     }
 }

@@ -18,10 +18,8 @@ services:
     environment:
       - ASPNET_URLS=http://+:8080
       - ConnectionStrings__PGConnectionString=Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
-      - JwtSettings__Key=${JWT_KEY}
-      - JwtSettings__Issuer=${JWT_ISSUER}
-      - JwtSettings__Audience=${JWT_AUDIENCE}
-      - JwtSettings__ExpiryMinutes=${JWT_EXPIRY}
+      - Authentication__Google__ClientId=${GOOGLE_CLIENT_ID}
+      - Authentication__Google__ClientSecret=${GOOGLE_CLIENT_SECRET}
     depends_on:
       - db
 

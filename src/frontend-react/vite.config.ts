@@ -15,7 +15,11 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'http://localhost:5212',
-        changeOrigin: true
+        changeOrigin: false
+      },
+      '/signin-google': {
+        target: 'http://localhost:5212',
+        changeOrigin: false
       }
     }
   }

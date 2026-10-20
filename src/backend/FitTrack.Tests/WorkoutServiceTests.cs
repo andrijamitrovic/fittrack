@@ -51,9 +51,7 @@ namespace FitTrack.Tests
             };
 
             _mockRepo.Setup(r => r.CreateWorkoutAsync(
-                It.IsAny<Workout>(),
-                It.IsAny<List<WorkoutExercise>>(),
-                It.IsAny<List<ExerciseSet>>()
+                It.IsAny<Workout>()
             )).ReturnsAsync(new Workout
             {
                 Id = workoutId,
@@ -106,9 +104,7 @@ namespace FitTrack.Tests
             };
 
             _mockRepo.Setup(r => r.CreateWorkoutAsync(
-                It.IsAny<Workout>(),
-                It.IsAny<List<WorkoutExercise>>(),
-                It.IsAny<List<ExerciseSet>>()
+                It.IsAny<Workout>()
             )).ReturnsAsync((Workout?)null);
 
 
@@ -241,9 +237,7 @@ namespace FitTrack.Tests
             _mockRepo
                 .Setup(r => r.UpdateWorkoutAsync(
                     userId,
-                    It.IsAny<Workout>(),
-                    It.IsAny<List<WorkoutExercise>>(),
-                    It.IsAny<List<ExerciseSet>>()
+                    It.IsAny<Workout>()
                 ))
                 .ReturnsAsync((ResultType.Success, new Workout
                 {
@@ -280,12 +274,10 @@ namespace FitTrack.Tests
             _mockRepo
                 .Setup(r => r.UpdateWorkoutAsync(
                     userId,
-                    It.IsAny<Workout>(),
-                    It.IsAny<List<WorkoutExercise>>(),
-                    It.IsAny<List<ExerciseSet>>()
+                    It.IsAny<Workout>()
                 ))
-                .Callback<Guid, Workout, List<WorkoutExercise>, List<ExerciseSet>>(
-                    (_, workout, _, _) => capturedWorkout = workout
+                .Callback<Guid, Workout>(
+                    (_, workout) => capturedWorkout = workout
                 )
                 .ReturnsAsync((ResultType.Success, new Workout
                 {

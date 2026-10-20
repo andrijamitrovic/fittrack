@@ -1,14 +1,21 @@
 import { NavLink, Outlet, useNavigate } from "react-router";
-import { isAdmin } from "../utils/auth";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "../lib/utils";
 import { Button } from "./ui/button";
 import { Menu, X } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
+import { getCurrentUser, logout } from "../services/authService";
 
 export function Layout() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    getCurrentUser()
+      .then((user) => setIsAdmin(user?.roles.includes("admin") ?? false))
+      .catch(() => setIsAdmin(false));
+  }, []);
 
   const navItems = [
     { to: "/app", label: "Dashboard", end: true },
@@ -27,11 +34,13 @@ export function Layout() {
     setMenuOpen(false);
   }
 
-  function handleLogout() {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    closeMenu();
-    navigate("/login");
+  async function handleLogout() {
+    try {
+      await logout();
+    } finally {
+      closeMenu();
+      navigate("/login", { replace: true });
+    }
   }
 
   function navLinkClass(isActive: boolean) {
@@ -85,7 +94,7 @@ export function Layout() {
                 </NavLink>
               ))}
 
-              {isAdmin() &&
+              {isAdmin &&
                 adminItems.map((item) => (
                   <NavLink
                     key={item.to}
@@ -143,7 +152,7 @@ export function Layout() {
                   </NavLink>
                 ))}
 
-                {isAdmin() &&
+                {isAdmin &&
                   adminItems.map((item) => (
                     <NavLink
                       key={item.to}

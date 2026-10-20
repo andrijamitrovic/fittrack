@@ -11,5 +11,6 @@
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public bool IsTemplate { get; set; }
+        public List<WorkoutExercise> WorkoutExercises { get; set; } = [];
     }
 }
