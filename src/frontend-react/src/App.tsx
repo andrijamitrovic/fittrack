@@ -1,7 +1,6 @@
-import { Route, Routes } from "react-router";
+import { Navigate, Route, Routes } from "react-router";
 import "./App.css";
 import { Login } from "./pages/Login";
-import { Register } from "./pages/Register";
 import { Dashboard } from "./pages/Dashboard";
 import { PublicRoute } from "./components/PublicRoute";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -28,15 +27,7 @@ function App() {
           </PublicRoute>
         }
       />
-      <Route
-        path="/register"
-        element={
-          <PublicRoute>
-            {" "}
-            <Register />{" "}
-          </PublicRoute>
-        }
-      />
+      <Route path="/register" element={<Navigate to="/login" replace />} />
       <Route
         path="/app"
         element={

@@ -17,7 +17,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FitTrack.Application\FitTrack.Application.csproj" />
-    <ProjectReference Include="..\FitTrack.Infrastructure\FitTrack.Infrastructure.csproj" />
     <ProjectReference Include="..\FitTrack.EFInfrastructure\FitTrack.EFInfrastructure.csproj" />
   </ItemGroup>
 

@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using FitTrack.EFInfrastructure.Identity;
 using Microsoft.AspNetCore.Authorization;
@@ -127,11 +126,14 @@ public class ExternalAuthController : ControllerBase
             return Unauthorized();
         }
 
+        var roles = await _userManager.GetRolesAsync(user);
+
         return Ok(new
         {
             id = user.Id,
             email = user.Email,
-            displayName = user.DisplayName   
+            displayName = user.DisplayName,
+            roles
         });
     }
 

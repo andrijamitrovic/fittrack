@@ -29,9 +29,6 @@ namespace FitTrack.Application.Services
                 IsTemplate = isTemplate
             };
 
-            List<WorkoutExercise> workoutExercises = new List<WorkoutExercise>();
-            List<ExerciseSet> exerciseSets = new List<ExerciseSet>();
-
             foreach (var workoutExerciseDTO in workoutDTO.WorkoutExercises)
             {
                 var workoutExercise = new WorkoutExercise
@@ -42,11 +39,11 @@ namespace FitTrack.Application.Services
                     OrderIndex = workoutExerciseDTO.OrderIndex,
                     Notes = workoutExerciseDTO.Notes
                 };
-                workoutExercises.Add(workoutExercise);
+                workout.WorkoutExercises.Add(workoutExercise);
 
                 foreach (var exerciseSetDTO in workoutExerciseDTO.ExerciseSets)
                 {
-                    exerciseSets.Add(new ExerciseSet
+                    workoutExercise.ExerciseSets.Add(new ExerciseSet
                     {
                         Id = Guid.NewGuid(),
                         WorkoutExerciseId = workoutExercise.Id,
@@ -58,7 +55,7 @@ namespace FitTrack.Application.Services
                     });
                 }
             }
-            Workout? returnWorkout = await _workoutRepository.CreateWorkoutAsync(workout, workoutExercises, exerciseSets);
+            Workout? returnWorkout = await _workoutRepository.CreateWorkoutAsync(workout);
             if (returnWorkout == null)
             {
                 return new ServiceResult<Workout?>
@@ -145,9 +142,6 @@ namespace FitTrack.Application.Services
                 IsTemplate = isTemplate
             };
 
-            List<WorkoutExercise> workoutExercises = new List<WorkoutExercise>();
-            List<ExerciseSet> exerciseSets = new List<ExerciseSet>();
-
             foreach (var workoutExerciseDTO in workoutDTO.WorkoutExercises)
             {
                 var workoutExercise = new WorkoutExercise
@@ -158,11 +152,11 @@ namespace FitTrack.Application.Services
                     OrderIndex = workoutExerciseDTO.OrderIndex,
                     Notes = workoutExerciseDTO.Notes
                 };
-                workoutExercises.Add(workoutExercise);
+                workout.WorkoutExercises.Add(workoutExercise);
 
                 foreach (var exerciseSetDTO in workoutExerciseDTO.ExerciseSets)
                 {
-                    exerciseSets.Add(new ExerciseSet
+                    workoutExercise.ExerciseSets.Add(new ExerciseSet
                     {
                         Id = Guid.NewGuid(),
                         WorkoutExerciseId = workoutExercise.Id,
@@ -174,7 +168,7 @@ namespace FitTrack.Application.Services
                     });
                 }
             }
-            var returnWorkout = await _workoutRepository.UpdateWorkoutAsync(userId, workout, workoutExercises, exerciseSets);
+            var returnWorkout = await _workoutRepository.UpdateWorkoutAsync(userId, workout);
 
             return new ServiceResult<Workout?>
             {

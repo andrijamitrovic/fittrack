@@ -36,7 +36,10 @@ namespace FitTrack.Api.Controllers
             {
                 return BadRequest(new { message = result.Message });
             }
-            return CreatedAtAction(nameof(GetWorkout), new { id = result.Data!.Id }, result.Data);
+            return CreatedAtAction(
+                nameof(GetWorkout),
+                new { id = result.Data!.Id },
+                new { id = result.Data.Id });
         }
 
         [Authorize]
@@ -103,7 +106,7 @@ namespace FitTrack.Api.Controllers
 
             var result = await _workoutService.CreateWorkoutAsync(workoutDTO, userId.Value, true);
             if (result.Code == Application.Common.ResultType.Failure) return BadRequest(new { message = result.Message });
-            return StatusCode(201, result.Data);
+            return StatusCode(201, new { id = result.Data!.Id });
         }
 
         [Authorize]
@@ -148,7 +151,7 @@ namespace FitTrack.Api.Controllers
             }
             else
             {
-                return Ok(result.Data);
+                return Ok(new { id = result.Data!.Id });
             }
         }
 
@@ -207,7 +210,7 @@ namespace FitTrack.Api.Controllers
             }
             else
             {
-                return Ok(result.Data);
+                return Ok(new { id = result.Data!.Id });
             }
         }
 

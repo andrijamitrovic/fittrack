@@ -1,6 +1,10 @@
 import type { Workout, WorkoutViewer } from "../types";
 import { fetchWithAuthAsync } from "./api";
 
+interface WorkoutIdResponse {
+    id: string;
+}
+
 export async function loadWorkouts(): Promise<WorkoutViewer[]> {
 
     const response = await fetchWithAuthAsync("workouts", {
@@ -36,11 +40,11 @@ export async function createWorkout(workout: Workout) {
 
     if (!response.ok)
         throw new Error(`Response status: ${response.status}`);
-    const data: string = await response.json();
+    const data: WorkoutIdResponse = await response.json();
     return data;
 }
 
-export async function makeTemplateFromWorkout(workoutId: string): Promise<Workout> {
+export async function makeTemplateFromWorkout(workoutId: string): Promise<WorkoutIdResponse> {
     const workoutViewer: WorkoutViewer = await loadWorkout(workoutId);
 
     const workout: Workout = mapWorkoutViewerToWorkout(workoutViewer);
@@ -52,7 +56,7 @@ export async function makeTemplateFromWorkout(workoutId: string): Promise<Workou
 
     if (!response.ok)
         throw new Error(`Response status: ${response.status}`);
-    const data: Workout = await response.json();
+    const data: WorkoutIdResponse = await response.json();
     return data;
 }
 

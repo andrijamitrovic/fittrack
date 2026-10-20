@@ -17,8 +17,10 @@ namespace FitTrack.Infrastructure.Repositories
             _connectionString = connectionString;
             Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
         }
-        public async Task<Workout?> CreateWorkoutAsync(Workout workout, List<WorkoutExercise> workoutExercises, List<ExerciseSet> exerciseSets)
+        public async Task<Workout?> CreateWorkoutAsync(Workout workout)
         {
+            var workoutExercises = workout.WorkoutExercises;
+            var exerciseSets = workoutExercises.SelectMany(x => x.ExerciseSets).ToList();
             var createWorkout = "INSERT INTO workouts (id, user_id, title, date, notes, duration_min, is_template)" +
                                 "VALUES (@Id, @UserId, @Title, @Date, @Notes, @DurationMin, @IsTemplate) RETURNING id";
             var createWorkoutExercise = "INSERT INTO workout_exercises (id, workout_id, exercise_id, order_index, notes)" +
@@ -122,8 +124,10 @@ namespace FitTrack.Infrastructure.Repositories
             }
         }
 
-        public async Task<(ResultType Code, Workout? Data)> UpdateWorkoutAsync(Guid userId, Workout workout, List<WorkoutExercise> workoutExercises, List<ExerciseSet> exerciseSets)
+        public async Task<(ResultType Code, Workout? Data)> UpdateWorkoutAsync(Guid userId, Workout workout)
         {
+            var workoutExercises = workout.WorkoutExercises;
+            var exerciseSets = workoutExercises.SelectMany(x => x.ExerciseSets).ToList();
             using var connection = new NpgsqlConnection(_connectionString);
             await connection.OpenAsync();
 

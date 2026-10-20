@@ -1,37 +1,41 @@
-import { authHeaders, fetchWithAuthAsync, url } from "./api";
-import type { AuthTokens, LoginRequest, RegisterRequest, User } from "../types";
+import { fetchWithAuthAsync, url } from "./api";
+import type { User } from "../types";
 
+let currentUserPromise: Promise<User | null> | null = null;
 
-export async function login(user: LoginRequest) {
-    const response = await fetch(url + "auth/login", {
-        method: "POST",
-        headers: authHeaders(),
-        body: JSON.stringify(user)
-    })
-    if (!response.ok)
-        throw new Error(`Response status: ${response.status}`);
-    const data: AuthTokens = await response.json();
-    localStorage.setItem("accessToken", data.accessToken);
-    localStorage.setItem("refreshToken", data.refreshToken);
-    return data;
+export function startGoogleLogin(returnUrl = "/app") {
+    window.location.assign(
+        `${url}external-auth/google/login?returnUrl=${encodeURIComponent(returnUrl)}`
+    );
 }
 
-export async function register(user: RegisterRequest) {
-    const response = await fetch(url + "auth/register", {
+export function getCurrentUser(force = false): Promise<User | null> {
+    if (!currentUserPromise || force) {
+        currentUserPromise = fetch(`${url}external-auth/me`, {
+            credentials: "include"
+        }).then(async (response) => {
+            if (response.status === 401) return null;
+            if (!response.ok) throw new Error(`Response status: ${response.status}`);
+            return response.json() as Promise<User>;
+        });
+    }
+
+    return currentUserPromise;
+}
+
+export async function logout() {
+    const response = await fetch(`${url}external-auth/logout`, {
         method: "POST",
-        headers: authHeaders(),
-        body: JSON.stringify(user)
-    })
-    if (!response.ok)
-        throw new Error(`Response status: ${response.status}`);
-    const data = await response.json();
-    localStorage.setItem("accessToken", data.accessToken);
-    localStorage.setItem("refreshToken", data.refreshToken);
-    return data;
+        credentials: "include"
+    });
+
+    currentUserPromise = null;
+
+    if (!response.ok) throw new Error(`Response status: ${response.status}`);
 }
 
 export async function getUsers() {
-    const response = await fetchWithAuthAsync("auth", {
+    const response = await fetchWithAuthAsync("external-auth/users", {
         method: "GET"
     })
     if (!response.ok)
@@ -41,7 +45,7 @@ export async function getUsers() {
 }
 
 export async function deleteUser(id: string) {
-    const response = await fetchWithAuthAsync("auth/" + id, {
+    const response = await fetchWithAuthAsync("external-auth/users/" + id, {
         method: "DELETE"
     })
     if (!response.ok)
